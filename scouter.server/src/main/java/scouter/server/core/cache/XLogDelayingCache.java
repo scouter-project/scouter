@@ -75,7 +75,7 @@ public class XLogDelayingCache {
 
 	public boolean isProcessedGxidWithProfile(long gxid) {
 		byte discardType = (byte) processedGxidMap.get(gxid);
-		if (discardType == 0 || XLogDiscardTypes.isAliveProfile(discardType)) {
+		if (discardType != 0 && XLogDiscardTypes.isAliveProfile(discardType)) {
 			return true;
 		}
 		return false;

@@ -24,10 +24,15 @@ import scouter.agent.netio.request.worker.DumpOnCpuExceedanceWorker;
 import scouter.agent.proxy.ToolsMainFactory;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
+import scouter.agent.trace.TraceMain;
 import scouter.agent.util.DumpUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
-import scouter.lang.value.*;
+import scouter.lang.value.BooleanValue;
+import scouter.lang.value.DecimalValue;
+import scouter.lang.value.ListValue;
+import scouter.lang.value.NullValue;
+import scouter.lang.value.TextValue;
 import scouter.util.CastUtil;
 import scouter.util.Hexa32;
 import scouter.util.SysJMX;
@@ -36,65 +41,105 @@ import scouter.util.ThreadUtil;
 import java.io.IOException;
 import java.util.Enumeration;
 
-import static scouter.net.RequestCmd.*;
+import static scouter.net.RequestCmd.OBJECT_ACTIVE_SERVICE_LIST;
+import static scouter.net.RequestCmd.OBJECT_THREAD_CONTROL;
+import static scouter.net.RequestCmd.OBJECT_THREAD_DETAIL;
+import static scouter.net.RequestCmd.OBJECT_THREAD_DUMP;
+import static scouter.net.RequestCmd.OBJECT_THREAD_LIST;
+import static scouter.net.RequestCmd.PSTACK_ON;
+import static scouter.net.RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST;
+import static scouter.net.RequestCmd.TRIGGER_DUMP_REASON;
+import static scouter.net.RequestCmd.TRIGGER_THREAD_DUMP;
+import static scouter.net.RequestCmd.TRIGGER_THREAD_DUMPS_FROM_CONDITIONS;
+import static scouter.net.RequestCmd.TRIGGER_THREAD_LIST;
 
 public class AgentThread {
 	@RequestHandler(OBJECT_THREAD_DETAIL)
 	public Pack threadDetail(Pack param) {
 		MapPack paramPack = (MapPack) param;
-		long thread = paramPack.getLong("id");
+		long threadId = paramPack.getLong("id");
 		long txid = paramPack.getLong("txid");
 
-		MapPack p;
-		TraceContext ctx;
+		MapPack p = new MapPack();
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx == null) {
+			p.put("Thread Name", new TextValue("[No Thread] End"));
+			p.put("State", new TextValue("end"));
+			return p;
+		}
 
-		if(thread != 0L) {
-			p = ThreadUtil.getThreadDetail(thread);
-			ctx = TraceContextManager.getContext(thread);
+		if (ctx.isReactiveStarted) {
+			threadId = TraceContextManager.getReactiveThreadId(txid);
+		}
 
-			if (ctx != null) {
-				p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
-				p.put("Service Name", new TextValue(ctx.serviceName));
-				long etime = System.currentTimeMillis() - ctx.startTime;
-				p.put("Service Elapsed", new DecimalValue(etime));
-				String sql = ctx.sqltext;
-				if (sql != null) {
-					p.put("SQL", sql);
-				}
-				String subcall = ctx.apicall_name;
-				if (subcall != null) {
-					p.put("Subcall", subcall);
-				}
-			}
+		p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
+		p.put("Service Name", new TextValue(ctx.serviceName));
+		long etime = System.currentTimeMillis() - ctx.startTime;
+		p.put("Service Elapsed", new DecimalValue(etime));
+		String sql = ctx.sqltext;
+		if (sql != null) {
+			p.put("SQL", sql);
+		}
+		String subcall = ctx.apicall_name;
+		if (subcall != null) {
+			p.put("Subcall", subcall);
+		}
+
+		if(threadId != 0L) {
+			p = ThreadUtil.appendThreadDetail(threadId, p);
 
 		} else {
-			p = new MapPack();
-			ctx = TraceContextManager.getDeferredContext(txid);
-			p.put("Thread Id", new DecimalValue(0L));
-
-			if (ctx != null) {
+			TraceContext deferredContext = TraceContextManager.getDeferredContext(txid);
+			if (deferredContext != null) {
 				p.put("Thread Name", new TextValue("[No Thread] wait on deferred queue"));
-				p.put("State", new TextValue("n/a"));
-
-				p.put("Service Txid", new TextValue(Hexa32.toString32(ctx.txid)));
-				p.put("Service Name", new TextValue(ctx.serviceName));
-				long etime = System.currentTimeMillis() - ctx.startTime;
-				p.put("Service Elapsed", new DecimalValue(etime));
-
 			} else {
-				p.put("Thread Name", new TextValue("[No Thread] End"));
-				p.put("State", new TextValue("end"));
+				p.put("Thread Name", new TextValue("No dedicated thread"));
 			}
+			p.put("Thread Id", new DecimalValue(0L));
+			p.put("State", new TextValue("n/a"));
+		}
+
+		if (ctx.isReactiveStarted) {
+			String stack = p.getText("Stack Trace");
+			if (stack == null) {
+				stack = "";
+			}
+			stack = stack + "\n" + getUnfinishedReactiveStepsAsDumpString(ctx);
+			p.put("Stack Trace", new TextValue(stack));
 		}
 
 		return p;
 	}
+
+	private String getUnfinishedReactiveStepsAsDumpString(TraceContext ctx) {
+		if (ctx == null) {
+			return null;
+		}
+
+		long now = System.currentTimeMillis();
+		StringBuilder builder = new StringBuilder(200)
+				.append("<<<<<<<<<< currently existing subscribes >>>>>>>>>>").append("\n");
+
+		if (ctx.scannables != null) {
+			Enumeration<TraceContext.TimedScannable> en = ctx.scannables.values();
+			while (en.hasMoreElements()) {
+				TraceContext.TimedScannable ts = en.nextElement();
+				if (ts == null) {
+					break;
+				}
+				String dumpScannable = TraceMain.reactiveSupport.dumpScannable(ctx, ts, now);
+				builder.append(dumpScannable).append("\n");
+			}
+		}
+		return builder.toString();
+	}
+
 	@RequestHandler(OBJECT_THREAD_CONTROL)
 	public Pack threadKill(Pack param) {
 		long thread = ((MapPack) param).getLong("id");
 		String action = ((MapPack) param).getText("action");
 		// 쓰레드 상세 화면에서 쓰레드를 제어한다.
-		TraceContext ctx = TraceContextManager.getContext(thread);
+		TraceContext ctx = TraceContextManager.getContextByThreadId(thread);
 		try {
 			if (ctx != null) {
 				if ("interrupt".equalsIgnoreCase(action)) {
@@ -135,7 +180,7 @@ public class AgentThread {
 		ListValue service = mpack.newList("service");
 		for (int i = 0; i < ids.size(); i++) {
 			long tid = CastUtil.clong(ids.get(i));
-			TraceContext ctx = TraceContextManager.getContext(tid);
+			TraceContext ctx = TraceContextManager.getContextByThreadId(tid);
 			if (ctx != null) {
 				txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
 				service.add(new TextValue(ctx.serviceName));
@@ -165,15 +210,33 @@ public class AgentThread {
 		ListValue subcall = rPack.newList("subcall");
 		ListValue login = rPack.newList("login");
 		ListValue desc = rPack.newList("desc");
+
 		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 		while (en.hasMoreElements()) {
 			TraceContext ctx = en.nextElement();
 			if (ctx == null) {
 				continue;
 			}
-			id.add(ctx.thread.getId());
-			name.add(ctx.thread.getName());
-			stat.add(ctx.thread.getState().name());
+			if (!ctx.isReactiveStarted) {
+				id.add(ctx.thread.getId());
+				name.add(ctx.thread.getName());
+				stat.add(ctx.thread.getState().name());
+			} else {
+				if (Configure.getInstance()._psts_progressive_reactor_thread_trace_enabled) {
+					id.add(TraceContextManager.getReactiveThreadId(ctx.txid));
+				} else {
+					id.add(0);
+				}
+				name.add("omit on reactive");
+				stat.add("n/a");
+			}
+			try {
+				cpu.add(SysJMX.getThreadCpuTime(ctx.thread));
+			} catch (Throwable th) {
+				Logger.println("A128", th);
+				cpu.add(0L);
+			}
+
 			txid.add(new TextValue(Hexa32.toString32(ctx.txid)));
 			service.add(new TextValue(ctx.serviceName));
 			ip.add(ctx.remoteIp);
@@ -181,12 +244,6 @@ public class AgentThread {
 			elapsed.add(new DecimalValue(etime));
 			sql.add(ctx.sqltext);
 			subcall.add(ctx.apicall_name);
-			try {
-				cpu.add(SysJMX.getThreadCpuTime(ctx.thread));
-			} catch (Throwable th) {
-				Logger.println("A128", th);
-				cpu.add(0L);
-			}
 			login.add(ctx.login);
 			desc.add(ctx.desc);
 		}

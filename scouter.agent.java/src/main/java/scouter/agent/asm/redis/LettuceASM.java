@@ -40,7 +40,7 @@ class LettuceCV extends ClassVisitor implements Opcodes {
     private boolean hasChannelDescriptor = false;
 
     LettuceCV(ClassVisitor cv, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.className = className;
     }
 
@@ -80,7 +80,7 @@ class LettuceMV extends LocalVariablesSorter implements Opcodes {
     private String ownerClass;
 
     LettuceMV(int access, String desc, String ownerClass, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.ownerClass = ownerClass;
     }
 

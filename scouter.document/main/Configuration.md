@@ -16,7 +16,6 @@
    ```
  
 ```java
-	//Log
 	@ConfigDesc("Logging TCP connection related event")
 	public boolean log_tcp_action_enabled = false;
 	@ConfigDesc("Logging incoming MultiPacket")
@@ -49,6 +48,8 @@
 	public boolean log_udp_batch = false;	
 	@ConfigDesc("Logging all request handlers in starting")	
 	public boolean log_service_handler_list = false;
+	@ConfigDesc("Logging incoming SpanPack")
+	public boolean log_udp_span = false;
 
 	@ConfigDesc("Logging when index traversal is too heavy.")
 	public int log_index_traversal_warning_count = 100;
@@ -105,9 +106,11 @@
 	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("size of webapp connection pool to collector")
-	public int net_webapp_tcp_client_pool_size = 12;
-	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
-	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
+	public int net_webapp_tcp_client_pool_size = 30;
+	@ConfigDesc("timeout of web app connection pool to collector")
+	public int net_webapp_tcp_client_pool_timeout = 60000;
+	@ConfigDesc("So timeout of web app to collector")
+	public int net_webapp_tcp_client_so_timeout = 30000;
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = false;
@@ -126,6 +129,8 @@
 	@ConfigDesc("api access allow ip addresses")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public String net_http_api_allow_ips = "localhost,127.0.0.1,0:0:0:0:0:0:0:1,::1";
+	public Set<String> allowIpExact;
+	public List<StrMatch> allowIpMatch;
 
 	//Dir
 	@ConfigDesc("Store directory of database")
@@ -144,6 +149,9 @@
 	public int object_deadtime_ms = 8000;
 	@ConfigDesc("inactive object warning level. default 0.(0:info, 1:warn, 2:error, 3:fatal)")
 	public int object_inactive_alert_level = 0;
+
+	@ConfigDesc("Zipkin Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	public int object_zipkin_deadtime_ms = 180 * 1000;
 
 	//Compress
 	@ConfigDesc("Activating XLog data in zip file")
@@ -183,22 +191,20 @@
 	@ConfigDesc("Deprecated : use mgr_purge_xlog_keep_days")
 	public int mgr_purge_xlog_without_profile_keep_days = mgr_purge_xlog_keep_days;
 
-	@ConfigDesc("Retaining date for automatic deletion. all counter data.")
+	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_counter_keep_days = 70;
 
 	@ConfigDesc("Retaining date for automatic deletion. realtime-counter only.")
 	public int mgr_purge_realtime_counter_keep_days = mgr_purge_counter_keep_days;
-
 	@ConfigDesc("Retaining date for automatic deletion. tag-counter only.")
 	public int mgr_purge_tag_counter_keep_days = mgr_purge_counter_keep_days;
-
 	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
 	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
 
-    @ConfigDesc("Retaining date for automatic deletion. daily text dictionary only")
-    public int mgr_purge_daily_text_days = Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2);
+	@ConfigDesc("Retaining date for automatic deletion. daily text dictionary only")
+	public int mgr_purge_daily_text_days = Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2);
 
-    @ConfigDesc("Retaining date for automatic deletion. summary(stat) data only")
+	@ConfigDesc("Retaining date for automatic deletion. summary(stat) data only")
 	public int mgr_purge_sum_data_days = 60;
 
 	@ConfigDesc("Ignored log ID set")
@@ -242,6 +248,10 @@
 			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
 	public int _mgr_kv_store_index_default_mb = 8;
 
+	@ConfigDesc("change default memory size of xlog txid/gxid index.(MB)" +
+			"[warn] modified this will break the database files.\nbackup old database files before change values.(restart required)")
+	public int _mgr_xlog_id_index_mb = 1;
+
 	//external-link
 	@ConfigDesc("name of 3rd party ui")
 	public String ext_link_name = "scouter-paper";
@@ -253,6 +263,10 @@
 			"   $[from] : start time in chart by millis\n" +
 			"   $[to] : end time in chart by millis")
 	public String ext_link_url_pattern = "http://my-scouter-paper-ip:6188/index.html#/paper?&address=localhost&port=6188&realtime=false&xlogElapsedTime=8000&instances=$[objHashes]&from=$[from]&to=$[to]&layout=my-layout-template-01";
+
+	//Span
+	@ConfigDesc("Span Queue Size")
+	public int span_queue_size = 1000;
 
 	//XLog
 	@ConfigDesc("XLog Writer Queue Size")
@@ -267,6 +281,18 @@
 	//Profile
 	@ConfigDesc("Profile Writer Queue Size")
 	public int profile_queue_size = 1000;
+
+	@ConfigDesc("gxid keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_gxid_keep_memory_count = 500000;
+	@ConfigDesc("xlog keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_count = 100000;
+	@ConfigDesc("max keeping millis of xlog for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_millis = 5000;
+
+	@ConfigDesc("profile keeping count (in one bucket, 500ms) in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_count = 5000;
+	@ConfigDesc("max keeping seconds of profile for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_secs = 5;
 
 	//GeoIP
 	@ConfigDesc("Activating IP-based city/country extraction")
@@ -286,19 +312,18 @@
 	@ConfigDesc("search xlog service option - max xlog count to search per request")
 	public int req_search_xlog_max_count = 500;
 
-    //telegraf sample config for help
-    @ConfigDesc("Telegraf http input enabled")
+	@ConfigDesc("Path to telegraf config xml file")
+	public String input_telegraf_config_file = CONF_DIR + "scouter-telegraf.xml";
+
+    @ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_enabled = true;
-    @ConfigDesc("print telegraf line protocol to STDOUT")
+    @ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_debug_enabled = false;
-
-	@ConfigDesc("telegraf delta-counter normalize")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public boolean input_telegraf_delta_counter_normalize_default = true;
-	@ConfigDesc("telegraf delta-counter normalize seconds.(avgerage in sec)\n" +
-			"normalize per metric can be set in the option input_telegraf_$measurement$_counter_mappings")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public int input_telegraf_delta_counter_normalize_default_seconds = 30;
-
-	@ConfigDesc("Waiting time(ms) until stopped heartbeat of object is determined to be inactive")
+	@ConfigDesc("Deprecated use the telegraf config view instead. This value may be ignored.")
 	public int telegraf_object_deadtime_ms = 35000;
 
     @ConfigDesc("[This option is just a sample. Change $measurement$ to your measurement name like $cpu$.]\n" +
@@ -412,7 +437,6 @@
    ```
    
 ```java
-//Network
     //Network
     @ConfigDesc("UDP local IP")
     public String net_local_udp_ip = null;
@@ -451,7 +475,7 @@
     @ConfigDesc("Redefining DS, RP type according to main object")
     public boolean obj_type_inherit_to_child_enabled = false;
     @ConfigDesc("Activating collect sub counters using JMX")
-    public boolean jmx_counter_enabled = true;
+    public boolean jmx_counter_enabled = false;
 
     //profile
     @ConfigDesc("Http Query String profile")
@@ -470,7 +494,7 @@
     @ConfigDesc("Service URL prefix for Http parameter profile")
     public String profile_http_parameter_url_prefix = "/";
     @ConfigDesc("spring controller method parameter profile")
-    public boolean profile_spring_controller_method_parameter_enabled = false;
+    public boolean profile_spring_controller_method_parameter_enabled = true;
 
 //    @Deprecated
 //    @ConfigDesc("Activating profile summary function")
@@ -496,6 +520,8 @@
     public boolean profile_method_enabled = true;
     @ConfigDesc("Profile Buffer Size")
     public int profile_step_max_count = 1024;
+    @ConfigDesc("Profile Buffer Size")
+    public int profile_step_max_keep_in_memory_count = 2048;
     @ConfigDesc("Stack profile in occurrence of service error")
     public boolean profile_fullstack_service_error_enabled = false;
     @ConfigDesc("Stack profile in occurrence of apicall error")
@@ -526,9 +552,19 @@
     @ConfigDesc("")
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
+    @ConfigDesc("Profile elastic search full query.\nIt need more payload and disk usage.")
+    public boolean profile_elasticsearch_full_query_enabled = false;
+
+    @ConfigDesc("profile reactor's important checkpoint")
+    public boolean profile_reactor_checkpoint_enabled = true;
+    @ConfigDesc("profile reactor's another checkpoints")
+    public boolean profile_reactor_more_checkpoint_enabled = false;
+
     //Trace
-    @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+    @ConfigDesc("User ID based(0 : Remote IP Address, 1 : Cookie(JSESSIONID), 2 : Cookie(SCOUTER), 3 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
     public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+    @ConfigDesc("Setting a cookie expired time for SCOUTER cookie when trace_user_mode is 2")
+    public int trace_scouter_cookie_max_age = Integer.MAX_VALUE;
     @ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
     public String trace_user_cookie_path = "/";
 
@@ -595,6 +631,8 @@
     public int _trace_fullstack_socket_open_port = 0;
     @ConfigDesc("")
     public int _trace_sql_parameter_max_count = 128;
+    @ConfigDesc("max length of bound sql parameter on profile view(< 500)")
+    public int trace_sql_parameter_max_length = 20;
     @ConfigDesc("")
     public String trace_delayed_service_mgr_filename = "setting_delayed_service.properties";
     @ConfigDesc("")
@@ -657,12 +695,16 @@
     public int xlog_error_sql_time_max_ms = 30000;
     @ConfigDesc("Leave an error message at XLog when UserTransaction's begin/end unpaired")
     public boolean xlog_error_check_user_transaction_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if SqlException is occurred.")
+    @ConfigDesc("mark as error on xlog flag if SqlException is occured.")
     public boolean xlog_error_on_sqlexception_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if Api call errors are occurred.")
+    @ConfigDesc("mark as error on xlog flag if Api call errors are occured.")
     public boolean xlog_error_on_apicall_exception_enabled = true;
-    @ConfigDesc("mark as error on xlog flag if redis error is occurred.")
+    @ConfigDesc("mark as error on xlog flag if redis error is occured.")
     public boolean xlog_error_on_redis_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if elasticsearc error is occured.")
+    public boolean xlog_error_on_elasticsearch_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if mongodb error is occured.")
+    public boolean xlog_error_on_mongodb_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
@@ -671,6 +713,14 @@
     public int _xlog_hard_sampling_rate_pct = 10;
 
     //XLog soft sampling options
+    @ConfigDesc("XLog sampling - ignore global consequent sampling. the commencement service's sampling option affects it's children.")
+    public boolean ignore_global_consequent_sampling = false;
+    @ConfigDesc("XLog sampling - The service of this patterns can be unsampled by the sampling rate even if parent call is sampled and on tracing.")
+    public String xlog_consequent_sampling_ignore_patterns= "";
+
+    @ConfigDesc("XLog sampling exclude patterns.")
+    public String xlog_sampling_exclude_patterns = "";
+
     @ConfigDesc("XLog sampling mode enabled")
     public boolean xlog_sampling_enabled = false;
     @ConfigDesc("XLog sampling but discard profile only not XLog.")
@@ -690,10 +740,10 @@
     @ConfigDesc("XLog sampling over step3 percentage(%)")
     public int xlog_sampling_over_rate_pct = 100;
 
+
     //XLog sampling for service patterns options
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned_sampling_enabled = false;
-
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned_sampling_service_patterns = "";
@@ -714,6 +764,102 @@
     public int xlog_patterned_sampling_step3_rate_pct = 30;
     @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
     public int xlog_patterned_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned2_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned2_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned2_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned2_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned2_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned2_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned2_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned2_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned2_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned2_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned3_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned3_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned3_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned3_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned3_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned3_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned3_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned3_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned3_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned3_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned4_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned4_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned4_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned4_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned4_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned4_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned4_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned4_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned4_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned4_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned5_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned5_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned5_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned5_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned5_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned5_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned5_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned5_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned5_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned5_sampling_over_rate_pct = 100;
 
     //XLog discard options
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
@@ -780,7 +926,7 @@
     public String hook_get_connection_patterns = "";
 
     
-    @ConfigDesc("InitialContext Class Set")
+    @ConfigDesc("IntialContext Class Set")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
 
@@ -792,7 +938,7 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_prefixes = "get,set";
 
-    @ConfigDesc("Class set without Method hooking")
+    @ConfigDesc("Class set without Method hookingt")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_ignore_classes = "";
 
@@ -815,6 +961,9 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
 
+    @ConfigDesc("hooking service name use a 1st string parameter or class & method name")
+    public boolean hook_service_name_use_1st_string_enabled = true;
+
     @ConfigDesc("Method set for apicall hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_apicall_patterns = "";
@@ -827,7 +976,7 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jsp_patterns = "";
 
-    @ConfigDesc("Method set for preparedstatement hooking")
+    @ConfigDesc("Method set for preparestatement hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_jdbc_pstmt_classes = "";
 
@@ -881,7 +1030,7 @@
     @ConfigDesc("Deprecated. use hook_async_callrunnable_enabled")
     public boolean hook_async_callrunnable_enable = true;
 
-    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains package or classes")
+    @ConfigDesc("Hook callable and runnable for tracing async processing.\n It hook only 'hook_async_callrunnable_scan_prefixes' option contains pacakage or classes")
     public boolean hook_async_callrunnable_enabled = true;
 
     @ConfigDesc("scanning range prefixes for hooking callable, runnable implementations and lambda expressions.\n usually your application package.\n 2 or more packages can be separated by commas.")
@@ -892,16 +1041,16 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String _hook_redis_set_key_patterns = "";
 
-    @ConfigDesc("PRE-released option before stable release!\nhook threadpool executor for tracing async processing.")
-    public boolean hook_async_thread_pool_executor_enabled = false;
+    @ConfigDesc("hook threadpool executor for tracing async processing.")
+    public boolean hook_async_thread_pool_executor_enabled = true;
 
-    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asynchronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
-    public boolean hook_lambda_instrumentation_strategy_enabled = false;
+    @ConfigDesc("hystrix execution hook enabled")
+    public boolean hook_hystrix_enabled = false;
 
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")
-    public boolean _hook_service_enabled = true;
+    public boolean _hook_serivce_enabled = true;
     @ConfigDesc("")
     public boolean _hook_dbsql_enabled = true;
     @ConfigDesc("")
@@ -924,6 +1073,22 @@
     public boolean _hook_spring_rest_enabled = true;
     @ConfigDesc("")
     public boolean _hook_redis_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_kafka_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_elasticsearch_enabled = true;
+    @ConfigDesc("")
+    public boolean hook_mongodb_enabled = false;
+    @ConfigDesc("")
+    public boolean _hook_rabbit_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_reactive_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_debugger_hook_enabled = false;
+    @ConfigDesc("")
+    public boolean _hook_thread_name_enabled = false;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
@@ -965,11 +1130,36 @@
     @ConfigDesc("SFA thread dump Interval(ms)")
     public int sfa_dump_interval_ms = 10000;
 
-    //PSTS(Periodical Stacktrace Step)
+    //PSTS(Preiodical Stacktrace Step)
     @ConfigDesc("Activating periodical stacktrace step (write fixed interval thread dump on a profile)")
     public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
     public int _psts_dump_interval_ms = 10000;
+    public boolean _psts_progressive_reactor_thread_trace_enabled = true;
+
+    //Summary
+    @ConfigDesc("Activating summary function")
+    public boolean summary_enabled = true;
+    @ConfigDesc("")
+    public boolean _summary_connection_leak_fullstack_enabled = false;
+    @ConfigDesc("")
+    public int _summary_service_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_sql_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_api_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_ip_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_useragent_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_error_max_count = 500;
+    @ConfigDesc("")
+    public int _summary_enduser_nav_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_enduser_ajax_max_count = 5000;
+    @ConfigDesc("")
+    public int _summary_enduser_error_max_count = 5000;
 ```
 
 ## Host agent options

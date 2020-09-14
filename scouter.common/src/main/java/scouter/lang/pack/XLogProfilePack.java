@@ -68,6 +68,17 @@ public class XLogProfilePack implements Pack {
 		return sb.toString();
 	}
 
+	public String toDebugString(String svcName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Profile ");
+		sb.append(" svcName=").append(svcName);
+		sb.append(" objHash=").append(Hexa32.toString32(objHash));
+		sb.append(" svc=").append(service);
+		sb.append(" txid=").append(Hexa32.toString32(txid));
+		sb.append(" profile=").append(profile == null ? null : profile.length);
+		return sb.toString();
+	}
+
 	public void write(DataOutputX dout) throws IOException {
 		dout.writeDecimal(time);
 		dout.writeDecimal(objHash);

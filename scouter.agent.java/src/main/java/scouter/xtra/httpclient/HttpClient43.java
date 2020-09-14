@@ -64,6 +64,14 @@ public class HttpClient43 implements IHttpClient {
 		return null;
 	}
 
+	public int getResponseStatusCode(Object o) {
+		if (o instanceof HttpResponse) {
+			HttpResponse res = (HttpResponse) o;
+			return res.getStatusLine().getStatusCode();
+		}
+		return 0;
+	}
+
 	public String getURI(Object o) {
 		if (o instanceof HttpUriRequest) {
 			HttpUriRequest req = (HttpUriRequest) o;

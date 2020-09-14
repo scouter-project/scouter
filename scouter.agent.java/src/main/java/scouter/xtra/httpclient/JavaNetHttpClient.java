@@ -66,4 +66,9 @@ public class JavaNetHttpClient implements IHttpClient {
         }
         return null;
     }
+
+    @Override
+    public int getResponseStatusCode(Object o) {
+        return 0;
+    }
 }

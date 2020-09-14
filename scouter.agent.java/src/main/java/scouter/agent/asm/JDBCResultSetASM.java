@@ -119,7 +119,7 @@ class ResultSetCV extends ClassVisitor implements Opcodes {
 	JDBCResultSetASM.Scope scope;
 
 	public ResultSetCV(ClassVisitor cv, JDBCResultSetASM.Scope scope) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.scope = scope;
 	}
 	@Override

@@ -26,7 +26,7 @@ public class PsCloseMV extends MethodVisitor implements Opcodes {
 	private static final String SIGNATURE = "(Ljava/lang/Object;)V";
 
 	public PsCloseMV(MethodVisitor mv) {
-		super(ASM7, mv);
+		super(ASM8, mv);
 	}
 
 	@Override

@@ -52,7 +52,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 	private static String TARGET_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
 	private String className;
 	public HttpServiceCV(ClassVisitor cv, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.className = className;
 	}
 	@Override
@@ -86,7 +86,7 @@ class HttpServiceMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 	private boolean httpservlet;
 	public HttpServiceMV(int access, String desc, MethodVisitor mv, boolean httpservlet) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.httpservlet = httpservlet;
 	}
 	private int statIdx;
