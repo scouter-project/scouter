@@ -75,11 +75,16 @@ public class AutoDeleteScheduler extends Thread {
 					|| conf.mgr_purge_daily_text_days != retainTextDays
 					|| conf.mgr_purge_sum_data_days != retainSumDays
 				) {
-
 					applyConf();
 					deletedProfileDays.clear();
 					deletedXLogDays.clear();
 					deletedDays.clear();
+
+					deletedRealtimeCounterDays.clear();
+					deletedTagCounterDays.clear();
+					deletedVisitorCounterDays.clear();
+					deletedTextDays.clear();
+					deletedSumDays.clear();
 				}
 			}
 		});
@@ -109,6 +114,7 @@ public class AutoDeleteScheduler extends Thread {
 				purgeXlog(today);
 				purgeTagCounter(today);
 				purgeText(today);
+				purgeSum(today);
 				purgeVisitorCounter(today);
 				purgeRealtimeCounter(today);
 				purgeAllCounter(today);

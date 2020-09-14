@@ -52,6 +52,23 @@ public class XLogProfilePack2 extends XLogProfilePack implements Pack {
 		return sb.toString();
 	}
 
+	public String toDebugString(String svcName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Profile2 ");
+		sb.append(" svcName=").append(svcName);
+		sb.append(" discardType=").append(discardType);
+		sb.append(" objHash=").append(Hexa32.toString32(objHash));
+		sb.append(" svc=").append(service);
+		sb.append(" gxid=").append(Hexa32.toString32(gxid));
+		sb.append(" txid=").append(Hexa32.toString32(txid));
+		sb.append(" packType=").append(getPackType());
+		sb.append(" isDriving=").append(isDriving());
+		sb.append(" isService=").append(XLogTypes.isService(xType));
+
+		sb.append(" profile=").append(profile == null ? null : profile.length);
+		return sb.toString();
+	}
+
 	public boolean isDriving() {
 		return (gxid == txid) || gxid == 0;
 	}

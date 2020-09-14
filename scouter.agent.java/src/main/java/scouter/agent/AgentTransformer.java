@@ -28,9 +28,12 @@ import scouter.agent.asm.ApicallInfoASM;
 import scouter.agent.asm.ApicallJavaHttpRequestASM;
 import scouter.agent.asm.ApicallSpringHandleResponseASM;
 import scouter.agent.asm.ApicallSpringHttpAccessorASM;
+import scouter.agent.asm.ApicallWebClientInfoASM;
+import scouter.agent.asm.ApicallWebClientResponseASM;
 import scouter.agent.asm.CapArgsASM;
 import scouter.agent.asm.CapReturnASM;
 import scouter.agent.asm.CapThisASM;
+import scouter.agent.asm.HttpReactiveServiceASM;
 import scouter.agent.asm.HttpServiceASM;
 import scouter.agent.asm.IASM;
 import scouter.agent.asm.InitialContextASM;
@@ -53,18 +56,26 @@ import scouter.agent.asm.UserExceptionHandlerASM;
 import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
+import scouter.agent.asm.asyncsupport.CoroutineThreadNameASM;
 import scouter.agent.asm.asyncsupport.HystrixCommandASM;
+import scouter.agent.asm.asyncsupport.MonoKtASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.ThreadASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
+import scouter.agent.asm.elasticsearch.HttpNioEntityASM;
+import scouter.agent.asm.elasticsearch.RestClientASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
+import scouter.agent.asm.mongodb.MongoCommandProtocolASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.test.MongoModifyASM;
+import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
@@ -103,8 +114,20 @@ public class AgentTransformer implements ClassFileTransformer {
     public static void reload() {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
+        temp.add(new ReactorModifyASM());
+        temp.add(new MongoModifyASM());
+        temp.add(new MongoCommandProtocolASM());
+
+        temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
+        temp.add(new HttpReactiveServiceASM());
+        temp.add(new CoroutineThreadNameASM());
+        temp.add(new MonoKtASM());
+        temp.add(new ApicallWebClientInfoASM());
+        temp.add(new ApicallWebClientResponseASM());
+        temp.add(new HttpNioEntityASM());
+        temp.add(new RestClientASM());
 
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());
@@ -206,7 +229,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM7) {
+            cr.accept(new ClassVisitor(Opcodes.ASM8) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
@@ -222,9 +245,13 @@ public class AgentTransformer implements ClassFileTransformer {
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);
-            if (AsmUtil.isInterface(classDesc.access)) {
+            if (AsmUtil.isInterface(classDesc.access)
+                    && !"reactor/core/publisher/OptimizableOperator".equals(className)
+                    && !"com/mongodb/connection/InternalConnection".equals(className)
+            ) {
                 return null;
             }
+
             classDesc.classBeingRedefined = classBeingRedefined;
             ClassWriter cw = getClassWriter(classDesc);
             ClassVisitor cv = cw;

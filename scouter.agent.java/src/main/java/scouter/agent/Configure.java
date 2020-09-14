@@ -193,6 +193,14 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
+    @ConfigDesc("Profile elastic search full query.\nIt need more payload and disk usage.")
+    public boolean profile_elasticsearch_full_query_enabled = false;
+
+    @ConfigDesc("profile reactor's important checkpoint")
+    public boolean profile_reactor_checkpoint_enabled = true;
+    @ConfigDesc("profile reactor's another checkpoints")
+    public boolean profile_reactor_more_checkpoint_enabled = false;
+
     //Trace
     @ConfigDesc("User ID based(0 : Remote IP Address, 1 : Cookie(JSESSIONID), 2 : Cookie(SCOUTER), 3 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
     public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
@@ -334,6 +342,10 @@ public class Configure extends Thread {
     public boolean xlog_error_on_apicall_exception_enabled = true;
     @ConfigDesc("mark as error on xlog flag if redis error is occured.")
     public boolean xlog_error_on_redis_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if elasticsearc error is occured.")
+    public boolean xlog_error_on_elasticsearch_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if mongodb error is occured.")
+    public boolean xlog_error_on_mongodb_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
@@ -344,6 +356,11 @@ public class Configure extends Thread {
     //XLog soft sampling options
     @ConfigDesc("XLog sampling - ignore global consequent sampling. the commencement service's sampling option affects it's children.")
     public boolean ignore_global_consequent_sampling = false;
+    @ConfigDesc("XLog sampling - The service of this patterns can be unsampled by the sampling rate even if parent call is sampled and on tracing.")
+    public String xlog_consequent_sampling_ignore_patterns= "";
+
+    @ConfigDesc("XLog sampling exclude patterns.")
+    public String xlog_sampling_exclude_patterns = "";
 
     @ConfigDesc("XLog sampling mode enabled")
     public boolean xlog_sampling_enabled = false;
@@ -668,9 +685,6 @@ public class Configure extends Thread {
     @ConfigDesc("hook threadpool executor for tracing async processing.")
     public boolean hook_async_thread_pool_executor_enabled = true;
 
-    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
-    public boolean hook_lambda_instrumentation_strategy_enabled = false;
-
     @ConfigDesc("hystrix execution hook enabled")
     public boolean hook_hystrix_enabled = false;
 
@@ -703,7 +717,19 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_kafka_enabled = true;
     @ConfigDesc("")
+    public boolean _hook_elasticsearch_enabled = true;
+    @ConfigDesc("")
+    public boolean hook_mongodb_enabled = false;
+    @ConfigDesc("")
     public boolean _hook_rabbit_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_reactive_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_debugger_hook_enabled = false;
+    @ConfigDesc("")
+    public boolean _hook_thread_name_enabled = false;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
@@ -750,6 +776,7 @@ public class Configure extends Thread {
     public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
     public int _psts_dump_interval_ms = 10000;
+    public boolean _psts_progressive_reactor_thread_trace_enabled = true;
 
     //Summary
     @ConfigDesc("Activating summary function")
@@ -1015,7 +1042,6 @@ public class Configure extends Thread {
 
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", true);
 
-        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
         this.hook_hystrix_enabled = getBoolean("hook_hystrix_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
@@ -1058,6 +1084,11 @@ public class Configure extends Thread {
         this.profile_fullstack_rs_leak_enabled = getBoolean("profile_fullstack_rs_leak_enabled", false);
         this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
 
+        this.profile_elasticsearch_full_query_enabled = getBoolean("profile_elasticsearch_full_query_enabled", false);
+
+        this.profile_reactor_checkpoint_enabled = getBoolean("profile_reactor_checkpoint_enabled", true);
+        this.profile_reactor_more_checkpoint_enabled = getBoolean("profile_reactor_more_checkpoint_enabled", false);
+
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
 
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
@@ -1091,7 +1122,13 @@ public class Configure extends Thread {
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
         this._hook_kafka_enabled = getBoolean("_hook_kafka_enabled", true);
+        this._hook_elasticsearch_enabled = getBoolean("_hook_elasticsearch_enabled", true);
+        this.hook_mongodb_enabled = getBoolean("hook_mongodb_enabled", false);
         this._hook_rabbit_enabled = getBoolean("_hook_rabbit_enabled", true);
+        this._hook_reactive_enabled = getBoolean("_hook_reactive_enabled", true);
+        this._hook_coroutine_enabled = getBoolean("_hook_coroutine_enabled", true);
+        this._hook_coroutine_debugger_hook_enabled = getBoolean("_hook_coroutine_debugger_hook_enabled", false);
+        this._hook_thread_name_enabled = getBoolean("_hook_thread_name_enabled", false);
 
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
 
@@ -1109,6 +1146,7 @@ public class Configure extends Thread {
 
         this._psts_enabled = getBoolean("_psts_enabled", false);
         this._psts_dump_interval_ms = getInt("_psts_dump_interval_ms", 10000);
+        this._psts_progressive_reactor_thread_trace_enabled = getBoolean("_psts_progressive_reactor_dump_enabled", true);
 
         // 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
         // 관련 키정보를 지정한다.
@@ -1156,6 +1194,8 @@ public class Configure extends Thread {
         this.xlog_error_on_sqlexception_enabled = getBoolean("xlog_error_on_sqlexception_enabled", true);
         this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
         this.xlog_error_on_redis_exception_enabled = getBoolean("xlog_error_on_redis_exception_enabled", true);
+        this.xlog_error_on_elasticsearch_exception_enabled = getBoolean("xlog_error_on_elasticsearch_exception_enabled", true);
+        this.xlog_error_on_mongodb_exception_enabled = getBoolean("xlog_error_on_mongodb_exception_enabled", true);
 
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
@@ -1180,6 +1220,9 @@ public class Configure extends Thread {
         this._xlog_hard_sampling_rate_pct = getInt("_xlog_hard_sampling_rate_pct", 10);
 
         this.ignore_global_consequent_sampling = getBoolean("ignore_global_consequent_sampling", false);
+        this.xlog_consequent_sampling_ignore_patterns = getValue("xlog_consequent_sampling_ignore_patterns", "");
+
+        this.xlog_sampling_exclude_patterns = getValue("xlog_sampling_exclude_patterns", "");
 
         this.xlog_sampling_enabled = getBoolean("xlog_sampling_enabled", false);
         this.xlog_sampling_only_profile = getBoolean("xlog_sampling_only_profile", false);

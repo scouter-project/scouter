@@ -44,6 +44,10 @@ public class SpringRestTemplateHttpRequest implements IHttpClient {
 		return null;
 	}
 
+	public int getResponseStatusCode(Object o) {
+		return 0;
+	}
+
 	public String getURI(Object o) {
 		if (o instanceof HttpRequest) {
 			HttpRequest chr = (HttpRequest) o;

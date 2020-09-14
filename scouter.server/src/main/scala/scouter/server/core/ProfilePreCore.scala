@@ -20,16 +20,19 @@ package scouter.server.core
 
 import java.util.function.Consumer
 
+import scouter.lang.TextTypes
 import scouter.lang.pack.{PackEnum, XLogDiscardTypes, XLogPack, XLogProfilePack, XLogProfilePack2, XLogTypes}
 import scouter.server.core.ProfileCore.queue
 import scouter.server.core.ProfilePreCore.canProcess
 import scouter.server.core.XLogPreCore.processDelayingChildren
 import scouter.server.core.cache.{ProfileDelayingCache, XLogDelayingCache}
-import scouter.server.db.XLogProfileWR
+import scouter.server.db.{TextRD, XLogProfileWR}
 import scouter.server.plugin.PlugInManager
 import scouter.server.util.ThreadScala
 import scouter.server.{Configure, Logger}
-import scouter.util.{BytesUtil, RequestQueue}
+import scouter.util.{BytesUtil, DateUtil, RequestQueue}
+
+import scala.util.Random
 
 object ProfilePreCore {
 
@@ -90,11 +93,23 @@ object ProfilePreCore {
         }
     }
 
+    val rnd = new Random
+
     private def processDelayingProfiles(pack2: XLogProfilePack2) = {
         val profileList = ProfileDelayingCache.instance.popDelayingChildren(pack2);
-        profileList.forEach(new Consumer[XLogProfilePack] {
-            override def accept(delayingPack: XLogProfilePack): Unit = {
-                if (pack2.discardType != XLogDiscardTypes.DISCARD_ALL) {
+        val delayingCount = profileList.size()
+        var cnt = 0
+
+        profileList.forEach(new Consumer[XLogProfilePack2] {
+            override def accept(delayingPack: XLogProfilePack2): Unit = {
+                if (pack2.discardType != XLogDiscardTypes.DISCARD_ALL) { //this condition is correct
+                    //TODO remove logging
+                    if (conf.log_test_rate > 0 && rnd.nextInt(100) < conf.log_test_rate) {
+                        val serviceName = TextRD.getString(DateUtil.yyyymmdd(delayingPack.time), TextTypes.SERVICE, delayingPack.service)
+                        val profileSize = if (delayingPack.profile == null) 0 else delayingPack.profile.length
+                        Logger.println(s"${profileSize}\t[processDelaying][${cnt}/${delayingCount}] ${delayingPack.toDebugString(serviceName)}")
+                        cnt += 1
+                    }
                     ProfileCore.add(delayingPack)
                 }
             }
@@ -104,12 +119,15 @@ object ProfilePreCore {
     private def canProcess(pack: XLogProfilePack): Boolean = {
         if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
             val pack2 = pack.asInstanceOf[XLogProfilePack2];
-            return (pack2.isDriving()
+
+            val result = (pack2.isDriving()
                     || pack2.ignoreGlobalConsequentSampling
                     || (XLogTypes.isService(pack2.xType) && XLogDiscardTypes.isAliveProfile(pack2.discardType))
                     || XLogTypes.isZipkin(pack2.xType)
                     || XLogDelayingCache.instance.isProcessedGxidWithProfile(pack2.gxid)
                     || pack2.discardType == 0)
+
+            return result
         }
         return true;
     }
@@ -118,13 +136,31 @@ object ProfilePreCore {
         if (pack.getPackType() == PackEnum.XLOG_PROFILE2) {
             val pack2 = pack.asInstanceOf[XLogProfilePack2];
             if (pack2.ignoreGlobalConsequentSampling) {
+                //TODO remove logging
                 if (XLogDiscardTypes.isAliveProfile(pack2.discardType)) {
+                    if (conf.log_test_rate > 0 && rnd.nextInt(100) < conf.log_test_rate) {
+                        val serviceName = TextRD.getString(DateUtil.yyyymmdd(pack.time), TextTypes.SERVICE, pack.service)
+                        val profileSize = if (pack.profile == null) 0 else pack.profile.length
+                        Logger.println(s"${profileSize}\t[ProfileCoreCase1(IgnoreCons)] ${pack2.toDebugString(serviceName)}")
+                    }
                     ProfileCore.add(pack);
                 }
             } else {
+                //TODO remove logging
+                if (conf.log_test_rate > 0 && rnd.nextInt(100) < conf.log_test_rate) {
+                    val serviceName = TextRD.getString(DateUtil.yyyymmdd(pack.time), TextTypes.SERVICE, pack.service)
+                    val profileSize = if (pack.profile == null) 0 else pack.profile.length
+                    Logger.println(s"${profileSize}\t[ProfileCoreCase2] ${pack2.toDebugString(serviceName)}")
+                }
                 ProfileCore.add(pack);
             }
         } else {
+            //TODO remove logging
+            if (conf.log_test_rate > 0 && rnd.nextInt(100) < conf.log_test_rate) {
+                val serviceName = TextRD.getString(DateUtil.yyyymmdd(pack.time), TextTypes.SERVICE, pack.service)
+                val profileSize = if (pack.profile == null) 0 else pack.profile.length
+                Logger.println(s"${profileSize}\t[ProfileCoreCase3(Old)] ${pack.toDebugString(serviceName)}")
+            }
             ProfileCore.add(pack);
         }
     }

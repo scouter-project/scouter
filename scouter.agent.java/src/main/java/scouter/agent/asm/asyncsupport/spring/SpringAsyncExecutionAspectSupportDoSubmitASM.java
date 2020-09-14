@@ -69,7 +69,7 @@ class SpringAsyncExecutionAspectSupportCV extends ClassVisitor implements Opcode
     HookingSet mset;
 
     public SpringAsyncExecutionAspectSupportCV(ClassVisitor cv, HookingSet mset, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.mset = mset;
         this.className = className;
     }
@@ -95,7 +95,7 @@ class DoSubmitMV extends LocalVariablesSorter implements Opcodes {
     private static final String CALL_SIGNATURE = "(Ljava/util/concurrent/Callable;)Ljava/util/concurrent/Callable;";
 
     public DoSubmitMV(int access, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
     }
 
     @Override

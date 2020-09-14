@@ -26,13 +26,22 @@ import scouter.agent.summary.EndUserAjaxData;
 import scouter.agent.summary.EndUserErrorData;
 import scouter.agent.summary.EndUserNavigationData;
 import scouter.agent.summary.EndUserSummary;
-import scouter.agent.trace.*;
+import scouter.agent.trace.IProfileCollector;
+import scouter.agent.trace.TraceContext;
+import scouter.agent.trace.TraceContextManager;
+import scouter.agent.trace.TraceMain;
+import scouter.agent.trace.TransferMap;
+import scouter.agent.trace.XLogSampler;
 import scouter.lang.conf.ConfObserver;
 import scouter.lang.constants.B3Constant;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
-import scouter.util.*;
+import scouter.util.CastUtil;
+import scouter.util.CompareUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.StringUtil;
 import scouter.util.zipkin.HexCodec;
 
 import javax.servlet.http.Cookie;
@@ -42,7 +51,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 
-import static scouter.agent.AgentCommonConstant.*;
+import static scouter.agent.AgentCommonConstant.ASYNC_SERVLET_DISPATCHED_PREFIX;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_CALLER_TRANSFER_MAP;
+import static scouter.agent.AgentCommonConstant.REQUEST_ATTRIBUTE_SELF_DISPATCHED;
 
 public class HttpTrace implements IHttpTrace {
     boolean remote_by_header;
@@ -73,6 +84,48 @@ public class HttpTrace implements IHttpTrace {
         });
     }
 
+    private String getRequestURI(HttpServletRequest request) {
+        String uri = request.getRequestURI();
+        if (uri == null)
+            return "no-url";
+        int x = uri.indexOf(';');
+        if (x > 0)
+            return uri.substring(0, x);
+        else
+            return uri;
+    }
+
+    private String getRemoteAddr(HttpServletRequest request) {
+        try {
+            //For Testing
+            if (__ip_dummy_test) {
+                return getRandomIp();
+            }
+
+            if (remote_by_header) {
+                String remoteIp = request.getHeader(http_remote_ip_header_key);
+                if (remoteIp == null) {
+                    return request.getRemoteAddr();
+                }
+
+                int commaPos = remoteIp.indexOf(',');
+                if (commaPos > -1) {
+                    remoteIp = remoteIp.substring(0, commaPos);
+                }
+
+                Logger.trace("remoteIp: " + remoteIp);
+                return remoteIp;
+
+            } else {
+                return request.getRemoteAddr();
+            }
+
+        } catch (Throwable t) {
+            remote_by_header = false;
+            return "0.0.0.0";
+        }
+    }
+
     public String getParameter(Object req, String key) {
         HttpServletRequest request = (HttpServletRequest) req;
 
@@ -86,6 +139,60 @@ public class HttpTrace implements IHttpTrace {
     public String getHeader(Object req, String key) {
         HttpServletRequest request = (HttpServletRequest) req;
         return request.getHeader(key);
+    }
+
+    @Override
+    public String getCookie(Object req, String key) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        Cookie[] cookies = request.getCookies();
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(key)) {
+                return cookie.getValue();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public String getRequestURI(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return getRequestURI(request);
+    }
+
+    @Override
+    public String getRemoteAddr(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return getRemoteAddr(request);
+    }
+
+    @Override
+    public String getMethod(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getMethod();
+    }
+
+    @Override
+    public String getQueryString(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getQueryString();
+    }
+
+    @Override
+    public Object getAttribute(Object req, String key) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getAttribute(key);
+    }
+
+    @Override
+    public Enumeration getParameterNames(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getParameterNames();
+    }
+
+    @Override
+    public Enumeration getHeaderNames(Object req) {
+        HttpServletRequest request = (HttpServletRequest) req;
+        return request.getHeaderNames();
     }
 
     public void start(TraceContext ctx, Object req, Object res) {
@@ -338,48 +445,6 @@ public class HttpTrace implements IHttpTrace {
 
     }
 
-    private String getRequestURI(HttpServletRequest request) {
-        String uri = request.getRequestURI();
-        if (uri == null)
-            return "no-url";
-        int x = uri.indexOf(';');
-        if (x > 0)
-            return uri.substring(0, x);
-        else
-            return uri;
-    }
-
-    private String getRemoteAddr(HttpServletRequest request) {
-        try {
-            //For Testing
-            if (__ip_dummy_test) {
-                return getRandomIp();
-            }
-
-            if (remote_by_header) {
-            	String remoteIp = request.getHeader(http_remote_ip_header_key);
-                if (remoteIp == null) {
-                    return request.getRemoteAddr();
-                }
-
-                int commaPos = remoteIp.indexOf(',');
-                if (commaPos > -1) {
-                	remoteIp = remoteIp.substring(0, commaPos);
-                }
-
-                Logger.trace("remoteIp: " + remoteIp);
-                return remoteIp;
-
-            } else {
-                return request.getRemoteAddr();
-            }
-
-        } catch (Throwable t) {
-            remote_by_header = false;
-            return "0.0.0.0";
-        }
-    }
-
     private String getRandomIp() {
         int len = ipRandom.length;
         int randomNum = (int) (Math.random() * (len-1));
@@ -495,4 +560,5 @@ public class HttpTrace implements IHttpTrace {
     public boolean isSelfDispatch(Object oAsyncContext) {
         return false;
     }
+
 }

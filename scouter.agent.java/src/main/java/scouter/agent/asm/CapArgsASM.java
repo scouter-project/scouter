@@ -54,7 +54,7 @@ class CapArgsCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public CapArgsCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -88,7 +88,7 @@ class CapArgsMV extends LocalVariablesSorter implements Opcodes {
 
 	public CapArgsMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.className = classname;

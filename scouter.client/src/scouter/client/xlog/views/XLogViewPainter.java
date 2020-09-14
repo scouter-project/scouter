@@ -648,6 +648,8 @@ public class XLogViewPainter {
 				&& isErrorFilterOk(d.p)
 				&& isApicallFilterOk(d.p)
 				&& isSqlFilterOk(d.p)
+				&& isSyncOk(d.p)
+				&& isAsyncOk(d.p)
 				&& isProfileSizeFilterOk(d.p)
 				&& isProfileByteFilterOk(d.p)
 				;
@@ -863,6 +865,20 @@ public class XLogViewPainter {
 	public boolean isSqlFilterOk(XLogPack p) {
 		if (filterStatus.onlySql) {
 			return p.sqlCount > 0; 
+		}
+		return true;
+	}
+
+	public boolean isSyncOk(XLogPack p) {
+		if (filterStatus.onlySync) {
+			return p.xType != 2 &&  p.xType != 3 &&  p.xType != 4;
+		}
+		return true;
+	}
+
+	public boolean isAsyncOk(XLogPack p) {
+		if (filterStatus.onlyAsync) {
+			return p.xType == 2 ||  p.xType == 3 ||  p.xType == 4;
 		}
 		return true;
 	}
