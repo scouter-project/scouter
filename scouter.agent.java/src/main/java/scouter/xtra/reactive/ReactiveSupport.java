@@ -40,6 +40,7 @@ import scouter.agent.proxy.IReactiveSupport;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
+import scouter.agent.util.Tuple;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.ParameterizedMessageStep;
 import scouter.util.StringUtil;
@@ -176,7 +177,10 @@ public class ReactiveSupport implements IReactiveSupport {
             this.publisher = publisher;
             this.traceContext = traceContext;
 
-            checkpointDesc = ScouterOptimizableOperatorProxy.nameOnCheckpoint(scannable);
+            Tuple.StringLongPair checkpointPair = ScouterOptimizableOperatorProxy
+                    .nameOnCheckpoint(scannable, configure.profile_reactor_checkpoint_search_depth);
+            checkpointDesc = checkpointPair.aString;
+
             Integer parentDepth = context.getOrDefault(SubscribeDepth.class, 0);
             depth = (!"".equals(checkpointDesc)) ? parentDepth + 1 : parentDepth;
             this.ctx = context.put(SubscribeDepth.class, depth);
@@ -301,7 +305,7 @@ public class ReactiveSupport implements IReactiveSupport {
                     }
 
                     String message = messageBuilder.append(scannable.name())
-                            .append("] close checkpoint -> ")
+                            .append("] near-cp -> ")
                             .append(checkpointDesc).toString();
 
                     ParameterizedMessageStep step = new ParameterizedMessageStep();
@@ -320,7 +324,6 @@ public class ReactiveSupport implements IReactiveSupport {
     }
 
     public String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now) {
-
         if (traceContext == null || timedScannable == null) {
             return null;
         }
@@ -329,7 +332,7 @@ public class ReactiveSupport implements IReactiveSupport {
         StringBuilder builder = new StringBuilder(1000)
                 .append(scannable.name()).append(" ").append(duration).append("ms");
 
-        ScouterOptimizableOperatorProxy.appendSources4Dump(scannable, builder);
+        ScouterOptimizableOperatorProxy.appendSources4Dump(scannable, builder, configure.profile_reactor_checkpoint_search_depth);
         return builder.toString();
     }
 }

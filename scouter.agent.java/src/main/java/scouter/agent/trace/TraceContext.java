@@ -57,6 +57,7 @@ public class TraceContext {
 	public boolean isReactiveStarted;
 	public boolean isReactiveTxidMarked;
 	public long exchangeHashCode;
+	public String serverReqId;
 	public boolean isCoroutineStarted;
 	public boolean isOnCoroutineIdUpdating;
 

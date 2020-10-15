@@ -160,8 +160,15 @@ public class TraceMain {
         try {
             Object req = AbstractPlugin.invokeMethod(exchange, "getRequest");
             Object res = AbstractPlugin.invokeMethod(exchange, "getResponse");
+            if (reactiveHttp == null) {
+                initReactiveHttp(req);
+            }
 
+            String serverReqId = reactiveHttp.getRequestId(req);
             TraceContext ctx = TraceContextManager.getContext();
+            if (ctx != null && serverReqId != null && ctx.serverReqId == serverReqId) {
+                return;
+            }
             if (ctx != null && ctx.exchangeHashCode != exchange.hashCode()) {
                 //Logger.trace("exchange hash is different on context : " + exchange.hashCode() + " : " + ctx.exchangeHashCode);
                 ctx = null;
@@ -287,9 +294,6 @@ public class TraceMain {
     private static Object lock = new Object();
 
     private static Object startReactiveHttp(Object req, Object res, Object exchange) {
-        if (reactiveHttp == null) {
-            initReactiveHttp(req);
-        }
         return startHttp(req, res, reactiveHttp, true, exchange);
     }
 
@@ -307,6 +311,7 @@ public class TraceMain {
             ctx.initScannables();
             ctx.isReactiveStarted = true;
             ctx.exchangeHashCode = exchange.hashCode();
+            ctx.serverReqId = reactiveHttp.getRequestId(req);
         }
         ctx.thread = Thread.currentThread();
         ctx.threadId = ctx.thread.getId();

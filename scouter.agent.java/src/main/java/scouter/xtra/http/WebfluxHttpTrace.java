@@ -157,6 +157,12 @@ public class WebfluxHttpTrace implements IHttpTrace {
     }
 
     @Override
+    public String getRequestId(Object req) {
+        ServerHttpRequest request = (ServerHttpRequest) req;
+        return request.getId();
+    }
+
+    @Override
     public String getRemoteAddr(Object req) {
         return getRemoteAddr((ServerHttpRequest) req);
     }

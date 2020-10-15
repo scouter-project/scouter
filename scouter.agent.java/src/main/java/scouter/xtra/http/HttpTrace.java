@@ -160,6 +160,11 @@ public class HttpTrace implements IHttpTrace {
     }
 
     @Override
+    public String getRequestId(Object req) {
+        return null;
+    }
+
+    @Override
     public String getRemoteAddr(Object req) {
         HttpServletRequest request = (HttpServletRequest) req;
         return getRemoteAddr(request);
