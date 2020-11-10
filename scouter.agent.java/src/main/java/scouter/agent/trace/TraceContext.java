@@ -78,8 +78,8 @@ public class TraceContext {
 		scannables.setMax(10000);
 	}
 
-	public Object req;
-	public Object res;
+	public Object _req;
+	public Object _res;
 	public IHttpTrace http;
 
 	public TraceContext parent;

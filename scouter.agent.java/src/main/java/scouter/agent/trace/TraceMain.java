@@ -328,8 +328,8 @@ public class TraceMain {
         ctx.profile.add(step);
 
         http0.start(ctx, req, res);
-        ctx.req = req;
-        ctx.res = res;
+        ctx._req = req;
+        ctx._res = res;
         ctx.http = http0;
 
         if (ctx.isFullyDiscardService) {
@@ -387,7 +387,7 @@ public class TraceMain {
         if (context == null) {
             return;
         }
-        Stat stat = new Stat(context, context.req, context.res);
+        Stat stat = new Stat(context, context._req, context._res);
         endHttpService(stat, null);
     }
 
@@ -401,7 +401,7 @@ public class TraceMain {
             step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
             traceContext.profile.add(step);
 
-            endHttpService(new Stat(traceContext), null);
+            endHttpService(new Stat(traceContext, traceContext._req, traceContext._res), null);
         }
     }
 
@@ -423,7 +423,11 @@ public class TraceMain {
 
             //wait on async servlet completion
             if (!ctx.asyncServletStarted) {
-                endHttpServiceFinal(ctx, ctx.req, ctx.res, thr);
+                Object req = ctx._req;
+                Object res = ctx._res;
+                ctx._req = null;
+                ctx._res = null;
+                endHttpServiceFinal(ctx, req, res, thr);
             } else {
                 HashedMessageStep step = new HashedMessageStep();
                 step.time = -1;
