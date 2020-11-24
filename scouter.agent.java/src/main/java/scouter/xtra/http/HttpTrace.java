@@ -307,7 +307,11 @@ public class HttpTrace implements IHttpTrace {
                 if (b3ModeValid) {
                     ctx.gxid = HexCodec.lowerHexToUnsignedLong(b3TraceId);
                     ctx.txid = HexCodec.lowerHexToUnsignedLong(request.getHeader(B3Constant.B3_HEADER_SPANID));
-                    ctx.caller = HexCodec.lowerHexToUnsignedLong(request.getHeader(B3Constant.B3_HEADER_PARENTSPANID));
+                    String caller = request.getHeader(B3Constant.B3_HEADER_PARENTSPANID);
+                    if (caller != null) {
+                        ctx.caller = HexCodec.lowerHexToUnsignedLong(caller);
+                        ctx.is_child_tx = true;
+                    }
                     ctx.b3Mode = true;
                     ctx.b3Traceid = b3TraceId;
 
