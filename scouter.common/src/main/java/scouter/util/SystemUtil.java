@@ -21,6 +21,8 @@
  *  
  */package scouter.util;
 
+import java.io.File;
+
 public class SystemUtil {
 
 	public static final String USER_NAME = System.getProperty("user.name");
@@ -44,6 +46,15 @@ public class SystemUtil {
 	public static final boolean IS_MAC = OS_NAME.startsWith("Mac");
 	public static final boolean IS_MAC_OSX = OS_NAME.startsWith("Mac OS X");
 	public static final boolean IS_WINDOWS = OS_NAME.indexOf("Windows") >= 0;
+
+	public static boolean IS_CONTAINER = false;
+
+	static {
+		try {
+			File file = new File("/.dockerenv");
+			IS_CONTAINER = file.exists() || System.getenv("KUBERNETES_SERVICE_HOST") != null;
+		} catch (Throwable e) {}
+	}
 
 	public static void main(String[] args) {
 		System.out.println(OS_NAME);
