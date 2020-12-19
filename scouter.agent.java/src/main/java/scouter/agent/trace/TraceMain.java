@@ -160,8 +160,15 @@ public class TraceMain {
         try {
             Object req = AbstractPlugin.invokeMethod(exchange, "getRequest");
             Object res = AbstractPlugin.invokeMethod(exchange, "getResponse");
+            if (reactiveHttp == null) {
+                initReactiveHttp(req);
+            }
 
+            String serverReqId = reactiveHttp.getRequestId(req);
             TraceContext ctx = TraceContextManager.getContext();
+            if (ctx != null && serverReqId != null && ctx.serverReqId == serverReqId) {
+                return;
+            }
             if (ctx != null && ctx.exchangeHashCode != exchange.hashCode()) {
                 //Logger.trace("exchange hash is different on context : " + exchange.hashCode() + " : " + ctx.exchangeHashCode);
                 ctx = null;
@@ -287,9 +294,6 @@ public class TraceMain {
     private static Object lock = new Object();
 
     private static Object startReactiveHttp(Object req, Object res, Object exchange) {
-        if (reactiveHttp == null) {
-            initReactiveHttp(req);
-        }
         return startHttp(req, res, reactiveHttp, true, exchange);
     }
 
@@ -307,6 +311,7 @@ public class TraceMain {
             ctx.initScannables();
             ctx.isReactiveStarted = true;
             ctx.exchangeHashCode = exchange.hashCode();
+            ctx.serverReqId = reactiveHttp.getRequestId(req);
         }
         ctx.thread = Thread.currentThread();
         ctx.threadId = ctx.thread.getId();
@@ -323,8 +328,8 @@ public class TraceMain {
         ctx.profile.add(step);
 
         http0.start(ctx, req, res);
-        ctx.req = req;
-        ctx.res = res;
+        ctx._req = req;
+        ctx._res = res;
         ctx.http = http0;
 
         if (ctx.isFullyDiscardService) {
@@ -382,7 +387,7 @@ public class TraceMain {
         if (context == null) {
             return;
         }
-        Stat stat = new Stat(context, context.req, context.res);
+        Stat stat = new Stat(context, context._req, context._res);
         endHttpService(stat, null);
     }
 
@@ -396,7 +401,7 @@ public class TraceMain {
             step.start_time = (int) (System.currentTimeMillis() - traceContext.startTime);
             traceContext.profile.add(step);
 
-            endHttpService(new Stat(traceContext), null);
+            endHttpService(new Stat(traceContext, traceContext._req, traceContext._res), null);
         }
     }
 
@@ -418,7 +423,11 @@ public class TraceMain {
 
             //wait on async servlet completion
             if (!ctx.asyncServletStarted) {
-                endHttpServiceFinal(ctx, ctx.req, ctx.res, thr);
+                Object req = ctx._req;
+                Object res = ctx._res;
+                ctx._req = null;
+                ctx._res = null;
+                endHttpServiceFinal(ctx, req, res, thr);
             } else {
                 HashedMessageStep step = new HashedMessageStep();
                 step.time = -1;

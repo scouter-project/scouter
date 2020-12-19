@@ -198,6 +198,8 @@ public class Configure extends Thread {
 
     @ConfigDesc("profile reactor's important checkpoint")
     public boolean profile_reactor_checkpoint_enabled = true;
+    @ConfigDesc("reactor's important checkpoint scan depth")
+    public int profile_reactor_checkpoint_search_depth = 5;
     @ConfigDesc("profile reactor's another checkpoints")
     public boolean profile_reactor_more_checkpoint_enabled = false;
 
@@ -597,6 +599,8 @@ public class Configure extends Thread {
     public boolean hook_method_access_none_enabled = false;
     @ConfigDesc("Activating lambda Method hooking")
     public boolean hook_method_lambda_enable = true;
+    @ConfigDesc("Activating anonymous Method hooking")
+    public boolean hook_method_anonymous_enable = true;
 
     @ConfigDesc("Method set for service hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -989,6 +993,7 @@ public class Configure extends Thread {
         this.hook_method_access_private_enabled = getBoolean("hook_method_access_private_enabled", false);
         this.hook_method_access_none_enabled = getBoolean("hook_method_access_none_enabled", false);
         this.hook_method_lambda_enable = getBoolean("hook_method_lambda_enable", true);
+        this.hook_method_anonymous_enable = getBoolean("hook_method_anonymous_enable", true);
 
         this.hook_method_ignore_prefixes = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefixes", "get,set"));
         this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefixes, ",");
@@ -1087,6 +1092,7 @@ public class Configure extends Thread {
         this.profile_elasticsearch_full_query_enabled = getBoolean("profile_elasticsearch_full_query_enabled", false);
 
         this.profile_reactor_checkpoint_enabled = getBoolean("profile_reactor_checkpoint_enabled", true);
+        this.profile_reactor_checkpoint_search_depth = getInt("profile_reactor_checkpoint_search_depth", 5);
         this.profile_reactor_more_checkpoint_enabled = getBoolean("profile_reactor_more_checkpoint_enabled", false);
 
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);

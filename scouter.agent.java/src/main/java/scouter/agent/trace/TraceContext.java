@@ -57,6 +57,7 @@ public class TraceContext {
 	public boolean isReactiveStarted;
 	public boolean isReactiveTxidMarked;
 	public long exchangeHashCode;
+	public String serverReqId;
 	public boolean isCoroutineStarted;
 	public boolean isOnCoroutineIdUpdating;
 
@@ -77,8 +78,8 @@ public class TraceContext {
 		scannables.setMax(10000);
 	}
 
-	public Object req;
-	public Object res;
+	public Object _req;
+	public Object _res;
 	public IHttpTrace http;
 
 	public TraceContext parent;

@@ -74,6 +74,10 @@ public class MethodASM implements IASM, Opcodes {
 		if (conf.isIgnoreMethodClass(className))
 			return cv;
 
+		if (!conf.hook_method_anonymous_enable && classIsAnnon(className)) {
+			return cv;
+		}
+
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -81,6 +85,15 @@ public class MethodASM implements IASM, Opcodes {
 			}
 		}
 		return cv;
+	}
+
+	private boolean classIsAnnon(String className) {
+		int spIndex = className.lastIndexOf('$');
+		if (spIndex > 0 && spIndex < className.length() - 1) {
+			char dig = className.charAt(spIndex + 1);
+			return dig >= 48 && dig <= 57;
+		}
+		return false;
 	}
 }
 

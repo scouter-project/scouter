@@ -19,6 +19,7 @@
 package reactor.core.publisher;
 
 import scouter.agent.Logger;
+import scouter.agent.util.Tuple;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2020/08/08
@@ -26,10 +27,11 @@ import scouter.agent.Logger;
 public class ScouterOptimizableOperatorProxy {
 
     public static final String EMPTY = "";
+    public static final Tuple.StringLongPair EMPTYOBJ = new Tuple.StringLongPair("", 0);
     public static boolean accessible = false;
     public static boolean first = true;
 
-    public static String nameOnCheckpoint(Object candidate) {
+    public static Tuple.StringLongPair nameOnCheckpoint(Object candidate, int maxScanDepth) {
         try {
             if (!accessible && first) {
                 try {
@@ -42,34 +44,47 @@ public class ScouterOptimizableOperatorProxy {
                 first = false;
             }
             if (!accessible) {
-                return EMPTY;
+                return EMPTYOBJ;
             }
 
             if (candidate instanceof OptimizableOperator) {
-                OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
-                if (operator == null) {
-                    return EMPTY;
+                OptimizableOperator<?, ?> closeAssembly = findCloseAssembly((OptimizableOperator<?, ?>) candidate, maxScanDepth);
+                if (closeAssembly == null) {
+                    return EMPTYOBJ;
                 }
-                if (operator instanceof MonoOnAssembly) {
-                    FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) operator).stacktrace;
+                if (closeAssembly instanceof MonoOnAssembly) {
+                    FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) closeAssembly).stacktrace;
                     if (snapshot != null && snapshot.checkpointed) {
-                        return snapshot.cached;
+                        return new Tuple.StringLongPair(snapshot.cached, snapshot.hashCode());
                     }
-                } else if (operator instanceof FluxOnAssembly) {
-                    FluxOnAssembly.AssemblySnapshot snapshot = ((FluxOnAssembly) operator).snapshotStack;
+                } else if (closeAssembly instanceof FluxOnAssembly) {
+                    FluxOnAssembly.AssemblySnapshot snapshot = ((FluxOnAssembly) closeAssembly).snapshotStack;
                     if (snapshot != null && snapshot.checkpointed) {
-                        return snapshot.cached;
+                        return new Tuple.StringLongPair(snapshot.cached, snapshot.hashCode());
                     }
                 }
             }
-            return EMPTY;
+            return EMPTYOBJ;
         } catch (Throwable e) {
 
-            return EMPTY;
+            return EMPTYOBJ;
         }
     }
 
-    public static void appendSources4Dump(Object candidate, StringBuilder builder) {
+    public static OptimizableOperator<?, ?> findCloseAssembly(OptimizableOperator<?, ?> candidate, int maxScanDepth) {
+        OptimizableOperator<?, ?> operator = candidate;
+        for (int i = 0; i < maxScanDepth; i++) {
+            operator = operator.nextOptimizableSource();
+            if (operator == null) {
+                return null;
+            } else if (operator instanceof MonoOnAssembly || operator instanceof FluxOnAssembly) {
+                return operator;
+            }
+        }
+        return null;
+    }
+
+    public static void appendSources4Dump(Object candidate, StringBuilder builder, int maxScanDepth) {
         try {
             if (!accessible && first) {
                 try {
@@ -86,14 +101,14 @@ public class ScouterOptimizableOperatorProxy {
             }
 
             if (candidate instanceof OptimizableOperator) {
-                OptimizableOperator<?, ?> operator = ((OptimizableOperator<?, ?>) candidate).nextOptimizableSource();
-                if (operator == null) {
+                OptimizableOperator<?, ?> closeAssembly = findCloseAssembly((OptimizableOperator<?, ?>) candidate, maxScanDepth);
+                if (closeAssembly == null) {
                     return;
                 }
-                String p1 = operator.toString();
+                String p1 = closeAssembly.toString();
                 builder.append(" (<-) ").append(p1);
                 if (p1.startsWith("checkpoint")) {
-                    OptimizableOperator<?, ?> operator2 = operator.nextOptimizableSource();
+                    OptimizableOperator<?, ?> operator2 = closeAssembly.nextOptimizableSource();
                     if (operator2 != null) {
                         builder.append(" (<-) ").append(operator2.toString());
                     }

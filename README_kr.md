@@ -56,7 +56,7 @@
 
 - **Server (Collector)** : Agent가 전송한 데이터를 저장하고 Client 요청시 Client에게 적절한 데이터를 전송
 
-- **Client (Viewer)** : 수집된 데이터를 보기 위한 RCP 기반 Client 프로그램
+- **Client (Viewer)** : 수집된 데이터를 보기 위한 RCP 기반 Client 프로그램. (OSX Big Sur 미지원)
 
 - **Web API (Since @1.8.0)** : 성능 카운터, XLog, 프로파일등의 정보를 HTTP 프로토콜을 통해 제공
   - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)

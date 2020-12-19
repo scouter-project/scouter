@@ -157,6 +157,12 @@ public class WebfluxHttpTrace implements IHttpTrace {
     }
 
     @Override
+    public String getRequestId(Object req) {
+        ServerHttpRequest request = (ServerHttpRequest) req;
+        return request.getId();
+    }
+
+    @Override
     public String getRemoteAddr(Object req) {
         return getRemoteAddr((ServerHttpRequest) req);
     }
@@ -272,7 +278,11 @@ public class WebfluxHttpTrace implements IHttpTrace {
                 if (b3ModeValid) {
                     ctx.gxid = HexCodec.lowerHexToUnsignedLong(b3TraceId);
                     ctx.txid = HexCodec.lowerHexToUnsignedLong(getHeader(request, B3Constant.B3_HEADER_SPANID));
-                    ctx.caller = HexCodec.lowerHexToUnsignedLong(getHeader(request, B3Constant.B3_HEADER_PARENTSPANID));
+                    String caller = getHeader(request, B3Constant.B3_HEADER_PARENTSPANID);
+                    if (caller != null) {
+                        ctx.caller = HexCodec.lowerHexToUnsignedLong(caller);
+                        ctx.is_child_tx = true;
+                    }
                     ctx.b3Mode = true;
                     ctx.b3Traceid = b3TraceId;
 
