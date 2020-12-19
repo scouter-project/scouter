@@ -70,7 +70,13 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
                 return StringUtil.limiting(url, 45);
             }
             HttpEntity entity = requestBase.getEntity();
+            if (entity == null) {
+                return StringUtil.limiting(url, 45);
+            }
             try {
+                if (err) {
+                    return StringUtil.limiting(url, 45);
+                }
                 Class<? extends HttpEntity> clazz = entity.getClass();
                 Field field = fieldMap.get(clazz);
                 if (field == null) {
@@ -79,7 +85,7 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
                 }
                 Object entityDesc = field.get(entity);
                 if (entityDesc == null) {
-                    return url;
+                    return StringUtil.limiting(url, 45);
                 } else {
                     String append = entityDesc instanceof byte[] ? new String((byte[]) entityDesc)
                             : entityDesc.toString();
@@ -88,12 +94,12 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
             } catch (Exception e) {
                 err = true;
                 Logger.println("G177p", "error, so skip it later.", e);
-                return "No info";
+                return StringUtil.limiting(url, 45);
             }
 
         } else {
             String url = httpRequestBase0.toString();
-            if (!conf.profile_elasticsearch_full_query_enabled) {
+            if (cut) {
                 return StringUtil.limiting(url, 45);
             }
             return url;

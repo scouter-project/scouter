@@ -262,6 +262,8 @@ public class TraceContextManager {
 	}
 
 	public static void clearAllContext(TraceContext o) {
+		o._req = null;
+		o._res = null;
 		local.set(null);
 		coroutineDebuggingLocal.clear(); //it should be prev of txidLocal clear
 

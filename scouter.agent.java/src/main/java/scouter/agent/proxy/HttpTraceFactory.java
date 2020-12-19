@@ -40,6 +40,9 @@ public class HttpTraceFactory {
 		public String getRequestURI(Object req) {
 			return null;
 		}
+		public String getRequestId(Object req) {
+			return null;
+		}
 		public String getRemoteAddr(Object req) {
 			return null;
 		}

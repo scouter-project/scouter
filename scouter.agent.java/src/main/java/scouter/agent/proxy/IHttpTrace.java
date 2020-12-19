@@ -35,6 +35,7 @@ public interface IHttpTrace {
 	String getHeader(Object req, String key);
 	String getCookie(Object req, String key);
 	String getRequestURI(Object req);
+	String getRequestId(Object req);
 	String getRemoteAddr(Object req);
 	String getMethod(Object req);
 	String getQueryString(Object req);
