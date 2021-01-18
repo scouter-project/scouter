@@ -17,10 +17,6 @@
  */
 package scouter.client.views;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.eclipse.draw2d.IFigure;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -56,7 +52,6 @@ import org.eclipse.zest.layouts.algorithms.HorizontalTreeLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.RadialLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.SpringLayoutAlgorithm;
 import org.eclipse.zest.layouts.algorithms.TreeLayoutAlgorithm;
-
 import scouter.client.Images;
 import scouter.client.constants.MenuStr;
 import scouter.client.context.actions.OpenCxtmenuActiveServiceListAction;
@@ -68,14 +63,14 @@ import scouter.client.model.AgentObject;
 import scouter.client.model.DummyObject;
 import scouter.client.model.HierarchyObject;
 import scouter.client.model.RefreshThread;
-import scouter.client.model.ServerObject;
 import scouter.client.model.RefreshThread.Refreshable;
+import scouter.client.model.ServerObject;
 import scouter.client.popup.ObjectSelectionDialog;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.threads.AlertProxyThread;
-import scouter.client.threads.ObjectSelectManager;
 import scouter.client.threads.AlertProxyThread.IAlertListener;
+import scouter.client.threads.ObjectSelectManager;
 import scouter.client.threads.ObjectSelectManager.IObjectCheckListener;
 import scouter.client.util.DummyAction;
 import scouter.client.util.ExUtil;
@@ -86,6 +81,10 @@ import scouter.lang.counters.CounterConstants;
 import scouter.lang.counters.CounterEngine;
 import scouter.lang.pack.AlertPack;
 import scouter.util.CacheTable;
+
+import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class ObjectDashboardView extends ViewPart implements Refreshable, IObjectCheckListener, IAlertListener {
 	
@@ -208,6 +207,8 @@ public class ObjectDashboardView extends ViewPart implements Refreshable, IObjec
 					if (server == null) return;
 					CounterEngine counterEngine = server.getCounterEngine();
 					if (counterEngine.isChildOf(ao.getObjType(), CounterConstants.FAMILY_JAVAEE)) {
+						new OpenCxtmenuActiveServiceListAction(getSite().getWorkbenchWindow(), MenuStr.ACTIVE_SERVICE_LIST, ao.getObjHash(), ao.getObjType(), ao.getServerId()).run();
+					} else if (counterEngine.isChildOf(ao.getObjType(), CounterConstants.FAMILY_GOLANG)) {
 						new OpenCxtmenuActiveServiceListAction(getSite().getWorkbenchWindow(), MenuStr.ACTIVE_SERVICE_LIST, ao.getObjHash(), ao.getObjType(), ao.getServerId()).run();
 					}
 				}
