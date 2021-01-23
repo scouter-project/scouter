@@ -364,7 +364,11 @@ public class CounterEngine {
 		if (obj == null) {
 			return null;
 		}
-		return obj.getFamily().getMaster();
+		Family family = obj.getFamily();
+		if (family == null) {
+			return null;
+		}
+		return family.getMaster();
 	}
 	
 	public String[] getSortedCounterName(String objType) {

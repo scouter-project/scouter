@@ -63,6 +63,8 @@ import scouter.client.context.actions.OpenCxtmenuFileSocketAction;
 import scouter.client.context.actions.OpenCxtmenuHeapHistoViewAction;
 import scouter.client.context.actions.OpenCxtmenuObjectClassListAction;
 import scouter.client.context.actions.OpenCxtmenuObjectThreadDumpAction;
+import scouter.client.context.actions.OpenCxtmenuProfileBlockAction;
+import scouter.client.context.actions.OpenCxtmenuProfileMutexAction;
 import scouter.client.context.actions.OpenCxtmenuPropertiesAction;
 import scouter.client.context.actions.OpenCxtmenuResetCacheAction;
 import scouter.client.context.actions.OpenCxtmenuSystemGcAction;
@@ -101,8 +103,11 @@ import scouter.client.counter.views.CounterRealTimeTotalView;
 import scouter.client.counter.views.CounterRealTimeView;
 import scouter.client.counter.views.CounterTodayAllView;
 import scouter.client.counter.views.CounterTodayTotalView;
+import scouter.client.heapdump.actions.BlockProfileAction;
+import scouter.client.heapdump.actions.CpuProfileAction;
 import scouter.client.heapdump.actions.HeapDumpAction;
 import scouter.client.heapdump.actions.HeapDumpListAction;
+import scouter.client.heapdump.actions.MutexProfileAction;
 import scouter.client.host.actions.OpenDiskUsageAction;
 import scouter.client.host.actions.OpenTopAction;
 import scouter.client.maria.actions.OpenDbRealtimeWaitCountAction;
@@ -386,12 +391,15 @@ public class MenuUtil implements IMenuCreator{
 //					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
 //				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
 //				performanceSnapshot.add(new Separator());
-//				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
-//					MenuManager heapDump = new MenuManager(MenuStr.HEAP_DUMP, MenuStr.HEAP_DUMP_ID);
-//					performanceSnapshot.add(heapDump);
-//					heapDump.add(new HeapDumpAction(win, MenuStr.HEAP_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
-//					heapDump.add(new HeapDumpListAction(win, MenuStr.HEAP_DUMP_LIST, objName, objHash, Images.heap, serverId));
-//				}
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
+					MenuManager heapDump = new MenuManager(MenuStr.BINARY_DUMP, MenuStr.HEAP_DUMP_ID);
+					performanceSnapshot.add(heapDump);
+					heapDump.add(new HeapDumpListAction(win, MenuStr.BINARY_DUMP_LIST, objName, objHash, Images.heap, serverId));
+					heapDump.add(new Separator());
+					heapDump.add(new CpuProfileAction(win, MenuStr.CPU_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+					heapDump.add(new BlockProfileAction(win, MenuStr.BLOCK_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+					heapDump.add(new MutexProfileAction(win, MenuStr.MUTEX_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+				}
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_FILEDUMP)) {
 					MenuManager dumpMgr = new MenuManager(MenuStr.FILEDUMP, MenuStr.FILEDUMP_ID);
 					performanceSnapshot.add(dumpMgr);
@@ -399,6 +407,8 @@ public class MenuUtil implements IMenuCreator{
 					dumpMgr.add(new Separator());
 //					dumpMgr.add(new OpenCxtmenuDumpActiveServiceListAction(MenuStr.DUMP_ACTIVE_SERVICE_LIST, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuDumpThreadDumpAction(MenuStr.DUMP_THREAD_DUMP, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuProfileBlockAction(MenuStr.DUMP_BLOCK_PROFILE, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuProfileMutexAction(MenuStr.DUMP_MUTEX_PROFILE, objHash, serverId));
 //					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
 //					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
 				}

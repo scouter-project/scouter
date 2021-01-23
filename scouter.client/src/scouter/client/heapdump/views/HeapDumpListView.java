@@ -41,7 +41,6 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.heapdump.actions.HeapDumpDeleteAction;
 import scouter.client.heapdump.actions.HeapDumpDownloadAction;
@@ -52,7 +51,6 @@ import scouter.client.util.ChartUtil;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
-import scouter.client.util.ScouterUtil;
 import scouter.client.util.SortUtil;
 import scouter.client.util.TableControlAdapter;
 import scouter.client.util.UIUtil;
@@ -118,7 +116,7 @@ public class HeapDumpListView extends ViewPart implements ViewWithTable{
 					downloadItem.addListener(SWT.Selection, new Listener() {
 						public void handleEvent(Event event) {
 							IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-							Action act = new HeapDumpDownloadAction(window, "Download Heap Dump", fileName, objName, objHash, Images.heap, serverId);
+							Action act = new HeapDumpDownloadAction(window, "Download Binary Dump", fileName, objName, objHash, Images.heap, serverId);
 							act.run();
 						}
 					});
@@ -129,7 +127,7 @@ public class HeapDumpListView extends ViewPart implements ViewWithTable{
 					deleteItem.addListener(SWT.Selection, new Listener() {
 						public void handleEvent(Event event) {
 							IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-							Action act = new HeapDumpDeleteAction(window, "Delete HeapDump", fileName, objHash, fileName, Images.heap, serverId);
+							Action act = new HeapDumpDeleteAction(window, "Delete Binary Dump", fileName, objHash, fileName, Images.heap, serverId);
 							act.run();
 							reload();
 						}

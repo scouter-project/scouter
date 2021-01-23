@@ -21,8 +21,6 @@ package scouter.client.heapdump.actions;
 import org.eclipse.jface.action.Action;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IWorkbenchWindow;
-
-import scouter.client.Images;
 import scouter.client.net.TcpProxy;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
@@ -32,8 +30,8 @@ import scouter.lang.value.BooleanValue;
 import scouter.net.RequestCmd;
 import scouter.util.CastUtil;
 
-public class HeapDumpAction extends Action {
-	public final static String ID = HeapDumpAction.class.getName();
+public class MutexProfileAction extends Action {
+	public final static String ID = MutexProfileAction.class.getName();
 
 	private final IWorkbenchWindow window;
 	@SuppressWarnings("unused")
@@ -43,13 +41,13 @@ public class HeapDumpAction extends Action {
 	private String fName;
 	private long time;
 	private int serverId;
-	
-	public HeapDumpAction(IWorkbenchWindow window, String label, String key, int objHash, String fName, long time, Image image, int serverId) {
+
+	public MutexProfileAction(IWorkbenchWindow window, String label, String key, int objHash, String fName, long time, Image image, int serverId) {
 		this.window = window;
 		this.key = key;
 		this.objHash = objHash;
 		this.objName = fName;
-		this.fName = fName;
+		this.fName = fName + "_block";
 		this.time = time;
 		this.serverId = serverId;
 		
@@ -68,23 +66,23 @@ public class HeapDumpAction extends Action {
 					param.put("objHash", objHash);
 					param.put("fName", fName);
 					param.put("time", time);
-					MapPack out = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CALL_HEAP_DUMP, param);
+					MapPack out = (MapPack) tcp.getSingle(RequestCmd.OBJECT_CALL_MUTEX_PROFILE, param);
 					
 					if(out != null){
 						if(!CastUtil.cboolean((BooleanValue)out.get("success"))){
 							ConsoleProxy.infoSafe(out.getText("msg"));
 						}
 					}
-					ExUtil.exec(window.getShell().getDisplay(), new Runnable(){
-						public void run() {
-							try{
-								Action act = new HeapDumpListAction(window, "Dumps", objName, objHash, Images.heap, serverId);
-								act.run();
-							}catch(Exception e){
-								e.printStackTrace();
-							}
-						}
-					});
+//					ExUtil.exec(window.getShell().getDisplay(), new Runnable(){
+//						public void run() {
+//							try{
+//								Action act = new HeapDumpListAction(window, "Dumps", objName, objHash, Images.heap, serverId);
+//								act.run();
+//							}catch(Exception e){
+//								e.printStackTrace();
+//							}
+//						}
+//					});
 				} finally {
 					TcpProxy.putTcpProxy(tcp);
 				}
