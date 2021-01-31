@@ -380,17 +380,7 @@ public class MenuUtil implements IMenuCreator{
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_GOLANG)) {
 				performanceSnapshot.add(new OpenCxtmenuThreadListAction(win, MenuStr.THREAD_LIST, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuActiveServiceListAction(win, MenuStr.ACTIVE_SERVICE_LIST, objHash, objType, serverId));
-//				performanceSnapshot.add(new OpenCxtmenuObjectClassListAction(win, MenuStr.LOADED_CLASS_LIST, objHash, serverId));
-//				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPHISTOGRAM))
-//					performanceSnapshot.add(new OpenCxtmenuHeapHistoViewAction(win, MenuStr.HEAP_HISTOGRAM, objHash, serverId));
-//				if (server.isAllowAction(GroupPolicyConstants.ALLOW_THREADDUMP))
-//					performanceSnapshot.add(new OpenCxtmenuObjectThreadDumpAction(win, MenuStr.THREAD_DUMP, objHash, serverId));
-//				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
-//				performanceSnapshot.add(new OpenCxtmenuFileSocketAction(win, "Socket", objHash, serverId));
-//				if (server.isAllowAction(GroupPolicyConstants.ALLOW_SYSTEMGC))
-//					performanceSnapshot.add(new OpenCxtmenuSystemGcAction(MenuStr.SYSTEM_GC, objHash, serverId));
-//				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
-//				performanceSnapshot.add(new Separator());
+				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
 					MenuManager heapDump = new MenuManager(MenuStr.BINARY_DUMP, MenuStr.HEAP_DUMP_ID);
 					performanceSnapshot.add(heapDump);
@@ -406,7 +396,7 @@ public class MenuUtil implements IMenuCreator{
 					dumpMgr.add(new OpenCxtmenuDumpFileListAction(win, MenuStr.LIST_DUMP_FILES, objHash, serverId));
 					dumpMgr.add(new Separator());
 //					dumpMgr.add(new OpenCxtmenuDumpActiveServiceListAction(MenuStr.DUMP_ACTIVE_SERVICE_LIST, objHash, serverId));
-					dumpMgr.add(new OpenCxtmenuDumpThreadDumpAction(MenuStr.DUMP_THREAD_DUMP, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuDumpThreadDumpAction(MenuStr.DUMP_GOROUTINE_DUMP, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuProfileBlockAction(MenuStr.DUMP_BLOCK_PROFILE, objHash, serverId));
 					dumpMgr.add(new OpenCxtmenuProfileMutexAction(MenuStr.DUMP_MUTEX_PROFILE, objHash, serverId));
 //					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));

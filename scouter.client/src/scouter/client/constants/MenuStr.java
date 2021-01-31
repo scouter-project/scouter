@@ -206,6 +206,7 @@ public class MenuStr {
 	public static final String STACK_ANALYZER_ID = "scouter.client.contextmenu.agentobject.stack";
 	public static final String DUMP_ACTIVE_SERVICE_LIST = "Dump Active Service List";
 	public static final String DUMP_THREAD_DUMP = "Dump Thread Dump";
+	public static final String DUMP_GOROUTINE_DUMP = "Dump Goroutine Dump";
 	public static final String DUMP_BLOCK_PROFILE = "Dump Block Profile";
 	public static final String DUMP_MUTEX_PROFILE = "Dump Mutex Profile";
 	public static final String DUMP_THREAD_LIST = "Dump Thread List";
