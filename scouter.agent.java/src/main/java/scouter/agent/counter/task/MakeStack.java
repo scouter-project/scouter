@@ -82,20 +82,29 @@ public class MakeStack {
             return;
         }
         lastStackTraceGenTime = now;
+        int minMs = conf._psts_dump_min_ms;
+        int maxCount = conf._psts_dump_max_count;
 
         ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
         Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
+        int doCount = 0;
         while (en.hasMoreElements()) {
+            if (maxCount > 0 && doCount >= maxCount) {
+                break;
+            }
+            doCount++;
             TraceContext ctx = en.nextElement();
             if (ctx != null) {
-                if (ctx.isReactiveStarted) {
-                    reactiveStepDump(tmxBean, ctx);
-                } else {
-                    stepDump(tmxBean, ctx);
+                long elapsed = (System.currentTimeMillis() - ctx.startTime);
+                if (minMs <= 0 || elapsed >= minMs) {
+                    if (ctx.isReactiveStarted) {
+                        reactiveStepDump(tmxBean, ctx);
+                    } else {
+                        stepDump(tmxBean, ctx);
+                    }
                 }
             }
         }
-        long elapsed = (System.currentTimeMillis() - now);
     }
 
     private void stepDump(ThreadMXBean tmxBean, TraceContext ctx) {
