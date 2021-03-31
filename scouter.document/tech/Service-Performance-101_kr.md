@@ -1,20 +1,20 @@
 # Service Performance 101
 [![English](https://img.shields.io/badge/language-English-orange.svg)](Service-Performance-101.md) [![Korean](https://img.shields.io/badge/language-Korean-blue.svg)](Service-Performance-101_kr.md)
 
-In the beginning the performance management is to understand performance graphs.
-If you do not understand the meaning of the graph even though no matter how much data to collect you can not solve the problem.
+성능관리의 시작은 성능그래프의 이해로 부터 시작된다.
+만약 그래프가 주는 의미를 파악하지 못한다면 아무리 많은 데이터를 수집해도 문제를 해결 할 수 없습니다.
 
-Below is a screen capture of the state monitored by the SCOUTER when increasing the performance test virtual users.
+아래는 가상으로 사용자를 늘리는 성능테스트 중 SCOUTER를 모니터링하는 화면 캡처입니다.
 ![Screen](../img/tech/loadtest.png)
 
-Basically, users calls the services. The services are using the resources. 
-So, the relationship between them is important.
+일반적으로 사용자는 서비스를 호출하고, 호출된 서비스는 자원을 사용합니다. 그래서 서로간의 관계가 중요합니다.
 
-When the number of virtual users to infinitely increase then service throughput is increased to saturation point. And also the response time of the service is increased, and CPU usage become 100%.
+가상사용자가 무한이 증가하면 서비스 처리량은 포화지점에 가까워 집니다. 또한 서비스 응답 시간이 늘어나고, CPU 사용량은 100%를 향하게 됩니다.
 
-This is no wonder, but in fact that is often ignored these principles.
+당연한 일입니다. 하지만 종종 이런 원칙대로 되지 않는 경우가 있습니다.
 
-For example, if the response is not slow down even though the number of users is increased then something is wrong. Do not forget the simple rules
+예를 들어 사용자 수를 늘려도 응답이 느려지지 않으면 뭔가 잘못된 것입니다. 간단한 룰을 잊지 마세요.
 
-CPU usage never become over 100%. 
-No matter how many users, service TPS(transaction per second) is not increased over the max TPS without tuning activities. If the max TPS is not increased then the system is not tuned. Do not be fooled by response times
+CPU 사용량은 절대 100%를 넘지 않습니다.CPU usage never become over 100%. 
+사용자 수에 관계없이 서비스 TPS(transaction per second)는 최대 TPS 이상 증가하지 않습니다, 조정작업이 없었다면.
+만약 최대 TPS값이 늘지 않으면. 시스템이 조정되지 않습니다. 응답 시간에 속지 마십시오.
