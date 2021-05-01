@@ -559,42 +559,53 @@ public class TraceMain {
                     ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
 
                 } else {
-                    String emsg = thr.toString();
-                    if (conf.profile_fullstack_service_error_enabled) {
-                        StringBuffer sb = new StringBuffer();
-                        sb.append(emsg).append("\n");
-                        ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                        Throwable[] suppressed = thr.getSuppressed();
-                        if (suppressed != null) {
-                            for (Throwable sup : suppressed) {
-                                sb.append("\nSuppressed...\n");
-                                sb.append(sup.toString()).append("\n");
-                                ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
-                            }
+                    String classHierarchyConcatString = buildClassHierarchyConcatString(thr.getClass());
+                    String[] excludes = UserExceptionHandlerASM.exceptionExcludeClasseNames;
+                    boolean ignore = false;
+                    for (int i = 0; i < excludes.length; i++) {
+                        if (classHierarchyConcatString.contains(excludes[i])) {
+                            ignore = true;
                         }
-
-                        Throwable thrCause = thr.getCause();
-                        if (thrCause != null) {
-                            thr = thrCause;
-                            while (thr != null) {
-                                sb.append("\nCause...\n");
-                                ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
-                                Throwable[] suppressed2 = thr.getSuppressed();
-                                if (suppressed2 != null) {
-                                    for (Throwable sup : suppressed2) {
-                                        sb.append("\nSuppressed...\n");
-                                        sb.append(sup.toString()).append("\n");
-                                        ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
-                                    }
-                                }
-
-                                thr = thr.getCause();
-                            }
-                        }
-                        emsg = sb.toString();
                     }
-                    pack.error = DataProxy.sendError(emsg);
-                    ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+
+                    if (!ignore) {
+                        String emsg = thr.toString();
+                        if (conf.profile_fullstack_service_error_enabled) {
+                            StringBuffer sb = new StringBuffer();
+                            sb.append(emsg).append("\n");
+                            ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                            Throwable[] suppressed = thr.getSuppressed();
+                            if (suppressed != null) {
+                                for (Throwable sup : suppressed) {
+                                    sb.append("\nSuppressed...\n");
+                                    sb.append(sup.toString()).append("\n");
+                                    ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                                }
+                            }
+
+                            Throwable thrCause = thr.getCause();
+                            if (thrCause != null) {
+                                thr = thrCause;
+                                while (thr != null) {
+                                    sb.append("\nCause...\n");
+                                    ThreadUtil.getStackTrace(sb, thr, conf.profile_fullstack_max_lines);
+                                    Throwable[] suppressed2 = thr.getSuppressed();
+                                    if (suppressed2 != null) {
+                                        for (Throwable sup : suppressed2) {
+                                            sb.append("\nSuppressed...\n");
+                                            sb.append(sup.toString()).append("\n");
+                                            ThreadUtil.getStackTrace(sb, sup, conf.profile_fullstack_max_lines);
+                                        }
+                                    }
+
+                                    thr = thr.getCause();
+                                }
+                            }
+                            emsg = sb.toString();
+                        }
+                        pack.error = DataProxy.sendError(emsg);
+                        ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+                    }
                 }
             } else if (ctx.userTransaction > 0 && conf.xlog_error_check_user_transaction_enabled) {
                 pack.error = DataProxy.sendError("UserTransaction missing commit/rollback Error");
