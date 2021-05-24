@@ -74,6 +74,10 @@ public class MethodASM implements IASM, Opcodes {
 		if (conf.isIgnoreMethodClass(className))
 			return cv;
 
+		if (!conf.hook_method_anonymous_enable && classIsAnnon(className)) {
+			return cv;
+		}
+
 		for (int i = 0; i < target.size(); i++) {
 			HookingSet mset = target.get(i);
 			if (mset.classMatch.include(className)) {
@@ -81,6 +85,15 @@ public class MethodASM implements IASM, Opcodes {
 			}
 		}
 		return cv;
+	}
+
+	private boolean classIsAnnon(String className) {
+		int spIndex = className.lastIndexOf('$');
+		if (spIndex > 0 && spIndex < className.length() - 1) {
+			char dig = className.charAt(spIndex + 1);
+			return dig >= 48 && dig <= 57;
+		}
+		return false;
 	}
 }
 
@@ -91,7 +104,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 	private List<HookingSet> excludeTarget;
 
 	public MethodCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.excludeTarget = excludeTarget;
 		this.className = className;
@@ -168,7 +181,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public MethodMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 	}

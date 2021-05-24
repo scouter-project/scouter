@@ -90,9 +90,9 @@ public class ProfileText {
     public static Color getColor(ParameterizedMessageLevel level) {
         switch (level) {
             case DEBUG:
-                return ColorUtil.getInstance().getColor("gray2");
-            case INFO:
                 return ColorUtil.getInstance().getColor("gray3");
+            case INFO:
+                return ColorUtil.getInstance().getColor("gunlee2");
             case WARN:
                 return ColorUtil.getInstance().getColor("dark orange");
             case ERROR:
@@ -235,7 +235,8 @@ public class ProfileText {
         if (StringUtil.isNotEmpty(xperf.p.text5)) {
             sb.append("\n► text5=" + xperf.p.text5);
         }
-        sb.append("\n► profileSize=" + xperf.p.profileCount);
+        sb.append("\n► profileCount=" + xperf.p.profileCount);
+        sb.append("\n► profileSize=" + xperf.p.profileSize);
         if (xperf.p.hasDump == 1) {
             sb.append("\n► dump=Y");
         }

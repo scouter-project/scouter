@@ -18,6 +18,7 @@
 package scouter.agent.trace.api;
 
 import scouter.agent.trace.HookArgs;
+import scouter.agent.trace.LocalContext;
 import scouter.agent.trace.TraceContext;
 import scouter.lang.step.ApiCallStep;
 
@@ -34,6 +35,7 @@ public class ApiCallTraceHelper {
 	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
 	static ForSpringAsyncRestTemplate forSpringAsyncRestTemplate = new ForSpringAsyncRestTemplate();
 	static ForJavaNetHttpClient forJavaNetHttpClient = new ForJavaNetHttpClient();
+	static ForWebClient forWebClient = new ForWebClient();
 
 	static void put(String name, IHelper o) {
 		name = name.replace('.', '/');
@@ -48,14 +50,15 @@ public class ApiCallTraceHelper {
 		put("sun/net/www/protocol/http/HttpURLConnection", new ForHttpURLConnection());
 		put("sun/net/www/http/HttpClient", new ForSunHttpClient());
 		put("org/apache/commons/httpclient/HttpClient", new ForHttpClient());
-		put("org/apache/http/impl/client/InternalHttpClient", new ForHttpClient43());
+		put("org/apache/http/impl/client/InternalHttpClient", forHttpClient43);
 		put("org/apache/http/impl/client/AbstractHttpClient", new ForHttpClient40());
 		put("com/sap/mw/jco/JCO$Client", new ForJCOClient());
 		put("com/netflix/ribbon/transport/netty/http/LoadBalancingHttpClient", new ForRibbonLB());
 		put("io/reactivex/netty/protocol/http/client/HttpClientImpl", new ForNettyHttpRequest());
 		put("org/springframework/web/client/RestTemplate", new ForSpringRestTemplate());
-		put("org/springframework/web/client/AsyncRestTemplate", new ForSpringAsyncRestTemplate());
-		put("jdk/internal/net/http/HttpClientImpl", new ForJavaNetHttpClient());
+		put("org/springframework/web/client/AsyncRestTemplate", forSpringAsyncRestTemplate);
+		put("jdk/internal/net/http/HttpClientImpl", forJavaNetHttpClient);
+		put("org/springframework/web/reactive/function/client/ExchangeFunctions$DefaultExchangeFunction", forWebClient);
 	}
 
 	private static IHelper defaultObj = new ForDefault();
@@ -82,7 +85,15 @@ public class ApiCallTraceHelper {
 		forSpringAsyncRestTemplate.processSetCalleeToCtx(ctx, _this, response);
 	}
 
-	public static void setCalleeToCtxJavaHttpRequest(TraceContext ctx, Object requestBuilder) {
+	public static void setTransferToCtxJavaHttpRequest(TraceContext ctx, Object requestBuilder) {
 		forJavaNetHttpClient.transfer(ctx, requestBuilder);
+	}
+
+	public static void webClientInfo(Object bodyInserterRequest, Object clientHttpRequest) {
+		forWebClient.processInfo(bodyInserterRequest, clientHttpRequest);
+	}
+
+	public static LocalContext webClientProcessEnd(Object exchangeFunction, Object clientResponse) {
+		return forWebClient.processEnd(exchangeFunction, clientResponse);
 	}
 }

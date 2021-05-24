@@ -63,6 +63,8 @@ import scouter.client.context.actions.OpenCxtmenuFileSocketAction;
 import scouter.client.context.actions.OpenCxtmenuHeapHistoViewAction;
 import scouter.client.context.actions.OpenCxtmenuObjectClassListAction;
 import scouter.client.context.actions.OpenCxtmenuObjectThreadDumpAction;
+import scouter.client.context.actions.OpenCxtmenuProfileBlockAction;
+import scouter.client.context.actions.OpenCxtmenuProfileMutexAction;
 import scouter.client.context.actions.OpenCxtmenuPropertiesAction;
 import scouter.client.context.actions.OpenCxtmenuResetCacheAction;
 import scouter.client.context.actions.OpenCxtmenuSystemGcAction;
@@ -101,8 +103,11 @@ import scouter.client.counter.views.CounterRealTimeTotalView;
 import scouter.client.counter.views.CounterRealTimeView;
 import scouter.client.counter.views.CounterTodayAllView;
 import scouter.client.counter.views.CounterTodayTotalView;
+import scouter.client.heapdump.actions.BlockProfileAction;
+import scouter.client.heapdump.actions.CpuProfileAction;
 import scouter.client.heapdump.actions.HeapDumpAction;
 import scouter.client.heapdump.actions.HeapDumpListAction;
+import scouter.client.heapdump.actions.MutexProfileAction;
 import scouter.client.host.actions.OpenDiskUsageAction;
 import scouter.client.host.actions.OpenTopAction;
 import scouter.client.maria.actions.OpenDbRealtimeWaitCountAction;
@@ -372,6 +377,43 @@ public class MenuUtil implements IMenuCreator{
 					mgr.add(new Separator());
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 				}
+			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_GOLANG)) {
+				performanceSnapshot.add(new OpenCxtmenuThreadListAction(win, MenuStr.THREAD_LIST, objHash, serverId));
+				performanceSnapshot.add(new OpenCxtmenuActiveServiceListAction(win, MenuStr.ACTIVE_SERVICE_LIST, objHash, objType, serverId));
+				performanceSnapshot.add(new OpenCxtmenuResetCacheAction("Reset Text Cache", objHash, serverId));
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_HEAPDUMP)) {
+					MenuManager heapDump = new MenuManager(MenuStr.BINARY_DUMP, MenuStr.HEAP_DUMP_ID);
+					performanceSnapshot.add(heapDump);
+					heapDump.add(new HeapDumpListAction(win, MenuStr.BINARY_DUMP_LIST, objName, objHash, Images.heap, serverId));
+					heapDump.add(new Separator());
+					heapDump.add(new CpuProfileAction(win, MenuStr.CPU_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+					heapDump.add(new BlockProfileAction(win, MenuStr.BLOCK_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+					heapDump.add(new MutexProfileAction(win, MenuStr.MUTEX_PROFILE_DUMP_RUN, ""+objHash, objHash, objName, TimeUtil.getCurrentTime(serverId), Images.heap, serverId));
+				}
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_FILEDUMP)) {
+					MenuManager dumpMgr = new MenuManager(MenuStr.FILEDUMP, MenuStr.FILEDUMP_ID);
+					performanceSnapshot.add(dumpMgr);
+					dumpMgr.add(new OpenCxtmenuDumpFileListAction(win, MenuStr.LIST_DUMP_FILES, objHash, serverId));
+					dumpMgr.add(new Separator());
+//					dumpMgr.add(new OpenCxtmenuDumpActiveServiceListAction(MenuStr.DUMP_ACTIVE_SERVICE_LIST, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuDumpThreadDumpAction(MenuStr.DUMP_GOROUTINE_DUMP, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuProfileBlockAction(MenuStr.DUMP_BLOCK_PROFILE, objHash, serverId));
+					dumpMgr.add(new OpenCxtmenuProfileMutexAction(MenuStr.DUMP_MUTEX_PROFILE, objHash, serverId));
+//					dumpMgr.add(new OpenCxtmenuDumpThreadListAction(MenuStr.DUMP_THREAD_LIST, objHash, serverId));
+//					dumpMgr.add(new OpenCxtmenuDumpHeapHistoAction(MenuStr.DUMP_HEAPHISTO, objHash, serverId));
+				}
+				mgr.add(new Separator());
+				MenuManager stackMgr = new MenuManager(MenuStr.STACK_ANALYZER, ImageUtil.getImageDescriptor(Images.page_white_stack), MenuStr.STACK_ANALYZER_ID);
+				mgr.add(stackMgr);
+				stackMgr.add(new TurnOnStackAction(serverId, objHash));
+				stackMgr.add(new TurnOffStackAction(serverId, objHash));
+				stackMgr.add(new Separator());
+				stackMgr.add(new OpenStackDialogAction(serverId, objHash));
+
+				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE)) {
+					mgr.add(new Separator());
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
+				}
 			} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_HOST)) {
 				performanceSnapshot.add(new OpenCxtmenuEnvAction(win, MenuStr.ENV, objHash, serverId));
 				performanceSnapshot.add(new OpenTopAction(win, MenuStr.TOP, objHash, serverId));
@@ -576,6 +618,23 @@ public class MenuUtil implements IMenuCreator{
 			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
 			mgr.add(new OpenRTPairAllAction(win, "File Descriptor", serverId, objType, CounterConstants.JAVA_FD_USAGE));
 
+		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_GOLANG)) {
+			mgr.add(new Separator());
+//			mgr.add(new OpenRTPairAllAction(win, "Heap Memory", serverId, objType, CounterConstants.JAVA_HEAP_TOT_USAGE));
+			mgr.add(new OpenEQViewAction(win, serverId, objType));
+			mgr.add(new OpenVerticalEQViewAction(win, serverId, objType));
+			mgr.add(new OpenActiveServiceListAction(win, objType, Images.thread, serverId));
+//			mgr.add(new OpenActiveSpeedAction(win,objType, Images.TYPE_ACTSPEED, serverId));
+			mgr.add(new OpenXLogRealTimeAction(win, MenuStr.XLOG, objType, Images.star, serverId));
+//			mgr.add(new OpenTodayServiceCountAction(win, MenuStr.SERVICE_COUNT, objType, CounterConstants.WAS_SERVICE_COUNT, Images.bar, serverId));
+//			MenuManager serviceGroupMgr = new MenuManager("Serivce Group", ImageUtil.getImageDescriptor(Images.sum), "scouter.menu.id.javee.servicegroup");
+//			mgr.add(serviceGroupMgr);
+//			serviceGroupMgr.add(new OpenServiceGroupTPSAction(win, serverId, objType));
+//			serviceGroupMgr.add(new OpenServiceGroupElapsedAction(win, serverId, objType));
+//			mgr.add(new OpenUniqueTotalVisitorAction(win, serverId, objType));
+//			mgr.add(new OpenTypeSummaryAction(win, serverId, objType));
+//			mgr.add(new OpenRTPairAllAction(win, "File Descriptor", serverId, objType, CounterConstants.JAVA_FD_USAGE));
+
 		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_DATASOURCE)) {
 			mgr.add(new Separator());
 			mgr.add(new OpenRTPairAllAction2(win, "Pool Chart", serverId, objType, CounterConstants.DATASOURCE_CONN_MAX, CounterConstants.DATASOURCE_CONN_ACTIVE));
@@ -593,6 +652,10 @@ public class MenuUtil implements IMenuCreator{
 			mgr.add(new Separator());
 			mgr.add(new OpenXLogLoadTimeAction(win, objType, Images.transrealtime, serverId, st, et));
 			mgr.add(new OpenDailyServiceCountAction(win, objType, CounterConstants.WAS_SERVICE_COUNT, Images.TYPE_SERVICE_COUNT, serverId, date));
+		} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_GOLANG)) {
+			mgr.add(new Separator());
+			mgr.add(new OpenXLogLoadTimeAction(win, objType, Images.transrealtime, serverId, st, et));
+//			mgr.add(new OpenDailyServiceCountAction(win, objType, CounterConstants.WAS_SERVICE_COUNT, Images.TYPE_SERVICE_COUNT, serverId, date));
 		}
 	}
 }

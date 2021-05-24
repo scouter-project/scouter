@@ -27,7 +27,7 @@ public class RsNextMV extends MethodVisitor implements Opcodes {
 	private static final String SIGNATURE = "(Z)Z";
 
 	public RsNextMV(MethodVisitor mv) {
-		super(ASM7, mv);
+		super(ASM8, mv);
 	}
 
 	@Override

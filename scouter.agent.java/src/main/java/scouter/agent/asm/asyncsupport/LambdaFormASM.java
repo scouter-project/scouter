@@ -47,7 +47,7 @@ class LambdaFormCV extends ClassVisitor implements Opcodes {
 	String factoryMethodDesc;
 
 	public LambdaFormCV(ClassVisitor cv, String className, String lambdaMethodName, String lambdaMethodDesc, String factoryMethodName, String factoryMethodDesc) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.className = className;
 		this.lambdaMethodName = lambdaMethodName;
 		this.lambdaMethodDesc = lambdaMethodDesc;
@@ -107,7 +107,7 @@ class LambdaMV extends LocalVariablesSorter implements Opcodes {
 
 	public LambdaMV(int access, String name, String desc, MethodVisitor mv,
 					String fullName, Type[] paramTypes, String className) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 
@@ -217,7 +217,7 @@ class FacotoryMV extends LocalVariablesSorter implements Opcodes {
 	private Type returnType;
 
 	public FacotoryMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);

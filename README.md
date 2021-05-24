@@ -59,7 +59,7 @@ SCOUTER can help you.
 
 - **Server (Collector)** : save the performance metrics from scouter agents or telegraf. The data is streamed to scouter client.
 
-- **Client (Viewer)** : client program based on RCP.
+- **Client (Viewer)** : client program based on RCP. (not support OSX Big Sur.)
 
 - **Web API (Since @1.8.0)** : scouter web apis to get counters, XLogs, profiles and another performance metrics via HTTP protocol.
   - [Web API Guide](./scouter.document/tech/Web-API-Guide.md)

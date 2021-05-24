@@ -17,9 +17,6 @@
 
 package scouter.test;
 
-import java.util.Random;
-import java.util.Stack;
-
 import scouter.AnyTrace;
 import scouter.agent.AgentBoot;
 import scouter.agent.Configure;
@@ -37,6 +34,9 @@ import scouter.util.KeyGen;
 import scouter.util.ShellArg;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
+
+import java.util.Random;
+import java.util.Stack;
 
 public class Service24H {
 	public static void main(String[] args) {
@@ -135,14 +135,15 @@ public class Service24H {
 		ctx.txid=txid;
 		ctx.serviceHash=serviceHash;
 		ctx.startTime=System.currentTimeMillis();
+		ctx.thread = Thread.currentThread();
 		
-		long key = TraceContextManager.start(Thread.currentThread(), ctx);
+		TraceContextManager.start(ctx);
 		
 		AnyTrace.message("profile 1");
 		AnyTrace.message("profile 2");
 		
 		ctx.profile.close(true);
-		TraceContextManager.end(key);
+		TraceContextManager.end(ctx);
 	}
 
 	private static int next(Random r, int max) {

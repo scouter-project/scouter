@@ -17,10 +17,6 @@
 
 package scouter.agent.netio.data;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.netio.data.net.DataUdpAgent;
@@ -34,7 +30,11 @@ import scouter.lang.pack.TextPack;
 import scouter.lang.value.MapValue;
 import scouter.util.IntLinkedSet;
 
-public class DataProxy {
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class HostAgentDataProxy {
 	private static DataUdpAgent udpCollect = DataUdpAgent.getInstance();
 
 	static Configure conf = Configure.getInstance();

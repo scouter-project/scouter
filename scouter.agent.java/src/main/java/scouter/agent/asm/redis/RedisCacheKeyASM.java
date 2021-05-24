@@ -78,7 +78,7 @@ class RedisCacheKeyCV extends ClassVisitor implements Opcodes {
     boolean existKeyElementField;
 
     public RedisCacheKeyCV(ClassVisitor cv, HookingSet mset, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.mset = mset;
         this.className = className;
     }
@@ -123,7 +123,7 @@ class GetKeyBytesMV extends LocalVariablesSorter implements Opcodes {
     private Type returnType;
 
     public GetKeyBytesMV(int access, String className, String name, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.className = className;
         this.name = name;
         this.desc = desc;

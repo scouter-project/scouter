@@ -70,7 +70,7 @@ All options and default values are available from the scouter client's **Collect
 1. Download scouter-yyyyMMdd.tar.gz 
  - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract the file.(you can see the directory ./scouter/agent.host for running host monitoring agent.)
-3. Run it.
+3. Run it. (In some cases, root permission may be required.)
 
 ```bash
 cd ./scouter/agent.host
@@ -103,6 +103,18 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
 * **If you are using multiple Tomcat instances in one VM, you must define their respective configuration files.**
   * You can specify the conf file through the -Dscouter.config environment variable as in the example above.
   * Also, in this case, you should specify the name through the obj_name option so that the name of the monitored object is not duplicated in one VM.
+  
+#### 3.2.2 Java Option example ( Windows Service Option )
+Append below java options in **${TOMCAT_DIR}/bin/tomcat${version}w.exe**
+```bash
+-javaagent:${SCOUTER_INSTALL_DIR}/scouter.agent.jar"
+-Dscouter.config=${SCOUTER_INSTALL_DIR}/conf/scouter1.conf"
+-Dobj_name=myFirstTomcat1"
+```
+* **${SCOUTER_INSTALL_DIR}** means the directory that contains scouter.agent.jar file.
+* **If you run Tomcat through a Windows service, you need to add it to the tomcat ${version}w.exe option.**
+  * This Option tomcat${version}w.exe ( ex)tomcat9w.exe ) > Java > Java Options. 
+  
   
 ### 3.3. Configuration
 

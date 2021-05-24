@@ -17,8 +17,6 @@
 
 package scouter.test;
 
-import java.util.Random;
-
 import scouter.AnyTrace;
 import scouter.agent.AgentBoot;
 import scouter.agent.Configure;
@@ -37,8 +35,10 @@ import scouter.util.ShellArg;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
 
+import java.util.Random;
+
 public class TpsRush {
-	public static void main(String[] args) {
+	public static void main2(String[] args) {
 
 		ShellArg sh = new ShellArg(args);
 		String server = sh.get("-h", "127.0.0.1");
@@ -115,14 +115,15 @@ public class TpsRush {
 		ctx.txid=txid;
 		ctx.serviceHash=serviceHash;
 		ctx.startTime=System.currentTimeMillis();
+		ctx.thread = Thread.currentThread();
 		
-		long key = TraceContextManager.start(Thread.currentThread(), ctx);
+		TraceContextManager.start(ctx);
 		
 		AnyTrace.message("profile 1");
 		AnyTrace.message("profile 2");
 		
 		ctx.profile.close(true);
-		TraceContextManager.end(key);
+		TraceContextManager.end(ctx);
 	}
 
 	private static int next(Random r, int max) {

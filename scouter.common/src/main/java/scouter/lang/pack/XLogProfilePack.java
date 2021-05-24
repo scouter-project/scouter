@@ -17,12 +17,12 @@
 
 package scouter.lang.pack;
 
-import java.io.IOException;
-
 import scouter.io.DataInputX;
 import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.Hexa32;
+
+import java.io.IOException;
 
 /**
  * Object that contains a part of full profile
@@ -54,6 +54,7 @@ public class XLogProfilePack implements Pack {
 	 */
 	public byte[] profile;
 
+
 	public byte getPackType() {
 		return PackEnum.XLOG_PROFILE;
 	}
@@ -63,6 +64,16 @@ public class XLogProfilePack implements Pack {
 		sb.append("Profile ");
 		sb.append(DateUtil.timestamp(time));
 		sb.append(" objHash=").append(Hexa32.toString32(objHash));
+		sb.append(" profile=").append(profile == null ? null : profile.length);
+		return sb.toString();
+	}
+
+	public String toDebugString(String svcName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Profile ");
+		sb.append(" svcName=").append(svcName);
+		sb.append(" objHash=").append(Hexa32.toString32(objHash));
+		sb.append(" svc=").append(service);
 		sb.append(" txid=").append(Hexa32.toString32(txid));
 		sb.append(" profile=").append(profile == null ? null : profile.length);
 		return sb.toString();
@@ -82,6 +93,7 @@ public class XLogProfilePack implements Pack {
 		this.service= (int) din.readDecimal();
 		this.txid = din.readLong();
 		this.profile = din.readBlob();
+
 		return this;
 	}
 

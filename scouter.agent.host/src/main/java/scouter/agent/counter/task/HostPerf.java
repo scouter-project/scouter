@@ -27,7 +27,7 @@ import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
 import scouter.agent.counter.meter.MeterResource;
-import scouter.agent.netio.data.DataProxy;
+import scouter.agent.netio.data.HostAgentDataProxy;
 import scouter.lang.AlertLevel;
 import scouter.lang.TimeTypeEnum;
 import scouter.lang.counters.CounterConstants;
@@ -161,7 +161,7 @@ public class HostPerf {
 
 		if (memrate >= conf.mem_fatal_pct) {
 			if (now >= mem_last_fatal + conf.mem_alert_interval_ms) {
-				DataProxy.sendAlert(AlertLevel.FATAL, "FATAL_MEMORY_HIGH", "fatal mem usage free=" + prt(fmem)
+				HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_MEMORY_HIGH", "fatal mem usage free=" + prt(fmem)
 						+ " rate=" + memrate + "%", null);
 				mem_last_fatal = now;
 			}
@@ -169,7 +169,7 @@ public class HostPerf {
 		}
 		if (memrate >= conf.mem_warning_pct) {
 			if (now >= mem_last_warning + conf.mem_alert_interval_ms) {
-				DataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning mem usage free=" + prt(fmem)
+				HostAgentDataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning mem usage free=" + prt(fmem)
 						+ " rate=" + memrate + "%", null);
 				mem_last_warning = now;
 			}
@@ -212,7 +212,7 @@ public class HostPerf {
 		if (nextCpu >= conf.cpu_fatal_pct) {
 			if (f >= conf.cpu_fatal_history) {
 				if (now >= cpu_last_fatal + conf.cpu_alert_interval_ms) {
-					DataProxy.sendAlert(AlertLevel.FATAL, "FATAL_CPU_HIGH", "cpu high " + nextCpu + "%", null);
+					HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_CPU_HIGH", "cpu high " + nextCpu + "%", null);
 					cpu_last_fatal = now;
 				}
 				return;
@@ -221,7 +221,7 @@ public class HostPerf {
 		if (nextCpu >= conf.cpu_warning_pct) {
 			if (f + w >= conf.cpu_warning_history) {
 				if (now >= cpu_last_warning + conf.cpu_alert_interval_ms) {
-					DataProxy.sendAlert(AlertLevel.WARN, "WARNING_CPU_HIGH", "cpu high " + nextCpu + "%", null);
+					HostAgentDataProxy.sendAlert(AlertLevel.WARN, "WARNING_CPU_HIGH", "cpu high " + nextCpu + "%", null);
 					cpu_last_warning = now;
 				}
 				return;
@@ -307,10 +307,10 @@ public class HostPerf {
 
 			}
 			if (fatal.length() > 0) {
-				DataProxy.sendAlert(AlertLevel.FATAL, "FATAL_DISK_USAGE", fatal.toString(), null);
+				HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_DISK_USAGE", fatal.toString(), null);
 			}
 			if (warn.length() > 0) {
-				DataProxy.sendAlert(AlertLevel.WARN, "WARNING_DISK_USAGE", warn.toString(), null);
+				HostAgentDataProxy.sendAlert(AlertLevel.WARN, "WARNING_DISK_USAGE", warn.toString(), null);
 			}
 
 		} catch (Throwable t) {

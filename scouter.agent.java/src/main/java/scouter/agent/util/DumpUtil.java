@@ -108,7 +108,7 @@ public class DumpUtil extends Thread {
 				out.print(stat.get(i) + ":");
 				out.print("cpu " + cpu.get(i));
 
-				TraceContext ctx = TraceContextManager.getContext(tid);
+				TraceContext ctx = TraceContextManager.getContextByThreadId(tid);
 				if (ctx != null) {
 					out.print(":service " + Hexa32.toString32(ctx.txid) + ":");
 					out.print(ctx.serviceName + ":");
@@ -137,6 +137,7 @@ public class DumpUtil extends Thread {
 		try {
 			File file = DumpUtil.getDumpFile("scouter.activeservice");
 			out = new PrintWriter(new FileWriter(file));
+			//TODO reactive support
 			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
 			for (int n = 0; en.hasMoreElements(); n++) {
 				TraceContext ctx = en.nextElement();

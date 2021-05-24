@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.7.0</version>
+        <version>2.12.0.1.SNAPSHOT</version>
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -79,6 +79,17 @@
                                                 <include name="scouter/xtra/redis/*.class" />
                                             </fileset>
                                         </jar>
+                                        <jar destfile="${project.build.directory}/${scouter.reactive.jar}">
+                                            <fileset dir="${project.build.outputDirectory}">
+                                                <include name="scouter/xtra/reactive/*.class" />
+                                                <include name="reactor/**/*.class" />
+                                            </fileset>
+                                        </jar>
+                                        <jar destfile="${project.build.directory}/${scouter.java8.jar}">
+                                            <fileset dir="${project.build.outputDirectory}">
+                                                <include name="scouter/xtra/java8/*.class" />
+                                            </fileset>
+                                        </jar>
                                     </target>
                                 </configuration>
                                 <goals>
@@ -101,6 +112,8 @@
                                                 <include name="${scouter.tools.jar}" />
                                                 <include name="${scouter.kafka.jar}" />
                                                 <include name="${scouter.redis.jar}" />
+                                                <include name="${scouter.reactive.jar}" />
+                                                <include name="${scouter.java8.jar}" />
                                             </fileset>
                                             <zipfileset src="${final.jar.name}" />
 
@@ -121,6 +134,8 @@
                                         <delete file="${project.build.directory}/${scouter.tools.jar}" />
                                         <delete file="${project.build.directory}/${scouter.kafka.jar}" />
                                         <delete file="${project.build.directory}/${scouter.redis.jar}" />
+                                        <delete file="${project.build.directory}/${scouter.reactive.jar}" />
+                                        <delete file="${project.build.directory}/${scouter.java8.jar}" />
 
                                         <!-- for constant name file -->
                                         <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
@@ -136,7 +151,7 @@
 
                                         <!-- for min file -->
                                         <jar destfile="${project.build.directory}/${scouter.agent.min.file.name}">
-                                            <zipfileset src="${final.jar.name}" excludes="scouter/repack/net/bytebuddy/**/*" />
+                                            <zipfileset src="${final.jar.name}"/>
                                             <manifest>
                                                 <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
                                                 <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
@@ -206,6 +221,12 @@
                             <compilerVersion>1.6</compilerVersion>
                             <source>1.6</source>
                             <target>1.6</target>
+                            <excludes>
+                                <exclude>scouter/xtra/reactive/*.java</exclude>
+                                <exclude>scouter/xtra/java8/*.java</exclude>
+                                <exclude>reactor/**/*.java</exclude>
+                                <exclude>com/**/*.java</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -340,6 +361,8 @@
         <scouter.tools.jar>scouter.tools.jar</scouter.tools.jar>
         <scouter.kafka.jar>scouter.kafka.jar</scouter.kafka.jar>
         <scouter.redis.jar>scouter.redis.jar</scouter.redis.jar>
+        <scouter.reactive.jar>scouter.reactive.jar</scouter.reactive.jar>
+        <scouter.java8.jar>scouter.java8.jar</scouter.java8.jar>
 
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
         <java.net.http.jar>${project.basedir}/lib/provided/java.net.http.jar</java.net.http.jar>
@@ -361,19 +384,14 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>7.0</version>
+            <version>8.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>7.0</version>
+            <version>8.0.1</version>
         </dependency>
         <!-- local lib -->
-        <dependency>
-            <groupId>com.github.scouter-project</groupId>
-            <artifactId>byte-buddy-nodep-scouter-repack</artifactId>
-            <version>1.7.1.RC1</version>
-        </dependency>
         <dependency>
             <groupId>jdk.tools</groupId>
             <artifactId>jdk.tools</artifactId>
@@ -399,7 +417,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
-            <version>4.3.6</version>
+            <version>4.5.11</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -423,13 +441,37 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <version>4.3.18.RELEASE</version>
+            <version>5.2.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <version>5.2.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.3.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-reactor</artifactId>
+            <version>1.3.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>1.3.72</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
-            <version>4.3.18.RELEASE</version>
+            <version>5.2.8.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -438,6 +480,19 @@
             <version>0.10.1.0</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.elasticsearch.client</groupId>
+            <artifactId>elasticsearch-rest-client</artifactId>
+            <version>6.8.10</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver-core</artifactId>
+            <version>4.0.5</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>io.lettuce</groupId>
             <artifactId>lettuce-core</artifactId>
@@ -482,7 +537,9 @@
                         </manifestEntries>
                     </archive>
                     <excludes>
-                        <exclude>**/scouter/xtra/**</exclude>
+                        <exclude>scouter/xtra/**</exclude>
+                        <exclude>reactor/**</exclude>
+                        <exclude>com/**</exclude>
                     </excludes>
                 </configuration>
             </plugin>

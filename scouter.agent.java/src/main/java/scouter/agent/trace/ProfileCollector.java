@@ -26,7 +26,7 @@ import scouter.lang.step.StepSingle;
 public class ProfileCollector implements IProfileCollector {
     private Configure conf = Configure.getInstance();
     private TraceContext context;
-    protected Step[] steps = new Step[conf.profile_step_max_count];
+    protected Step[] steps = new Step[conf.profile_step_max_keep_in_memory_count];
     protected int pos = 0;
     private boolean doingDumpStepJob = false;
 
@@ -60,7 +60,7 @@ public class ProfileCollector implements IProfileCollector {
         steps[pos++] = stepSingle;
         if (pos >= steps.length) {
             Step[] o = steps;
-            steps = new Step[conf.profile_step_max_count];
+            steps = new Step[conf.profile_step_max_keep_in_memory_count];
             pos = 0;
             DataProxy.sendProfile(o, context);
         }
@@ -96,7 +96,8 @@ public class ProfileCollector implements IProfileCollector {
      */
     public void close(boolean ok) {
         checkDumpStep();
-        if (ok && pos > 0) {
+
+        if (pos > 0 && ok) {
             StepSingle[] newSteps = new StepSingle[pos];
             System.arraycopy(steps, 0, newSteps, 0, pos);
             DataProxy.sendProfile(newSteps, context);

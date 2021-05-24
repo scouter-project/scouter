@@ -69,7 +69,7 @@ log_dir=./logs
 1. Download scouter-yyyyMMdd.tar.gz 
  - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract the file.(you can see the directory ./scouter/agent.host for running host monitoring agent.)
-3. Run it.
+3. Run it. (In some cases, root permission may be required.)
 
 ```bash
 cd ./scouter/agent.host
@@ -101,6 +101,18 @@ JAVA_OPTS=" ${JAVA_OPTS} -Dobj_name=myFirstTomcat1"
 * **만약 하나의 VM에서 여러개의 Tomcat 인스턴스를 사용한다면 각각의 configuration file을 정의해야 한다.**
   * 위 예에서처럼 -Dscouter.config 환경변수를 통해 conf 파일을 지정할 수 있다.
   * 또한 이 경우 하나의 VM에서 모니터링 대상의 이름이 중복되지 않도록 obj_name 옵션을 통해 이름을 지정하여야 한다.
+  
+#### 3.2.2 Java Option example ( Windows Service Option )
+Append below java options in **${TOMCAT_DIR}/bin/tomcat${version}w.exe 
+```bash
+-javaagent:${SCOUTER_INSTALL_DIR}/scouter.agent.jar"
+-Dscouter.config=${SCOUTER_INSTALL_DIR}/conf/scouter1.conf"
+-Dobj_name=myFirstTomcat1"
+```
+* **${SCOUTER_INSTALL_DIR}** means the directory that contains scouter.agent.jar file.
+* **윈도우 서비스를 통해 Tomcat을 실행하는 경우 tomcat${version}w.exe 옵션에 추가해야 한다.**
+  * 해당 옵션은 tomcat${version}w.exe ( ex)tomcat9w.exe ) > Java > Java Options에서 추가할 수 있다.
+  
   
 ### 3.3. Configuration
 

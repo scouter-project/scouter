@@ -21,7 +21,7 @@ import scouter.Version;
 import scouter.agent.Configure;
 import scouter.agent.counter.CounterBasket;
 import scouter.agent.counter.anotation.Counter;
-import scouter.agent.netio.data.DataProxy;
+import scouter.agent.netio.data.HostAgentDataProxy;
 import scouter.agent.netio.data.net.TcpWorker;
 import scouter.lang.pack.ObjectPack;
 import scouter.util.StringKeyLinkedMap;
@@ -53,10 +53,10 @@ public class AgentHeartBeat {
 
 	@Counter
 	public void alive(CounterBasket pw) {
-		DataProxy.sendHeartBeat(getMainObject());
+		HostAgentDataProxy.sendHeartBeat(getMainObject());
 		Enumeration<ObjectPack> en = objects.values();
 		while (en.hasMoreElements()) {
-			DataProxy.sendHeartBeat(en.nextElement());
+			HostAgentDataProxy.sendHeartBeat(en.nextElement());
 		}
 	}
 

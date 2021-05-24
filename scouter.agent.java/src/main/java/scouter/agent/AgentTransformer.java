@@ -21,26 +21,65 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import scouter.agent.asm.*;
+import scouter.agent.asm.AddFieldASM;
+import scouter.agent.asm.ApiCallResponseObjectASM;
+import scouter.agent.asm.ApicallASM;
+import scouter.agent.asm.ApicallInfoASM;
+import scouter.agent.asm.ApicallJavaHttpRequestASM;
+import scouter.agent.asm.ApicallSpringHandleResponseASM;
+import scouter.agent.asm.ApicallSpringHttpAccessorASM;
+import scouter.agent.asm.ApicallWebClientInfoASM;
+import scouter.agent.asm.ApicallWebClientResponseASM;
+import scouter.agent.asm.CapArgsASM;
+import scouter.agent.asm.CapReturnASM;
+import scouter.agent.asm.CapThisASM;
+import scouter.agent.asm.HttpReactiveServiceASM;
+import scouter.agent.asm.HttpServiceASM;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.InitialContextASM;
+import scouter.agent.asm.JDBCConnectionOpenASM;
+import scouter.agent.asm.JDBCDriverASM;
+import scouter.agent.asm.JDBCGetConnectionASM;
+import scouter.agent.asm.JDBCPreparedStatementASM;
+import scouter.agent.asm.JDBCResultSetASM;
+import scouter.agent.asm.JDBCStatementASM;
+import scouter.agent.asm.JspServletASM;
+import scouter.agent.asm.MapImplASM;
+import scouter.agent.asm.MethodASM;
+import scouter.agent.asm.ScouterClassWriter;
+import scouter.agent.asm.ServiceASM;
+import scouter.agent.asm.SocketASM;
+import scouter.agent.asm.SpringReqMapASM;
+import scouter.agent.asm.SqlMapASM;
+import scouter.agent.asm.UserExceptionASM;
+import scouter.agent.asm.UserExceptionHandlerASM;
+import scouter.agent.asm.UserTxASM;
 import scouter.agent.asm.asyncsupport.AsyncContextDispatchASM;
 import scouter.agent.asm.asyncsupport.CallRunnableASM;
+import scouter.agent.asm.asyncsupport.CoroutineThreadNameASM;
 import scouter.agent.asm.asyncsupport.HystrixCommandASM;
+import scouter.agent.asm.asyncsupport.MonoKtASM;
 import scouter.agent.asm.asyncsupport.RequestStartAsyncASM;
+import scouter.agent.asm.asyncsupport.ThreadASM;
 import scouter.agent.asm.asyncsupport.executor.ExecutorServiceASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
+import scouter.agent.asm.elasticsearch.HttpNioEntityASM;
+import scouter.agent.asm.elasticsearch.RestClientASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
+import scouter.agent.asm.mongodb.MongoCommandProtocolASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
 import scouter.agent.asm.redis.JedisCommandASM;
 import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.test.MongoModifyASM;
+import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
 import scouter.util.FileUtil;
-import scouter.util.IntSet;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,6 +87,7 @@ import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class AgentTransformer implements ClassFileTransformer {
@@ -74,8 +114,20 @@ public class AgentTransformer implements ClassFileTransformer {
     public static void reload() {
         Configure conf = Configure.getInstance();
         List<IASM> temp = new ArrayList<IASM>();
+        temp.add(new ReactorModifyASM());
+        temp.add(new MongoModifyASM());
+        temp.add(new MongoCommandProtocolASM());
+
+        temp.add(new ThreadASM());
         temp.add(new HttpServiceASM());
         temp.add(new ServiceASM());
+        temp.add(new HttpReactiveServiceASM());
+        temp.add(new CoroutineThreadNameASM());
+        temp.add(new MonoKtASM());
+        temp.add(new ApicallWebClientInfoASM());
+        temp.add(new ApicallWebClientResponseASM());
+        temp.add(new HttpNioEntityASM());
+        temp.add(new RestClientASM());
 
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());
@@ -132,17 +184,15 @@ public class AgentTransformer implements ClassFileTransformer {
 
     // //////////////////////////////////////////////////////////////
     // boot class이지만 Hooking되어야하는 클래스를 등록한다.
-    private static IntSet asynchook = new IntSet();
+    private static HashMap asynchook = new HashMap();
 
     static {
-        asynchook.add("sun/net/www/protocol/http/HttpURLConnection".hashCode());
-        asynchook.add("sun/net/www/http/HttpClient".hashCode());
-        asynchook.add("java/net/Socket".hashCode());
-        asynchook.add("java/nio/channels/SocketChannel".hashCode());
-        asynchook.add("sun/nio/ch/SocketChannelImpl".hashCode());
-        asynchook.add("javax/naming/InitialContext".hashCode());
-        asynchook.add("java/util/concurrent/AbstractExecutorService".hashCode());
-        asynchook.add("java/util/concurrent/ThreadPoolExecutor".hashCode());
+        asynchook.put("sun/net/www/protocol/http/HttpURLConnection".hashCode(), "sun/net/www/protocol/http/HttpURLConnection");
+        asynchook.put("sun/net/www/http/HttpClient".hashCode(), "sun/net/www/http/HttpClient");
+        asynchook.put("java/net/Socket".hashCode(), "java/net/Socket");
+        asynchook.put("java/nio/channels/SocketChannel".hashCode(), "java/nio/channels/SocketChannel");
+        asynchook.put("sun/nio/ch/SocketChannelImpl".hashCode(), "sun/nio/ch/SocketChannelImpl");
+        asynchook.put("javax/naming/InitialContext".hashCode(), "javax/naming/InitialContext");
     }
 
     private Configure conf = Configure.getInstance();
@@ -160,7 +210,8 @@ public class AgentTransformer implements ClassFileTransformer {
             if (className == null)
                 return null;
             if (classBeingRedefined == null) {
-                if (asynchook.contains(className.hashCode())) {
+                if (asynchook.containsKey(className.hashCode())) {
+                    Logger.trace("[SCTRACE] Async hook class : " + asynchook.get(className.hashCode()));
                     AsyncRunner.getInstance().add(loader, className, classfileBuffer);
                     return null;
                 }
@@ -178,7 +229,7 @@ public class AgentTransformer implements ClassFileTransformer {
             ObjTypeDetector.check(className);
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM7) {
+            cr.accept(new ClassVisitor(Opcodes.ASM8) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);
@@ -194,9 +245,13 @@ public class AgentTransformer implements ClassFileTransformer {
                     return super.visitAnnotation(desc, visible);
                 }
             }, 0);
-            if (AsmUtil.isInterface(classDesc.access)) {
+            if (AsmUtil.isInterface(classDesc.access)
+                    && !"reactor/core/publisher/OptimizableOperator".equals(className)
+                    && !"com/mongodb/connection/InternalConnection".equals(className)
+            ) {
                 return null;
             }
+
             classDesc.classBeingRedefined = classBeingRedefined;
             ClassWriter cw = getClassWriter(classDesc);
             ClassVisitor cv = cw;

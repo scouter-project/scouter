@@ -118,7 +118,7 @@ public class InteractionPerf {
 	}
 
 	@InteractionCounter(interval = 5000)
-	public void collecRabbitmqCallInteractionCounter(InteractionCounterBasket basket) {
+	public void collectRabbitmqCallInteractionCounter(InteractionCounterBasket basket) {
 		if (!conf.counter_interaction_enabled) {
 			return;
 		}
@@ -127,6 +127,30 @@ public class InteractionPerf {
 		String interactionType = CounterConstants.INTR_RABBITMQ_CALL;
 		LinkedMap<MeterInteractionManager.Key, MeterInteraction> rabbitmqCallMeterMap = MeterInteractionManager.getInstance().getRabbitmqCallMeterMap();
 		addInteractionsToBasket(basket, interactionType, rabbitmqCallMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collectElasticSearchCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_ELASTICSEARCH_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> esMeterMap = MeterInteractionManager.getInstance().getElasticSearchCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, esMeterMap, periodSec);
+	}
+
+	@InteractionCounter(interval = 5000)
+	public void collectMongoDbCallInteractionCounter(InteractionCounterBasket basket) {
+		if (!conf.counter_interaction_enabled) {
+			return;
+		}
+
+		int periodSec = 30;
+		String interactionType = CounterConstants.INTR_MONGODB_CALL;
+		LinkedMap<MeterInteractionManager.Key, MeterInteraction> meterMap = MeterInteractionManager.getInstance().getMongoDbCallMeterMap();
+		addInteractionsToBasket(basket, interactionType, meterMap, periodSec);
 	}
 
 	private void addInteractionsToBasket(InteractionCounterBasket basket, String interactionType, LinkedMap<MeterInteractionManager.Key, MeterInteraction> apiIncomingMeterMap, int periodSec) {

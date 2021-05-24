@@ -51,8 +51,10 @@ import java.time.format.DateTimeParseException;
 public class XLogFilterDialog extends Dialog {
 	
 	Combo objCombo;
-	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, resTimeFromTxt, resTimeToTxt, userAgentTxt, loginText, descText, hasDumpYn, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText;
+	Text serviceTxt, ipTxt, startHmsFromTxt, startHmsToTxt, resTimeFromTxt, resTimeToTxt, userAgentTxt, loginText, descText;
+	Text hasDumpYn, text1Text, text2Text, text3Text, text4Text, text5Text, profileSizeText, profileByteText;
 	Button onlySqlBtn, onlyApiBtn, onlyErrorBtn;
+	Button onlySyncBtn, onlyAsyncBtn;
 	Button clearBtn, applyBtn;
 	
 	XLogViewCommon view;
@@ -335,6 +337,19 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		label = new Label(filterGrp, SWT.NONE);
+		label.setText("PROFILE-BYTE");
+		label.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, false, false));
+		profileByteText = new Text(filterGrp, SWT.BORDER | SWT.SINGLE);
+		profileByteText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false));
+		profileByteText.setText(status.profileBytesText);
+		profileByteText.addModifyListener(new ModifyListener() {
+			public void modifyText(ModifyEvent arg0) {
+				newStatus.profileBytesText = profileByteText.getText();
+				compareHash();
+			}
+		});
 		
 		Group checkGroup = new Group(filterGrp, SWT.NONE);
 		checkGroup.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true, 2, 1));
@@ -372,6 +387,28 @@ public class XLogFilterDialog extends Dialog {
 				compareHash();
 			}
 		});
+
+		onlySyncBtn = new Button(checkGroup, SWT.CHECK);
+		onlySyncBtn.setText("Sync");
+		onlySyncBtn.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
+		onlySyncBtn.setSelection(status.onlySync);
+		onlySyncBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				newStatus.onlySync = onlySyncBtn.getSelection();
+				compareHash();
+			}
+		});
+
+		onlyAsyncBtn = new Button(checkGroup, SWT.CHECK);
+		onlyAsyncBtn.setText("Async");
+		onlyAsyncBtn.setLayoutData(new GridData(SWT.LEFT, SWT.FILL, true, false));
+		onlyAsyncBtn.setSelection(status.onlyAsync);
+		onlyAsyncBtn.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				newStatus.onlyAsync = onlyAsyncBtn.getSelection();
+				compareHash();
+			}
+		});
 		
 		Composite btnComp = new Composite(container, SWT.NONE);
 		btnComp.setLayoutData(new GridData(SWT.RIGHT, SWT.FILL, true, false));
@@ -403,7 +440,10 @@ public class XLogFilterDialog extends Dialog {
 				onlySqlBtn.setSelection(false);
 				onlyApiBtn.setSelection(false);
 				onlyErrorBtn.setSelection(false);
+				onlySyncBtn.setSelection(false);
+				onlyAsyncBtn.setSelection(false);
 				profileSizeText.setText("");
+				profileByteText.setText("");
 				newStatus = new XLogFilterStatus();
 				if (newStatus.hashCode() != filterHash) {
 					applyBtn.setEnabled(true);

@@ -28,7 +28,7 @@ public class PsClearParametersMV extends LocalVariablesSorter implements Opcodes
 
 	// /////////////////////////////////////////////////////////////////
 	public PsClearParametersMV(int access, String desc, MethodVisitor mv, String owner) {
-		super(ASM7,access, desc, mv);
+		super(ASM8,access, desc, mv);
 		this.owner = owner;
 	}
 

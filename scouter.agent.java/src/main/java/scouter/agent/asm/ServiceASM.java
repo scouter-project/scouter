@@ -74,7 +74,7 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 	private byte xType;
 
 	public ServiceCV(ClassVisitor cv, HookingSet mset, String className,byte xType) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 		this.xType=xType;
@@ -124,7 +124,7 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 
 	public ServiceMV(int access, String desc, MethodVisitor mv, String fullname,Type[] paramTypes,
 			boolean isStatic,byte xType,String classname, String methodname, String methoddesc) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.fullname = fullname;
 		this.paramTypes = paramTypes;
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
@@ -149,7 +149,11 @@ class ServiceMV extends LocalVariablesSorter implements Opcodes {
 	public void visitCode() {
 		int sidx = isStatic ? 0 : 1;
 		if (strArgIdx >= 0) {
-			mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
+			if (Configure.getInstance().hook_service_name_use_1st_string_enabled) {
+				mv.visitVarInsn(Opcodes.ALOAD, strArgIdx);
+			} else {
+				AsmUtil.PUSH(mv, fullname);
+			}
 		} else {
 			AsmUtil.PUSH(mv, fullname);
 		}

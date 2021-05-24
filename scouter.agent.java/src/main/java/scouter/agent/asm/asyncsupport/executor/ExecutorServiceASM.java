@@ -16,12 +16,15 @@
  */
 package scouter.agent.asm.asyncsupport.executor;
 
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import scouter.agent.ClassDesc;
 import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.asm.IASM;
 import scouter.agent.trace.TraceMain;
-import org.objectweb.asm.*;
-import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 7. 29.
@@ -51,7 +54,7 @@ class ThreadPoolExecutorCV extends ClassVisitor implements Opcodes {
     String className;
 
     public ThreadPoolExecutorCV(ClassVisitor cv, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.className = className;
     }
 
@@ -81,7 +84,7 @@ class ThreadPoolExecutorExecuteMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorExecuteMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -99,7 +102,7 @@ class AbstractExecutorServiceCV extends ClassVisitor implements Opcodes {
     String className;
 
     public AbstractExecutorServiceCV(ClassVisitor cv, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.className = className;
     }
 
@@ -107,6 +110,7 @@ class AbstractExecutorServiceCV extends ClassVisitor implements Opcodes {
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
         MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
         if ("submit".equals(name)) {
+            Logger.trace("[SCTRACE]AbstractExecutorServiceCV.visitMethod:submit(), class:" + className + ", " + name + ", " + signature);
             return new AbstraceExecutorServiceSubmitMV(access, name, desc, mv);
         }
         return mv;
@@ -122,7 +126,7 @@ class AbstraceExecutorServiceSubmitMV extends LocalVariablesSorter implements Op
     String desc;
 
     public AbstraceExecutorServiceSubmitMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -145,7 +149,7 @@ class ThreadPoolExecutorGetTaskMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorGetTaskMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }

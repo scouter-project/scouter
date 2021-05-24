@@ -116,7 +116,7 @@ public class Configure extends Thread {
     @ConfigDesc("Redefining DS, RP type according to main object")
     public boolean obj_type_inherit_to_child_enabled = false;
     @ConfigDesc("Activating collect sub counters using JMX")
-    public boolean jmx_counter_enabled = true;
+    public boolean jmx_counter_enabled = false;
 
     //profile
     @ConfigDesc("Http Query String profile")
@@ -161,6 +161,8 @@ public class Configure extends Thread {
     public boolean profile_method_enabled = true;
     @ConfigDesc("Profile Buffer Size")
     public int profile_step_max_count = 1024;
+    @ConfigDesc("Profile Buffer Size")
+    public int profile_step_max_keep_in_memory_count = 2048;
     @ConfigDesc("Stack profile in occurrence of service error")
     public boolean profile_fullstack_service_error_enabled = false;
     @ConfigDesc("Stack profile in occurrence of apicall error")
@@ -191,9 +193,21 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean profile_fullstack_stmt_leak_enabled = false;
 
+    @ConfigDesc("Profile elastic search full query.\nIt need more payload and disk usage.")
+    public boolean profile_elasticsearch_full_query_enabled = false;
+
+    @ConfigDesc("profile reactor's important checkpoint")
+    public boolean profile_reactor_checkpoint_enabled = true;
+    @ConfigDesc("reactor's important checkpoint scan depth")
+    public int profile_reactor_checkpoint_search_depth = 5;
+    @ConfigDesc("profile reactor's another checkpoints")
+    public boolean profile_reactor_more_checkpoint_enabled = false;
+
     //Trace
-    @ConfigDesc("User ID based(0 : Remote Address, 1 : Cookie, 2 : Scouter Cookie, 2 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
+    @ConfigDesc("User ID based(0 : Remote IP Address, 1 : Cookie(JSESSIONID), 2 : Cookie(SCOUTER), 3 : Header) \n - able to set value for 1.Cookie and 3.Header \n - refer to 'trace_user_session_key'")
     public int trace_user_mode = 2; // 0:Remote IP, 1:JSessionID, 2:Scouter Cookie, 3:Header
+    @ConfigDesc("Setting a cookie expired time for SCOUTER cookie when trace_user_mode is 2")
+    public int trace_scouter_cookie_max_age = Integer.MAX_VALUE;
     @ConfigDesc("Setting a cookie path for SCOUTER cookie when trace_user_mode is 2")
     public String trace_user_cookie_path = "/";
 
@@ -330,6 +344,10 @@ public class Configure extends Thread {
     public boolean xlog_error_on_apicall_exception_enabled = true;
     @ConfigDesc("mark as error on xlog flag if redis error is occured.")
     public boolean xlog_error_on_redis_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if elasticsearc error is occured.")
+    public boolean xlog_error_on_elasticsearch_exception_enabled = true;
+    @ConfigDesc("mark as error on xlog flag if mongodb error is occured.")
+    public boolean xlog_error_on_mongodb_exception_enabled = true;
 
     //XLog hard sampling options
     @ConfigDesc("XLog hard sampling mode enabled\n - for the best performance but it affects all statistics data")
@@ -338,6 +356,14 @@ public class Configure extends Thread {
     public int _xlog_hard_sampling_rate_pct = 10;
 
     //XLog soft sampling options
+    @ConfigDesc("XLog sampling - ignore global consequent sampling. the commencement service's sampling option affects it's children.")
+    public boolean ignore_global_consequent_sampling = false;
+    @ConfigDesc("XLog sampling - The service of this patterns can be unsampled by the sampling rate even if parent call is sampled and on tracing.")
+    public String xlog_consequent_sampling_ignore_patterns= "";
+
+    @ConfigDesc("XLog sampling exclude patterns.")
+    public String xlog_sampling_exclude_patterns = "";
+
     @ConfigDesc("XLog sampling mode enabled")
     public boolean xlog_sampling_enabled = false;
     @ConfigDesc("XLog sampling but discard profile only not XLog.")
@@ -357,10 +383,10 @@ public class Configure extends Thread {
     @ConfigDesc("XLog sampling over step3 percentage(%)")
     public int xlog_sampling_over_rate_pct = 100;
 
+
     //XLog sampling for service patterns options
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned_sampling_enabled = false;
-
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned_sampling_service_patterns = "";
@@ -381,6 +407,102 @@ public class Configure extends Thread {
     public int xlog_patterned_sampling_step3_rate_pct = 30;
     @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
     public int xlog_patterned_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned2_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned2_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned2_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned2_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned2_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned2_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned2_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned2_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned2_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned2_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned3_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned3_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned3_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned3_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned3_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned3_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned3_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned3_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned3_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned3_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned4_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned4_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned4_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned4_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned4_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned4_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned4_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned4_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned4_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned4_sampling_over_rate_pct = 100;
+
+    //XLog patterned sampling options for another sampling group
+    @ConfigDesc("XLog patterned sampling mode enabled")
+    public boolean xlog_patterned5_sampling_enabled = false;
+    @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String xlog_patterned5_sampling_service_patterns = "";
+
+    @ConfigDesc("XLog patterned sampling but discard profile only not XLog.")
+    public boolean xlog_patterned5_sampling_only_profile = false;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step1(lowest : range - from 0 to here)")
+    public int xlog_patterned5_sampling_step1_ms = 100;
+    @ConfigDesc("XLog patterned sampling step1 percentage(%)")
+    public int xlog_patterned5_sampling_step1_rate_pct = 3;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step2(range - from step1 to here)")
+    public int xlog_patterned5_sampling_step2_ms = 1000;
+    @ConfigDesc("XLog patterned sampling step2 percentage(%)")
+    public int xlog_patterned5_sampling_step2_rate_pct = 10;
+    @ConfigDesc("XLog patterned sampling bound millisecond - step3(highest : range - from step2 to here)")
+    public int xlog_patterned5_sampling_step3_ms = 3000;
+    @ConfigDesc("XLog patterned sampling step3 percentage(%)")
+    public int xlog_patterned5_sampling_step3_rate_pct = 30;
+    @ConfigDesc("XLog patterned sampling over step3 percentage(%)")
+    public int xlog_patterned5_sampling_over_rate_pct = 100;
 
     //XLog discard options
     @ConfigDesc("XLog discard service patterns\nNo XLog data, but apply to TPS and summary.\neg) /user/{userId}<GET>,/device/*")
@@ -477,10 +599,15 @@ public class Configure extends Thread {
     public boolean hook_method_access_none_enabled = false;
     @ConfigDesc("Activating lambda Method hooking")
     public boolean hook_method_lambda_enable = true;
+    @ConfigDesc("Activating anonymous Method hooking")
+    public boolean hook_method_anonymous_enable = true;
 
     @ConfigDesc("Method set for service hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
+
+    @ConfigDesc("hooking service name use a 1st string parameter or class & method name")
+    public boolean hook_service_name_use_1st_string_enabled = true;
 
     @ConfigDesc("Method set for apicall hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
@@ -562,9 +689,6 @@ public class Configure extends Thread {
     @ConfigDesc("hook threadpool executor for tracing async processing.")
     public boolean hook_async_thread_pool_executor_enabled = true;
 
-    @ConfigDesc("Experimental! test it on staging environment of your system before enable this option.\n enable lambda expressioned class hook for detecting asyncronous processing. \nOnly classes under the package configured by 'hook_async_callrunnable_scan_package_prefixes' is hooked.")
-    public boolean hook_lambda_instrumentation_strategy_enabled = false;
-
     @ConfigDesc("hystrix execution hook enabled")
     public boolean hook_hystrix_enabled = false;
 
@@ -597,7 +721,19 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public boolean _hook_kafka_enabled = true;
     @ConfigDesc("")
+    public boolean _hook_elasticsearch_enabled = true;
+    @ConfigDesc("")
+    public boolean hook_mongodb_enabled = false;
+    @ConfigDesc("")
     public boolean _hook_rabbit_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_reactive_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_enabled = true;
+    @ConfigDesc("")
+    public boolean _hook_coroutine_debugger_hook_enabled = false;
+    @ConfigDesc("")
+    public boolean _hook_thread_name_enabled = false;
 
     @ConfigDesc("")
     public String _hook_direct_patch_classes = "";
@@ -644,6 +780,11 @@ public class Configure extends Thread {
     public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
     public int _psts_dump_interval_ms = 10000;
+    @ConfigDesc("PSTS(periodical stacktrace step) thread dump min time. it dumps only the elapsed time is over than this option")
+    public int _psts_dump_min_ms = 1000;
+    @ConfigDesc("PSTS(periodical stacktrace step) thread dump max count in 1 interval")
+    public int _psts_dump_max_count = 100;
+    public boolean _psts_progressive_reactor_thread_trace_enabled = true;
 
     //Summary
     @ConfigDesc("Activating summary function")
@@ -856,6 +997,7 @@ public class Configure extends Thread {
         this.hook_method_access_private_enabled = getBoolean("hook_method_access_private_enabled", false);
         this.hook_method_access_none_enabled = getBoolean("hook_method_access_none_enabled", false);
         this.hook_method_lambda_enable = getBoolean("hook_method_lambda_enable", true);
+        this.hook_method_anonymous_enable = getBoolean("hook_method_anonymous_enable", true);
 
         this.hook_method_ignore_prefixes = StringUtil.removeWhitespace(getValue("hook_method_ignore_prefixes", "get,set"));
         this._hook_method_ignore_prefix = StringUtil.split(this.hook_method_ignore_prefixes, ",");
@@ -867,6 +1009,7 @@ public class Configure extends Thread {
                 this.hook_method_ignore_classes.replace('.', '/'), ","));
         this.profile_method_enabled = getBoolean("profile_method_enabled", true);
         this.hook_service_patterns = getValue("hook_service_patterns", "");
+        this.hook_service_name_use_1st_string_enabled = getBoolean("hook_service_name_use_1st_string_enabled", true);
         this.hook_apicall_patterns = getValue("hook_apicall_patterns", "");
         this.hook_apicall_info_patterns = getValue("hook_apicall_info_patterns", "");
         this.hook_jsp_patterns = getValue("hook_jsp_patterns", "");
@@ -908,7 +1051,6 @@ public class Configure extends Thread {
 
         this.hook_async_thread_pool_executor_enabled = getBoolean("hook_async_thread_pool_executor_enabled", true);
 
-        this.hook_lambda_instrumentation_strategy_enabled = getBoolean("hook_lambda_instrumentation_strategy_enabled", false);
         this.hook_hystrix_enabled = getBoolean("hook_hystrix_enabled", true);
 
         this.hook_add_fields = getValue("hook_add_fields", "");
@@ -931,8 +1073,13 @@ public class Configure extends Thread {
         this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
 
         this.profile_step_max_count = getInt("profile_step_max_count", 1024);
-        if (this.profile_step_max_count < 100)
-            this.profile_step_max_count = 100;
+        if (this.profile_step_max_count < 128)
+            this.profile_step_max_count = 128;
+
+        profile_step_max_keep_in_memory_count = getInt("profile_step_max_keep_in_memory_count", 2048);
+        if (this.profile_step_max_count < 128)
+            this.profile_step_max_count = 128;
+
         this._log_background_sql = getBoolean("_log_background_sql", false);
         this.profile_fullstack_service_error_enabled = getBoolean("profile_fullstack_service_error_enabled", false);
         this.profile_fullstack_apicall_error_enabled = getBoolean("profile_fullstack_apicall_error_enabled", false);
@@ -945,6 +1092,12 @@ public class Configure extends Thread {
         this.profile_fullstack_max_lines = getInt("profile_fullstack_max_lines", 0);
         this.profile_fullstack_rs_leak_enabled = getBoolean("profile_fullstack_rs_leak_enabled", false);
         this.profile_fullstack_stmt_leak_enabled = getBoolean("profile_fullstack_stmt_leak_enabled", false);
+
+        this.profile_elasticsearch_full_query_enabled = getBoolean("profile_elasticsearch_full_query_enabled", false);
+
+        this.profile_reactor_checkpoint_enabled = getBoolean("profile_reactor_checkpoint_enabled", true);
+        this.profile_reactor_checkpoint_search_depth = getInt("profile_reactor_checkpoint_search_depth", 5);
+        this.profile_reactor_more_checkpoint_enabled = getBoolean("profile_reactor_more_checkpoint_enabled", false);
 
         this.net_udp_collection_interval_ms = getInt("net_udp_collection_interval_ms", 100);
 
@@ -959,6 +1112,7 @@ public class Configure extends Thread {
         this.profile_connection_open_fullstack_enabled = getBoolean("profile_connection_open_fullstack_enabled", false);
         this.profile_connection_autocommit_status_enabled = getBoolean("profile_connection_autocommit_status_enabled", false);
         this.trace_user_mode = getInt("trace_user_mode", 2);
+        this.trace_scouter_cookie_max_age = getInt("trace_scouter_cookie_max_age", Integer.MAX_VALUE);
         this.trace_user_cookie_path = getValue("trace_user_cookie_path", "/");
         this.trace_user_session_key = getValue("trace_user_session_key", "JSESSIONID");
         this._trace_auto_service_enabled = getBoolean("_trace_auto_service_enabled", false);
@@ -978,7 +1132,13 @@ public class Configure extends Thread {
         this._hook_spring_rest_enabled = getBoolean("_hook_spring_rest_enabled", true);
         this._hook_redis_enabled = getBoolean("_hook_redis_enabled", true);
         this._hook_kafka_enabled = getBoolean("_hook_kafka_enabled", true);
+        this._hook_elasticsearch_enabled = getBoolean("_hook_elasticsearch_enabled", true);
+        this.hook_mongodb_enabled = getBoolean("hook_mongodb_enabled", false);
         this._hook_rabbit_enabled = getBoolean("_hook_rabbit_enabled", true);
+        this._hook_reactive_enabled = getBoolean("_hook_reactive_enabled", true);
+        this._hook_coroutine_enabled = getBoolean("_hook_coroutine_enabled", true);
+        this._hook_coroutine_debugger_hook_enabled = getBoolean("_hook_coroutine_debugger_hook_enabled", false);
+        this._hook_thread_name_enabled = getBoolean("_hook_thread_name_enabled", false);
 
         this._hook_direct_patch_classes = getValue("_hook_direct_patch_classes", "");
 
@@ -996,6 +1156,9 @@ public class Configure extends Thread {
 
         this._psts_enabled = getBoolean("_psts_enabled", false);
         this._psts_dump_interval_ms = getInt("_psts_dump_interval_ms", 10000);
+        this._psts_dump_min_ms = getInt("_psts_dump_min_ms", 1000);
+        this._psts_dump_max_count = getInt("_psts_dump_max_count", 100);
+        this._psts_progressive_reactor_thread_trace_enabled = getBoolean("_psts_progressive_reactor_dump_enabled", true);
 
         // 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
         // 관련 키정보를 지정한다.
@@ -1043,10 +1206,12 @@ public class Configure extends Thread {
         this.xlog_error_on_sqlexception_enabled = getBoolean("xlog_error_on_sqlexception_enabled", true);
         this.xlog_error_on_apicall_exception_enabled = getBoolean("xlog_error_on_apicall_exception_enabled", true);
         this.xlog_error_on_redis_exception_enabled = getBoolean("xlog_error_on_redis_exception_enabled", true);
+        this.xlog_error_on_elasticsearch_exception_enabled = getBoolean("xlog_error_on_elasticsearch_exception_enabled", true);
+        this.xlog_error_on_mongodb_exception_enabled = getBoolean("xlog_error_on_mongodb_exception_enabled", true);
 
         this._log_asm_enabled = getBoolean("_log_asm_enabled", false);
         this.obj_type_inherit_to_child_enabled = getBoolean("obj_type_inherit_to_child_enabled", false);
-        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", true);
+        this.jmx_counter_enabled = getBoolean("jmx_counter_enabled", false);
         this._profile_fullstack_sql_connection_enabled = getBoolean("_profile_fullstack_sql_connection_enabled", false);
         this._profile_fullstack_sql_execute_debug_enabled = getBoolean("_profile_fullstack_sql_execute_debug_enabled", false);
         this._trace_fullstack_socket_open_port = getInt("_trace_fullstack_socket_open_port", 0);
@@ -1065,6 +1230,11 @@ public class Configure extends Thread {
 
         this._xlog_hard_sampling_enabled = getBoolean("_xlog_hard_sampling_enabled", false);
         this._xlog_hard_sampling_rate_pct = getInt("_xlog_hard_sampling_rate_pct", 10);
+
+        this.ignore_global_consequent_sampling = getBoolean("ignore_global_consequent_sampling", false);
+        this.xlog_consequent_sampling_ignore_patterns = getValue("xlog_consequent_sampling_ignore_patterns", "");
+
+        this.xlog_sampling_exclude_patterns = getValue("xlog_sampling_exclude_patterns", "");
 
         this.xlog_sampling_enabled = getBoolean("xlog_sampling_enabled", false);
         this.xlog_sampling_only_profile = getBoolean("xlog_sampling_only_profile", false);
@@ -1086,6 +1256,50 @@ public class Configure extends Thread {
         this.xlog_patterned_sampling_step3_ms = getInt("xlog_patterned_sampling_step3_ms", 3000);
         this.xlog_patterned_sampling_step3_rate_pct = getInt("xlog_patterned_sampling_step3_rate_pct", 30);
         this.xlog_patterned_sampling_over_rate_pct = getInt("xlog_patterned_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned2_sampling_enabled = getBoolean("xlog_patterned2_sampling_enabled", false);
+        this.xlog_patterned2_sampling_service_patterns = getValue("xlog_patterned2_sampling_service_patterns", "");
+        this.xlog_patterned2_sampling_only_profile = getBoolean("xlog_patterned2_sampling_only_profile", false);
+        this.xlog_patterned2_sampling_step1_ms = getInt("xlog_patterned2_sampling_step1_ms", 100);
+        this.xlog_patterned2_sampling_step1_rate_pct = getInt("xlog_patterned2_sampling_step1_rate_pct", 3);
+        this.xlog_patterned2_sampling_step2_ms = getInt("xlog_patterned2_sampling_step2_ms", 1000);
+        this.xlog_patterned2_sampling_step2_rate_pct = getInt("xlog_patterned2_sampling_step2_rate_pct", 10);
+        this.xlog_patterned2_sampling_step3_ms = getInt("xlog_patterned2_sampling_step3_ms", 3000);
+        this.xlog_patterned2_sampling_step3_rate_pct = getInt("xlog_patterned2_sampling_step3_rate_pct", 30);
+        this.xlog_patterned2_sampling_over_rate_pct = getInt("xlog_patterned2_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned3_sampling_enabled = getBoolean("xlog_patterned3_sampling_enabled", false);
+        this.xlog_patterned3_sampling_service_patterns = getValue("xlog_patterned3_sampling_service_patterns", "");
+        this.xlog_patterned3_sampling_only_profile = getBoolean("xlog_patterned3_sampling_only_profile", false);
+        this.xlog_patterned3_sampling_step1_ms = getInt("xlog_patterned3_sampling_step1_ms", 100);
+        this.xlog_patterned3_sampling_step1_rate_pct = getInt("xlog_patterned3_sampling_step1_rate_pct", 3);
+        this.xlog_patterned3_sampling_step2_ms = getInt("xlog_patterned3_sampling_step2_ms", 1000);
+        this.xlog_patterned3_sampling_step2_rate_pct = getInt("xlog_patterned3_sampling_step2_rate_pct", 10);
+        this.xlog_patterned3_sampling_step3_ms = getInt("xlog_patterned3_sampling_step3_ms", 3000);
+        this.xlog_patterned3_sampling_step3_rate_pct = getInt("xlog_patterned3_sampling_step3_rate_pct", 30);
+        this.xlog_patterned3_sampling_over_rate_pct = getInt("xlog_patterned3_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned4_sampling_enabled = getBoolean("xlog_patterned4_sampling_enabled", false);
+        this.xlog_patterned4_sampling_service_patterns = getValue("xlog_patterned4_sampling_service_patterns", "");
+        this.xlog_patterned4_sampling_only_profile = getBoolean("xlog_patterned4_sampling_only_profile", false);
+        this.xlog_patterned4_sampling_step1_ms = getInt("xlog_patterned4_sampling_step1_ms", 100);
+        this.xlog_patterned4_sampling_step1_rate_pct = getInt("xlog_patterned4_sampling_step1_rate_pct", 3);
+        this.xlog_patterned4_sampling_step2_ms = getInt("xlog_patterned4_sampling_step2_ms", 1000);
+        this.xlog_patterned4_sampling_step2_rate_pct = getInt("xlog_patterned4_sampling_step2_rate_pct", 10);
+        this.xlog_patterned4_sampling_step3_ms = getInt("xlog_patterned4_sampling_step3_ms", 3000);
+        this.xlog_patterned4_sampling_step3_rate_pct = getInt("xlog_patterned4_sampling_step3_rate_pct", 30);
+        this.xlog_patterned4_sampling_over_rate_pct = getInt("xlog_patterned4_sampling_over_rate_pct", 100);
+
+        this.xlog_patterned5_sampling_enabled = getBoolean("xlog_patterned5_sampling_enabled", false);
+        this.xlog_patterned5_sampling_service_patterns = getValue("xlog_patterned5_sampling_service_patterns", "");
+        this.xlog_patterned5_sampling_only_profile = getBoolean("xlog_patterned5_sampling_only_profile", false);
+        this.xlog_patterned5_sampling_step1_ms = getInt("xlog_patterned5_sampling_step1_ms", 100);
+        this.xlog_patterned5_sampling_step1_rate_pct = getInt("xlog_patterned5_sampling_step1_rate_pct", 3);
+        this.xlog_patterned5_sampling_step2_ms = getInt("xlog_patterned5_sampling_step2_ms", 1000);
+        this.xlog_patterned5_sampling_step2_rate_pct = getInt("xlog_patterned5_sampling_step2_rate_pct", 10);
+        this.xlog_patterned5_sampling_step3_ms = getInt("xlog_patterned5_sampling_step3_ms", 3000);
+        this.xlog_patterned5_sampling_step3_rate_pct = getInt("xlog_patterned5_sampling_step3_rate_pct", 30);
+        this.xlog_patterned5_sampling_over_rate_pct = getInt("xlog_patterned5_sampling_over_rate_pct", 100);
 
         this.xlog_discard_service_patterns = getValue("xlog_discard_service_patterns", "");
         this.xlog_discard_service_show_error = getBoolean("xlog_discard_service_show_error", true);

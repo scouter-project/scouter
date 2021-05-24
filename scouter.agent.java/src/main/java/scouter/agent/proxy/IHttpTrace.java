@@ -19,8 +19,9 @@ package scouter.agent.proxy;
 
 import scouter.agent.trace.TraceContext;
 
+import java.util.Enumeration;
+
 public interface IHttpTrace {
-	String getParameter(Object req, String key);
 
 	void start(TraceContext ctx, Object req, Object res);
 
@@ -30,7 +31,17 @@ public interface IHttpTrace {
 
 	void rejectUrl(Object res, String url);
 
+	String getParameter(Object req, String key);
 	String getHeader(Object req, String key);
+	String getCookie(Object req, String key);
+	String getRequestURI(Object req);
+	String getRequestId(Object req);
+	String getRemoteAddr(Object req);
+	String getMethod(Object req);
+	String getQueryString(Object req);
+	Object getAttribute(Object req, String key);
+	Enumeration getParameterNames(Object req);
+	Enumeration getHeaderNames(Object req);
 
 	void addAsyncContextListener(Object ac);
 

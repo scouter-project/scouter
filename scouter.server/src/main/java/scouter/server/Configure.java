@@ -139,6 +139,8 @@ public class Configure extends Thread {
 	public String server_id = SysJMX.getHostName();
 
 	//Log
+	public int log_test_rate = 0;
+
 	@ConfigDesc("Logging TCP connection related event")
 	public boolean log_tcp_action_enabled = false;
 	@ConfigDesc("Logging incoming MultiPacket")
@@ -229,9 +231,11 @@ public class Configure extends Thread {
 	public String net_http_api_cors_allow_credentials = "true";
 
 	@ConfigDesc("size of webapp connection pool to collector")
-	public int net_webapp_tcp_client_pool_size = 12;
-	@ConfigDesc("timeout of web app connection pool to collector(It depends on net_tcp_client_so_timeout_ms)")
-	public int net_webapp_tcp_client_pool_timeout = net_tcp_client_so_timeout_ms;
+	public int net_webapp_tcp_client_pool_size = 30;
+	@ConfigDesc("timeout of web app connection pool to collector")
+	public int net_webapp_tcp_client_pool_timeout = 60000;
+	@ConfigDesc("So timeout of web app to collector")
+	public int net_webapp_tcp_client_so_timeout = 30000;
 
 	@ConfigDesc("Enable api access control by client ip")
 	public boolean net_http_api_auth_ip_enabled = false;
@@ -315,6 +319,19 @@ public class Configure extends Thread {
 	@ConfigDesc("Retaining date for automatic deletion")
 	public int mgr_purge_counter_keep_days = 70;
 
+	@ConfigDesc("Retaining date for automatic deletion. realtime-counter only.")
+	public int mgr_purge_realtime_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. tag-counter only.")
+	public int mgr_purge_tag_counter_keep_days = mgr_purge_counter_keep_days;
+	@ConfigDesc("Retaining date for automatic deletion. visitor-counter only")
+	public int mgr_purge_visitor_counter_keep_days = mgr_purge_counter_keep_days;
+
+	@ConfigDesc("Retaining date for automatic deletion. daily text dictionary only")
+	public int mgr_purge_daily_text_days = Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2);
+
+	@ConfigDesc("Retaining date for automatic deletion. summary(stat) data only")
+	public int mgr_purge_sum_data_days = 60;
+
 	@ConfigDesc("Ignored log ID set")
 	@ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
 	public StringSet mgr_log_ignore_ids = new StringSet();
@@ -389,6 +406,18 @@ public class Configure extends Thread {
 	//Profile
 	@ConfigDesc("Profile Writer Queue Size")
 	public int profile_queue_size = 1000;
+
+	@ConfigDesc("gxid keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_gxid_keep_memory_count = 500000;
+	@ConfigDesc("xlog keeping count in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_count = 100000;
+	@ConfigDesc("max keeping millis of xlog for XLog consequent sampling")
+	public int xlog_sampling_matcher_xlog_keep_memory_millis = 5000;
+
+	@ConfigDesc("profile keeping count (in one bucket, 500ms) in memory for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_count = 5000;
+	@ConfigDesc("max keeping seconds of profile for XLog consequent sampling")
+	public int xlog_sampling_matcher_profile_keep_memory_secs = 5;
 
 	//GeoIP
 	@ConfigDesc("Activating IP-based city/country extraction")
@@ -632,9 +661,18 @@ public class Configure extends Thread {
     public static boolean WORKABLE = true;
 
 	private void applyConfig() {
+		this.log_test_rate = getInt("log_test_rate", 0);
+
 		this.xlog_queue_size = getInt("xlog_queue_size", 10000);
 		this.profile_queue_size = getInt("profile_queue_size", 1000);
 		this.log_tcp_action_enabled = getBoolean("log_tcp_action_enabled", false);
+
+		this.xlog_sampling_matcher_gxid_keep_memory_count = getInt("xlog_sampling_matcher_gxid_keep_memory_count", 500000);
+		this.xlog_sampling_matcher_xlog_keep_memory_count = getInt("xlog_sampling_matcher_xlog_keep_memory_count", 100000);
+		this.xlog_sampling_matcher_xlog_keep_memory_millis = getInt("xlog_sampling_matcher_xlog_keep_memory_millis", 5000);
+
+		this.xlog_sampling_matcher_profile_keep_memory_count = getInt("xlog_sampling_matcher_profile_keep_memory_count", 5000);
+		this.xlog_sampling_matcher_profile_keep_memory_secs = getInt("xlog_sampling_matcher_profile_keep_memory_secs", 5);
 
 		this.net_udp_listen_ip = getValue("net_udp_listen_ip", "0.0.0.0");
 		this.net_udp_listen_port = getInt("net_udp_listen_port", NetConstants.SERVER_UDP_PORT);
@@ -733,10 +771,19 @@ public class Configure extends Thread {
 		if(mgr_purge_profile_keep_days == 0) mgr_purge_profile_keep_days = this.mgr_purge_keep_days;
 
 		this.mgr_purge_xlog_without_profile_keep_days = getInt("mgr_purge_xlog_without_profile_keep_days", mgr_purge_profile_keep_days*3);
-		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days*3);
+		this.mgr_purge_xlog_keep_days = getInt("mgr_purge_xlog_keep_days", mgr_purge_profile_keep_days * 3);
 		if(mgr_purge_xlog_keep_days == 0) mgr_purge_xlog_keep_days = this.mgr_purge_xlog_without_profile_keep_days;
 
-		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days*7);
+		this.mgr_purge_counter_keep_days = getInt("mgr_purge_counter_keep_days", mgr_purge_keep_days * 7);
+
+		this.mgr_purge_realtime_counter_keep_days = getInt("mgr_purge_realtime_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_tag_counter_keep_days = getInt("mgr_purge_tag_counter_keep_days", mgr_purge_counter_keep_days);
+		this.mgr_purge_visitor_counter_keep_days = getInt("mgr_purge_visitor_counter_keep_days", mgr_purge_counter_keep_days);
+
+		this.mgr_purge_daily_text_days = getInt("mgr_purge_daily_text_days",
+				Math.max(mgr_purge_tag_counter_keep_days * 2, mgr_purge_xlog_keep_days * 2));
+
+		this.mgr_purge_sum_data_days = getInt("mgr_purge_sum_data_days", mgr_purge_sum_data_days);
 
 		this.mgr_text_db_daily_service_enabled = getBoolean("mgr_text_db_daily_service_enabled", false);
 		this.mgr_text_db_daily_api_enabled = getBoolean("mgr_text_db_daily_api_enabled", false);

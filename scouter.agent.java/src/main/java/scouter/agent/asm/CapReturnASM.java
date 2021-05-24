@@ -56,7 +56,7 @@ class CapReturnCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public CapReturnCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM7, cv);
+		super(ASM8, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -91,7 +91,7 @@ class CapReturnMV extends LocalVariablesSorter implements Opcodes {
 			String classname,
 			String methodname,
 			String methoddesc, boolean isStatic) {
-		super(ASM7, access, desc, mv);
+		super(ASM8, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 		this.className = classname;
 		this.methodName = methodname;

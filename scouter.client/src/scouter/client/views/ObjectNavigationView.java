@@ -779,6 +779,9 @@ public class ObjectNavigationView extends ViewPart implements RefreshThread.Refr
 		}
 		getObjectList();
 		for (AgentObject agent : objectList) {
+			if (agent.getObjType().startsWith("z$")) {
+				System.out.println("agent: " + agent);
+			}
 			int serverId = agent.getServerId();
 			Server server = ServerManager.getInstance().getServer(serverId);
 			if (server == null) {

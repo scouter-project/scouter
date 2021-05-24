@@ -17,11 +17,14 @@
 
 package scouter.agent.trace;
 
+import scouter.agent.proxy.IHttpTrace;
+import scouter.lang.pack.XLogDiscardTypes;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.DumpStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.step.ThreadCallPossibleStep;
 import scouter.util.IntKeyMap;
+import scouter.util.LongKeyLinkedMap;
 import scouter.util.SysJMX;
 
 import java.util.ArrayList;
@@ -29,9 +32,34 @@ import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class TraceContext {
+	public static class TimedScannable {
+		public long start;
+		public Object scannable;
+
+		public TimedScannable(long start, Object scannable) {
+			this.start = start;
+			this.scannable = scannable;
+		}
+	}
+	public enum GetBy {
+		ThreadLocal,
+		ThreadLocalTxid,
+		ThreadLocalTxidByCoroutine,
+		CoroutineLocal
+	}
+	public GetBy getBy;
+	public LongKeyLinkedMap<TimedScannable> scannables;
+
     private boolean isSummary;
 	public boolean isStaticContents;
 	public boolean isFullyDiscardService;
+
+	public boolean isReactiveStarted;
+	public boolean isReactiveTxidMarked;
+	public long exchangeHashCode;
+	public String serverReqId;
+	public boolean isCoroutineStarted;
+	public boolean isOnCoroutineIdUpdating;
 
 	protected TraceContext() {
 	}
@@ -45,6 +73,15 @@ public class TraceContext {
 		}
 	}
 
+	public void initScannables() {
+		scannables = new LongKeyLinkedMap<TimedScannable>();
+		scannables.setMax(10000);
+	}
+
+	public Object _req;
+	public Object _res;
+	public IHttpTrace http;
+
 	public TraceContext parent;
 	public long txid;
 	public Thread thread;
@@ -56,6 +93,7 @@ public class TraceContext {
 	// profile
 	public IProfileCollector profile;
 	public int profileCount;
+	public int profileSize;
 
 	public long startTime;
 	public long startCpu;
@@ -67,6 +105,7 @@ public class TraceContext {
 
 	// service
 	public byte xType;
+	public XLogDiscardTypes.XLogDiscard discardType;
 
 	public int serviceHash;
 	public String serviceName;
@@ -161,6 +200,11 @@ public class TraceContext {
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {
 		TraceContext child = new TraceContext(this.isSummary);
+		if (this.isReactiveStarted) {
+			child.initScannables();
+			child.isReactiveStarted = true;
+			child.exchangeHashCode = this.exchangeHashCode;
+		}
 		child.parent = this;
 		child.txid = this.txid;
 		child.thread = this.thread;

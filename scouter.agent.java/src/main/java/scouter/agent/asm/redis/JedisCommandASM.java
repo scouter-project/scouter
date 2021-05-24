@@ -60,7 +60,7 @@ class JedisCommandCV extends ClassVisitor implements Opcodes {
     String className;
 
     public JedisCommandCV(ClassVisitor cv, String className) {
-        super(ASM7, cv);
+        super(ASM8, cv);
         this.className = className;
     }
 
@@ -93,7 +93,7 @@ class JedisCommandMV extends LocalVariablesSorter implements Opcodes {
     private Label startFinally = new Label();
 
     public JedisCommandMV(String className, int access, String name, String desc, MethodVisitor mv) {
-        super(ASM7, access, desc, mv);
+        super(ASM8, access, desc, mv);
         this.className = className;
         this.name = name;
         this.desc = desc;
