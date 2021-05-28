@@ -87,6 +87,7 @@ public class MakeStack {
 
         ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
         Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
+        List<TraceContext> ctxList = new ArrayList<>();
         int doCount = 0;
         while (en.hasMoreElements()) {
             if (maxCount > 0 && doCount >= maxCount) {
@@ -97,12 +98,16 @@ public class MakeStack {
             if (ctx != null) {
                 long elapsed = (System.currentTimeMillis() - ctx.startTime);
                 if (minMs <= 0 || elapsed >= minMs) {
-                    if (ctx.isReactiveStarted) {
-                        reactiveStepDump(tmxBean, ctx);
-                    } else {
-                        stepDump(tmxBean, ctx);
-                    }
+                    ctxList.add(ctx);
                 }
+            }
+        }
+
+        for (TraceContext ctx : ctxList) {
+            if (ctx.isReactiveStarted) {
+                reactiveStepDump(tmxBean, ctx);
+            } else {
+                stepDump(tmxBean, ctx);
             }
         }
     }
