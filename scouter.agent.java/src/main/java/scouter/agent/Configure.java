@@ -144,7 +144,7 @@ public class Configure extends Thread {
     @ConfigDesc("Profiling the memory usage of each method")
     public boolean profile_thread_cputime_enabled = false;
     @ConfigDesc("Profiling the memory usage of each service")
-    public boolean profile_thread_memory_usage_enabled = true;
+    public boolean profile_thread_memory_usage_enabled = false;
     @ConfigDesc("ThreadStack profile for open socket")
     public boolean profile_socket_open_fullstack_enabled = false;
     @ConfigDesc("ThreadStack profile for a certain port of open socket")
@@ -958,7 +958,7 @@ public class Configure extends Thread {
 
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
-        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", true);
+        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", false);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
         this.trace_background_socket_enabled = getBoolean("trace_background_socket_enabled", true);
         this.profile_socket_open_fullstack_port = getInt("profile_socket_open_fullstack_port", 0);
