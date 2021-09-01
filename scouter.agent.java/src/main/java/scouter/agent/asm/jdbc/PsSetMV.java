@@ -49,7 +49,7 @@ public class PsSetMV extends LocalVariablesSorter implements Opcodes {
 		target.put("setClob", "(ILjava/sql/Clob;)V");
 		target.put("setObject", "(ILjava/lang/Object;)V");
 		target.put("setString", "(ILjava/lang/String;)V");
-		target.put("setDate", "(IBLjava/sql/Date;)V");
+		target.put("setDate", "(ILjava/sql/Date;)V");
 		target.put("setTime", "(ILjava/sql/Time;)V");
 		target.put("setTimestamp", "(ILjava/sql/Timestamp;)V");
 		target.put("setURL", "(ILjava/net/URL;)V"); //
