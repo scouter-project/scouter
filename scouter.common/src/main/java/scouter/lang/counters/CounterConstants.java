@@ -30,6 +30,7 @@ public class CounterConstants {
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
 	public final static String FAMILY_MARIA = "maria";
 	public final static String FAMILY_BATCH = "batch";
+	public final static String FAMILY_CUBRID = "cubrid";
 
 	public final static String HOST = "host";
 	public final static String WINDOWS = "windows";
@@ -59,6 +60,8 @@ public class CounterConstants {
 	public final static String MARIA_DB = "mariadb";
 	public final static String MARIA_PLUGIN = "mariaplugin";
 
+	public final static String CUBRID_AGENT = "cubridagent";
+	
 	public final static String WAS_TPS = "TPS";
 	public final static String WAS_ACTIVE_SPEED = "ActiveSpeed";
 	public final static String WAS_ELAPSED_TIME = "ElapsedTime";

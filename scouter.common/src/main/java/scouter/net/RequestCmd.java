@@ -318,6 +318,18 @@ public class RequestCmd {
 	public static final String BATCH_ACTIVE_STACK = "BATCH_ACTIVE_STACK";
 	public static final String OBJECT_BATCH_ACTIVE_LIST = "OBJECT_BATCH_ACTIVE_LIST";
 	
+	// CUBRID - AGENT
+	public static final String CUBRID_DB_REALTIME_DML = "CUBRID_DB_REALTIME_DML";
+	public static final String CUBRID_DB_REALTIME_STATUS = "CUBRID_DB_REALTIME_STATUS";
+	public static final String CUBRID_ACTIVE_DB_LIST = "CUBRID_ACTIVE_DB_LIST";
+	public static final String CUBRID_DB_SERVER_INFO = "CUBRID_DB_SERVER_INFO";
+	public static final String CUBRID_DB_PERIOD_MULTI_DATA = "CUBRID_DB_PERIOD_MULTI_DATA";
+	public static final String CUBRID_DB_LONG_PERIOD_MULTI_DATA = "CUBRID_DB_LONG_PERIOD_MULTI_DATA";
+	public static final String CUBRID_DB_REALTIME_MULTI_DATA = "CUBRID_DB_REALTIME_MULTI_DATA";
+	public static final String CUBRID_DB_LONG_TRANSACTION_DATA = "CUBRID_DB_LONG_TRANSACTION_DATA";
+	public static final String CUBRID_GET_ALERT_CONFIGURE = "CUBRID_GET_ALERT_CONFIGURE";
+	public static final String CUBRID_SET_ALERT_CONFIGURE = "CUBRID_SET_ALERT_CONFIGURE";
+
 	protected static Set<String> freeCmdSet = new HashSet<String>();
 	
 	static {

@@ -103,6 +103,10 @@ import scouter.client.counter.views.CounterRealTimeTotalView;
 import scouter.client.counter.views.CounterRealTimeView;
 import scouter.client.counter.views.CounterTodayAllView;
 import scouter.client.counter.views.CounterTodayTotalView;
+import scouter.client.cubrid.CubridSingleItem;
+import scouter.client.cubrid.actions.OpenMultiViewAction;
+import scouter.client.cubrid.actions.OpenOtherViewAction;
+import scouter.client.cubrid.views.CubridSpaceDbView;
 import scouter.client.heapdump.actions.BlockProfileAction;
 import scouter.client.heapdump.actions.CpuProfileAction;
 import scouter.client.heapdump.actions.HeapDumpAction;
@@ -329,6 +333,18 @@ public class MenuUtil implements IMenuCreator{
     		performanceCounter.add(new OpenRealTimeMultiAction(win, "Table Locks", serverId, objHash, objType
     				, new String[] {"TBL_LOCK", "TBL_LOCK_W"}));
     		performanceCounter.add(new OpenDbRealtimeWaitCountAction(serverId, objHash));
+    	} else if (counterEngine.isChildOf(objType, CounterConstants.FAMILY_CUBRID)) {
+    		performanceCounter.add(new Separator());
+    		for(int ordinal = 0 ; ordinal < CubridSingleItem.values().length ; ordinal++) {
+    			performanceCounter.add(new OpenMultiViewAction(serverId, objHash, ordinal));
+    		}
+    		performanceCounter.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.DML_REALTIME));
+    		
+    		MenuManager cubridDbListView = new MenuManager(MenuStr.CUBRID_DB_LIST_VIEW, Images.CAPTURE, MenuStr.CUBRID_DB_LIST_VIEW_ID);
+	    	mgr.add(cubridDbListView);
+	    	cubridDbListView.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.DB_SPACE_INFO));
+	    	cubridDbListView.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.LONG_TRANSACTION));
+	    	
     	}
     	
     	if (object.isAlive()) {
@@ -428,8 +444,14 @@ public class MenuUtil implements IMenuCreator{
 				if (server.isAllowAction(GroupPolicyConstants.ALLOW_CONFIGURE))
 					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
 				performanceSnapshot.add(new OpenCxtmenuBatchActiveListAction(win, MenuStr.BATCH_ACTIVE_LIST, objHash, objType, serverId));
-			} 
+			} else {
+				if (objType.equals(CounterConstants.CUBRID_AGENT)) {
+					mgr.add(new Separator());
+					mgr.add(new OpenAgentConfigureAction(win, MenuStr.CONFIGURE, objHash, serverId));
+				}
+			}
     	}
+    	
     	if (server.isAllowAction(GroupPolicyConstants.ALLOW_DEFINEOBJTYPE)) {
 	    	if (counterEngine.isUnknownObjectType(objType)) {
 	    		mgr.add(new DefineObjectTypeAction(win, serverId, objType, DefineObjectTypeAction.DEFINE_MODE));

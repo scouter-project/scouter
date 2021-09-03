@@ -221,4 +221,7 @@ public class MenuStr {
 
 	public static final String BATCH_HISTORY = "Batch History";
 	public static final String BATCH_ACTIVE_LIST = "Batch Active List";
+	
+	public static final String CUBRID_DB_LIST_VIEW 		= "DB List View";
+	public static final String CUBRID_DB_LIST_VIEW_ID             = "scouter.client.contextmenu.agentobject.cubriddblistview";
 }
