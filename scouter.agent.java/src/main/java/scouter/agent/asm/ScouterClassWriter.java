@@ -176,6 +176,9 @@ public class ScouterClassWriter extends ClassWriter {
 				is = ClassLoader.getSystemResourceAsStream(type + ".class");
 			} else {
 				is = loader.getResourceAsStream(type + ".class");
+				if(is == null){
+					is = ClassLoader.getSystemResourceAsStream(type + ".class");
+				}
 			}
 			if (is == null) {
 				return null;
