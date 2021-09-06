@@ -85,10 +85,12 @@ public class ForHttpClient40 implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(req, conf._trace_interservice_callee_header_key, Hexa32.toString32(calleeTxid));
 				httpclient.addHeader(req, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
 
-				httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
-				httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
-				httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
-				//httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SAMPLED, "1"); omit means defer
+				if (conf.trace_propagete_b3_header) {
+					httpclient.addHeader(req, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+					httpclient.addHeader(req, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+					httpclient.addHeader(req, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(calleeTxid));
+					//httpclient.addHeader(oRtn, B3Constant.B3_HEADER_SAMPLED, "1"); omit means defer
+				}
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Throwable e) {
 				Logger.println("A001", e);
