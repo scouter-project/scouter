@@ -35,7 +35,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+import java.util.Map;
 
 public class DebugService {
 	
@@ -54,13 +54,13 @@ public class DebugService {
 			}
 			StringBuilder stuckMsg = new StringBuilder();
 			//TODO reactive support
-			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
-			while (en.hasMoreElements()) {
-				TraceContext ctx = en.nextElement();
+			for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
+				TraceContext ctx = e.getValue();
 				if (checkStuck) {
 					checkStcukService(ctx, stuckOut, stuckMsg);
 				}
 			}
+
 			if (stuckMsg.length() > 0) {
 				AlertProxy.sendAlert(AlertLevel.WARN, "STUCK_SERVICE", stuckMsg.toString());
 			}

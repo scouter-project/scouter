@@ -116,7 +116,7 @@ public class TraceMain {
 
     public static Object startHttpService(Object req, Object res) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx != null) {
                 return null;
             }
@@ -132,7 +132,7 @@ public class TraceMain {
 
     public static Object startHttpFilter(Object req, Object res) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx != null) {
                 return null;
             }
@@ -165,7 +165,7 @@ public class TraceMain {
             }
 
             String serverReqId = reactiveHttp.getRequestId(req);
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx != null && serverReqId != null && ctx.serverReqId == serverReqId) {
                 return;
             }
@@ -186,7 +186,7 @@ public class TraceMain {
     }
 
     public static Object startReactiveHttpServiceReturn(Object mono) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null) {
             return mono;
         }
@@ -383,7 +383,7 @@ public class TraceMain {
     }
 
     public static void endReactiveHttpService() {
-        TraceContext context = TraceContextManager.getContext();
+        TraceContext context = TraceContextManager.getContext(true);
         if (context == null) {
             return;
         }
@@ -763,7 +763,7 @@ public class TraceMain {
     public static Object startService(String name, String className, String methodName, String methodDesc, Object _this,
                                       Object[] arg, byte xType) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx != null) {
                 return null;
             }
@@ -1148,7 +1148,7 @@ public class TraceMain {
     }
 
     public static void setSpringControllerName(String name) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null || name == null)
             return;
         if (!ctx.alreadySetControllerName) {
@@ -1159,7 +1159,7 @@ public class TraceMain {
     }
 
     public static void startSpringControllerMethod(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null)
             return;
         if (conf.profile_spring_controller_method_parameter_enabled) {
@@ -1180,7 +1180,7 @@ public class TraceMain {
     }
 
     public static void setStatus(int httpStatus) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null)
             return;
         ctx.status = httpStatus;
@@ -1236,7 +1236,7 @@ public class TraceMain {
     }
 
     public static void endRequestAsyncStart(Object asyncContext) {
-        TraceContext traceContext = TraceContextManager.getContext();
+        TraceContext traceContext = TraceContextManager.getContext(true);
         if (traceContext == null) return;
         if (http == null) return;
         http.addAsyncContextListener(asyncContext);
@@ -1284,7 +1284,7 @@ public class TraceMain {
 
     public static void asyncPossibleInstanceInitInvoked(Object keyObject) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx == null) return;
 
             if (TransferMap.get(System.identityHashCode(keyObject)) != null) {
@@ -1316,7 +1316,7 @@ public class TraceMain {
                                                    Object _this, Object[] arg) {
 
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             int objKey = System.identityHashCode(keyObject);
             TransferMap.ID id = TransferMap.get(objKey);
             TransferMap.remove(objKey);
@@ -1387,7 +1387,7 @@ public class TraceMain {
 
     public static void springAsyncExecutionSubmit(Object _this, Callable callable) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx == null) return;
 
             if (TransferMap.get(System.identityHashCode(callable)) != null) {
@@ -1419,7 +1419,7 @@ public class TraceMain {
     }
 
     public static void springAsyncDetermineExecutor(Method m) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null) return;
         if (m == null) return;
 
@@ -1427,7 +1427,7 @@ public class TraceMain {
     }
 
     public static void executorServiceSubmitted(Object callRunnable) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null) return;
         if (callRunnable == null) return;
         if (callRunnable instanceof WrTaskCallable) return;
@@ -1437,7 +1437,7 @@ public class TraceMain {
 
     public static void executorServiceExecuted(Object callRunnable) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx == null) return;
             if (callRunnable == null) return;
             if (callRunnable instanceof WrTaskCallable) return;
@@ -1486,7 +1486,7 @@ public class TraceMain {
 
     public static Object callRunnableCallInvoked(Object callRunnableObj) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             int objKey = System.identityHashCode(callRunnableObj);
             TransferMap.ID id = TransferMap.get(objKey);
             TransferMap.remove(objKey);
@@ -1540,7 +1540,7 @@ public class TraceMain {
     private static final ConcurrentMap<String, Method> REFLECT_METHODS = new ConcurrentHashMap<String, Method>();
 
     public static void hystrixPrepareInvoked(Object hystrixCommand) {
-        TraceContext ctx = TraceContextManager.getContext();
+        TraceContext ctx = TraceContextManager.getContext(true);
         if (ctx == null) return;
 
         if (TransferMap.get(System.identityHashCode(hystrixCommand)) != null) {
@@ -1578,7 +1578,7 @@ public class TraceMain {
 
     public static void callRunnableInitInvoked(Object callRunnableObj, boolean addStepToCtx, boolean isIgnoreIfNoThreaded) {
         try {
-            TraceContext ctx = TraceContextManager.getContext();
+            TraceContext ctx = TraceContextManager.getContext(true);
             if (ctx == null) return;
 
             if (TransferMap.get(System.identityHashCode(callRunnableObj)) != null) {

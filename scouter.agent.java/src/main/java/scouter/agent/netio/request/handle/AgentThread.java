@@ -40,18 +40,9 @@ import scouter.util.ThreadUtil;
 
 import java.io.IOException;
 import java.util.Enumeration;
+import java.util.Map;
 
-import static scouter.net.RequestCmd.OBJECT_ACTIVE_SERVICE_LIST;
-import static scouter.net.RequestCmd.OBJECT_THREAD_CONTROL;
-import static scouter.net.RequestCmd.OBJECT_THREAD_DETAIL;
-import static scouter.net.RequestCmd.OBJECT_THREAD_DUMP;
-import static scouter.net.RequestCmd.OBJECT_THREAD_LIST;
-import static scouter.net.RequestCmd.PSTACK_ON;
-import static scouter.net.RequestCmd.TRIGGER_ACTIVE_SERVICE_LIST;
-import static scouter.net.RequestCmd.TRIGGER_DUMP_REASON;
-import static scouter.net.RequestCmd.TRIGGER_THREAD_DUMP;
-import static scouter.net.RequestCmd.TRIGGER_THREAD_DUMPS_FROM_CONDITIONS;
-import static scouter.net.RequestCmd.TRIGGER_THREAD_LIST;
+import static scouter.net.RequestCmd.*;
 
 public class AgentThread {
 	@RequestHandler(OBJECT_THREAD_DETAIL)
@@ -211,9 +202,8 @@ public class AgentThread {
 		ListValue login = rPack.newList("login");
 		ListValue desc = rPack.newList("desc");
 
-		Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
-		while (en.hasMoreElements()) {
-			TraceContext ctx = en.nextElement();
+		for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
+			TraceContext ctx = e.getValue();
 			if (ctx == null) {
 				continue;
 			}
@@ -248,9 +238,8 @@ public class AgentThread {
 			desc.add(ctx.desc);
 		}
 
-		Enumeration<TraceContext> enDeferred = TraceContextManager.getDeferredContextEnumeration();
-		while (enDeferred.hasMoreElements()) {
-			TraceContext ctx = enDeferred.nextElement();
+		for (Map.Entry<Long, TraceContext> e : TraceContextManager.getDeferredContextEntries()) {
+			TraceContext ctx = e.getValue();
 			if (ctx == null) {
 				continue;
 			}

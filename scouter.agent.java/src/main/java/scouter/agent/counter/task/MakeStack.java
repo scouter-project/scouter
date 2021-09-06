@@ -20,6 +20,7 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 public class MakeStack {
     static Configure conf = Configure.getInstance();
@@ -86,15 +87,15 @@ public class MakeStack {
         int maxCount = conf._psts_dump_max_count;
 
         ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
-        Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
+
         List<TraceContext> ctxList = new ArrayList<>();
         int doCount = 0;
-        while (en.hasMoreElements()) {
+        for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
             if (maxCount > 0 && doCount >= maxCount) {
                 break;
             }
             doCount++;
-            TraceContext ctx = en.nextElement();
+            TraceContext ctx = e.getValue();
             if (ctx != null) {
                 long elapsed = (System.currentTimeMillis() - ctx.startTime);
                 if (minMs <= 0 || elapsed >= minMs) {

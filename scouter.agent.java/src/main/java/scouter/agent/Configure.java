@@ -141,6 +141,9 @@ public class Configure extends Thread {
 //    @ConfigDesc("Activating profile summary function")
 //    public boolean profile_summary_mode_enabled = false;
 
+    @ConfigDesc("turn off profile")
+    public boolean profile_off = false;
+
     @ConfigDesc("Profiling the memory usage of each method")
     public boolean profile_thread_cputime_enabled = false;
     @ConfigDesc("Profiling the memory usage of each service")
@@ -227,6 +230,8 @@ public class Configure extends Thread {
     public String trace_http_client_ip_header_key = "";
     @ConfigDesc("Activating gxid connection in HttpTransfer")
     public boolean trace_interservice_enabled = true;
+    @ConfigDesc("propagate b3 header")
+    public boolean trace_propagete_b3_header = true;
     @ConfigDesc("")
     public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
     @ConfigDesc("")
@@ -957,6 +962,8 @@ public class Configure extends Thread {
         this.autodump_cpu_exceeded_dump_cnt = getInt("autodump_cpu_exceeded_dump_cnt", 3);
 
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
+
+        this.profile_off = getBoolean("profile_off", false);
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
         this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", false);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
@@ -1103,6 +1110,7 @@ public class Configure extends Thread {
 
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
         this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
+        this.trace_propagete_b3_header = getBoolean("trace_propagete_b3_header", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
