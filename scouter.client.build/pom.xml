@@ -15,30 +15,12 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
-<!-- 		<repository> -->
-<!-- 	      <id>eclipse-simultaneous</id> -->
-<!-- 	      <layout>p2</layout> -->
-<!-- 	      <url>https://download.eclipse.org/releases/2018-12/</url> -->
-<!-- 	   </repository> -->
-	
-	<repository>
-		<id>eclipse-simultaneous-2021-09</id>
-		<layout>p2</layout>
-		<url>https://download.eclipse.org/releases/2021-09/</url>
-	</repository>
-	   
-<!-- 	   <repository> -->
-<!-- 	      <id>eclipse-photon</id> -->
-<!-- 	      <layout>p2</layout> -->
-<!-- 	      <url>https://download.eclipse.org/releases/photon</url> -->
-<!-- 	   </repository> -->
+	        <repository>
+	        	<id>eclipse-simultaneous-2021-09</id>
+	        	<layout>p2</layout>
+        		<url>https://download.eclipse.org/releases/2021-09/</url>
+	        </repository>
 	</repositories>
-        <pluginRepositories>
-   <pluginRepository>
-      <id>tycho-snapshots</id>
-      <url>https://repo.eclipse.org/content/repositories/tycho-snapshots/</url>
-   </pluginRepository>
-</pluginRepositories>
 
 	<build>
 		<plugins>
