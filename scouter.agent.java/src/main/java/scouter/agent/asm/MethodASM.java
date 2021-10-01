@@ -104,7 +104,7 @@ class MethodCV extends ClassVisitor implements Opcodes {
 	private List<HookingSet> excludeTarget;
 
 	public MethodCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.excludeTarget = excludeTarget;
 		this.className = className;
@@ -181,7 +181,7 @@ class MethodMV extends LocalVariablesSorter implements Opcodes {
 	private Label startFinally = new Label();
 
 	public MethodMV(int access, String desc, MethodVisitor mv, String fullname, int fullname_hash) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.fullname = fullname;
 		this.fullname_hash = fullname_hash;
 	}

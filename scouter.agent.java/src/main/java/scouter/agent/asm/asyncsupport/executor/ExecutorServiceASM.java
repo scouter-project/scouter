@@ -54,7 +54,7 @@ class ThreadPoolExecutorCV extends ClassVisitor implements Opcodes {
     String className;
 
     public ThreadPoolExecutorCV(ClassVisitor cv, String className) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.className = className;
     }
 
@@ -84,7 +84,7 @@ class ThreadPoolExecutorExecuteMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorExecuteMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM8, access, desc, mv);
+        super(ASM9, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -102,7 +102,7 @@ class AbstractExecutorServiceCV extends ClassVisitor implements Opcodes {
     String className;
 
     public AbstractExecutorServiceCV(ClassVisitor cv, String className) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.className = className;
     }
 
@@ -126,7 +126,7 @@ class AbstraceExecutorServiceSubmitMV extends LocalVariablesSorter implements Op
     String desc;
 
     public AbstraceExecutorServiceSubmitMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM8, access, desc, mv);
+        super(ASM9, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }
@@ -149,7 +149,7 @@ class ThreadPoolExecutorGetTaskMV extends LocalVariablesSorter implements Opcode
     String desc;
 
     public ThreadPoolExecutorGetTaskMV(int access, String name, String desc, MethodVisitor mv) {
-        super(ASM8, access, desc, mv);
+        super(ASM9, access, desc, mv);
         this.name = name;
         this.desc = desc;
     }

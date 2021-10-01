@@ -24,7 +24,12 @@ import scouter.agent.trace.TraceContextManager;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
-import scouter.util.*;
+import scouter.util.CastUtil;
+import scouter.util.DateUtil;
+import scouter.util.FileUtil;
+import scouter.util.Hexa32;
+import scouter.util.SysJMX;
+import scouter.util.ThreadUtil;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -32,7 +37,7 @@ import java.io.PrintWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
-import java.util.Enumeration;
+import java.util.Map;
 
 public class DumpUtil extends Thread {
 
@@ -138,9 +143,9 @@ public class DumpUtil extends Thread {
 			File file = DumpUtil.getDumpFile("scouter.activeservice");
 			out = new PrintWriter(new FileWriter(file));
 			//TODO reactive support
-			Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
-			for (int n = 0; en.hasMoreElements(); n++) {
-				TraceContext ctx = en.nextElement();
+			int n = 0;
+			for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
+				TraceContext ctx = e.getValue();
 				out.print(n + ":");
 				out.print(ctx.thread.getId() + ":");
 				out.print(ctx.thread.getName() + ":");
@@ -160,6 +165,8 @@ public class DumpUtil extends Thread {
 				printStack(out, ctx.thread.getId());
 				out.println("");
 				pack.put("name", file.getName());
+
+				n++;
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();

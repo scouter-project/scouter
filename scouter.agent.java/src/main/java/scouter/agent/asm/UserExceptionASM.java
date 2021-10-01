@@ -58,7 +58,7 @@ class UserExceptionCV extends ClassVisitor implements Opcodes {
 	private String className;
 
 	public UserExceptionCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -83,7 +83,7 @@ class UserExceptionConsturtorMV extends MethodVisitor implements Opcodes {
 	private String methodDesc;
 
 	public UserExceptionConsturtorMV(String classname, String methoddesc, MethodVisitor mv) {
-		super(ASM8, mv);
+		super(ASM9, mv);
 		this.className = classname;
 		this.methodDesc = methoddesc;
 	}

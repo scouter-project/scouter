@@ -78,7 +78,7 @@ public class HeapDumpAction extends Action {
 					ExUtil.exec(window.getShell().getDisplay(), new Runnable(){
 						public void run() {
 							try{
-								Action act = new HeapDumpListAction(window, "Heap Dump", objName, objHash, Images.heap, serverId);
+								Action act = new HeapDumpListAction(window, "Dumps", objName, objHash, Images.heap, serverId);
 								act.run();
 							}catch(Exception e){
 								e.printStackTrace();

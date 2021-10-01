@@ -33,7 +33,7 @@ class MapImplCV extends ClassVisitor implements Opcodes {
 
     private String className;
     public MapImplCV(ClassVisitor cv, String className) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.className = className;
     }
     @Override
@@ -58,7 +58,7 @@ class MapImplMV extends LocalVariablesSorter implements Opcodes {
     private String className;
 
     public MapImplMV(int access, String desc, MethodVisitor mv, String className) {
-        super(ASM8, access, desc, mv);
+        super(ASM9, access, desc, mv);
         this.className = className;
     }
 

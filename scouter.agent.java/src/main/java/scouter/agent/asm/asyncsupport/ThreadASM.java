@@ -51,7 +51,7 @@ class ThreadCV extends ClassVisitor implements Opcodes {
 
 	private String className;
 	public ThreadCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 		Logger.println("G001", "Thread.class - " + className);
 	}
@@ -74,7 +74,7 @@ class ThreadNameMV extends LocalVariablesSorter implements Opcodes {
 	private String className;
 
 	public ThreadNameMV(int access, String desc, MethodVisitor mv, String className) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.className = className;
 	}
 

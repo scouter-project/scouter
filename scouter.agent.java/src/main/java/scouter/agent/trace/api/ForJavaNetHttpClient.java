@@ -98,9 +98,11 @@ public class ForJavaNetHttpClient implements ApiCallTraceHelper.IHelper {
 				httpclient.addHeader(requestBuilder, conf._trace_interservice_callee_header_key, Hexa32.toString32(ctx.lastCalleeId));
 				httpclient.addHeader(requestBuilder, conf._trace_interservice_caller_obj_header_key, String.valueOf(conf.getObjHash()));
 
-				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
-				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
-				httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(ctx.lastCalleeId));
+				if (conf.trace_propagete_b3_header) {
+					httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_TRACEID, Hexa32.toUnsignedLongHex(ctx.gxid));
+					httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_PARENTSPANID, Hexa32.toUnsignedLongHex(ctx.txid));
+					httpclient.addHeader(requestBuilder, B3Constant.B3_HEADER_SPANID, Hexa32.toUnsignedLongHex(ctx.lastCalleeId));
+				}
 				PluginHttpCallTrace.call(ctx, requestBuilder);
 			} catch (Exception e) {
 				Logger.println("A178", e);

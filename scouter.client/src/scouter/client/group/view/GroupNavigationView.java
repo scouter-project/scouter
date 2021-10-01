@@ -17,12 +17,6 @@
  */
 package scouter.client.group.view;
 
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
-
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IMenuListener;
 import org.eclipse.jface.action.IMenuManager;
@@ -55,7 +49,6 @@ import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
-
 import scouter.client.Images;
 import scouter.client.actions.OpenAddGroupAction;
 import scouter.client.actions.OpenEQGroupViewAction;
@@ -103,6 +96,12 @@ import scouter.lang.value.Value;
 import scouter.util.CastUtil;
 import scouter.util.FormatUtil;
 import scouter.util.LinkedMap;
+
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class GroupNavigationView extends ViewPart implements RefreshThread.Refreshable, IAddGroup, IManageGroup, IGroupAssign {
 	
@@ -223,7 +222,15 @@ public class GroupNavigationView extends ViewPart implements RefreshThread.Refre
                 					manager.add(serviceGroupMgr);
                 					serviceGroupMgr.add(new OpenServiceGroupTPSGroupAction(win, grpName));
                 					serviceGroupMgr.add(new OpenServiceGroupElapsedGroupAction(win, grpName));
-                        		}
+
+                        		} else if (isChildOf(objType, CounterConstants.FAMILY_GOLANG)) {
+			                        manager.add(new OpenEQGroupViewAction(win, grpObj.getName()));
+			                        manager.add(new OpenVerticalEQGroupViewAction(win, grpObj.getName()));
+			                        MenuManager xLogMenu = new MenuManager(MenuStr.XLOG, ImageUtil.getImageDescriptor(Images.transrealtime), MenuStr.XLOG_ID);
+			                        manager.add(xLogMenu);
+			                        xLogMenu.add(new OpenRealTimeTranXGroupViewAction(win, MenuStr.REALTIME_XLOG, grpObj));
+			                        xLogMenu.add(new OpenPastTimeTranXGroupViewAction(win, MenuStr.PASTTIME_XLOG, grpObj));
+		                        }
                         	}
                         } else if (selObject instanceof AgentObject) {
                         	AgentObject agent = (AgentObject) selObject;

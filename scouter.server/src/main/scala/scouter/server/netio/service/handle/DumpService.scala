@@ -79,6 +79,30 @@ class DumpService {
         }
     }
 
+    @ServiceHandler(RequestCmd.TRIGGER_BLOCK_PROFILE)
+    def triggerBlockProfile(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_BLOCK_PROFILE, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
+    }
+
+    @ServiceHandler(RequestCmd.TRIGGER_MUTEX_PROFILE)
+    def triggerMutexrofile(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val p = AgentCall.call(o, RequestCmd.TRIGGER_MUTEX_PROFILE, param);
+        if (p != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(p);
+        }
+    }
+
     @ServiceHandler(RequestCmd.OBJECT_DUMP_FILE_LIST)
     def getDumpFileList(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val param = din.readMapPack();

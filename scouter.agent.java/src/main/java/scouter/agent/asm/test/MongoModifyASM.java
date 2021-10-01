@@ -65,7 +65,7 @@ public class MongoModifyASM implements IASM, Opcodes {
 		}
 
 		public InternalConnectionCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 	}

@@ -20,10 +20,9 @@ package scouter.util;
 import java.util.Random;
 
 
-
 public final class KeyGen {
     private static Random rand = new Random(System.currentTimeMillis());
-    
+
     public static void setSeed(long seed){
     	rand.setSeed(seed);
     }

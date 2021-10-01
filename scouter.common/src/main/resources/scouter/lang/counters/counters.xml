@@ -51,6 +51,19 @@
 			<Counter name="PermPercent" disp="Perm %" unit="%" icon="memory.png" total="false"/>
 			<Counter name="FdUsage" disp="File Descriptor" unit="cnt" icon="memory.png" all="false" total="false"/>
 		</Family>
+		<Family name="golang" master="GoActiveService">
+			<Counter name="Goroutine" disp="Goroutine" unit="cnt" icon="gc.png" />
+			<Counter name="GoCgoCall" disp="CGo call" unit="cnt" icon="gc.png" />
+
+			<Counter name="GoGcCount" disp="GC Count" unit="cnt" icon="gc.png" />
+			<Counter name="GoGcPause" disp="GC Pause" unit="ms" icon="gc.png" total="false"/>
+			<Counter name="GoHeapUsed" disp="Heap Used" unit="MB" icon="memory.png" total="false"/>
+
+			<Counter name="GoTPS" disp="TPS" unit="tps" 	icon="transaction.png" />
+			<Counter name="GoElapsedTime" disp="Elapsed Time" unit="ms" icon="time.png" total="false"/>
+			<Counter name="GoErrorRate" disp="Error Rate" unit="%" icon="rate.png" />
+			<Counter name="GoActiveService" disp="Active Service" unit="cnt" icon="act_service.png" />
+		</Family>
 		<Family name="datasource" master="ConnActive">
 			<Counter name="ConnIdle" disp="Conn Idle" unit="cnt" icon="conn_idle.png" />
 			<Counter name="ConnActive" disp="Conn Active" unit="cnt" icon="conn_act.png" />
@@ -88,6 +101,8 @@
 		<ObjectType name="jetty" family="javaee" disp="Jetty" />
 		<ObjectType name="resin" family="javaee" disp="Resin" />
 		<ObjectType name="batch" family="batch" disp="Batch" />
+		<ObjectType name="go" family="golang" disp="Golang" icon="golang" />
+		<ObjectType name="golang" family="golang" disp="Golang" icon="golang" />
         <ObjectType name="aws" family="aws" disp="AWS" />
 		<ObjectType name="zipkin" family="tracing" disp="Zipkin" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />

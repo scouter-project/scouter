@@ -68,7 +68,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
     public String classRequestMappingUrl;
 
     public SpringReqMapCV(ClassVisitor cv, String className) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.className = className;
     }
 
@@ -97,7 +97,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
     class SpringReqMapCVAV extends AnnotationVisitor implements Opcodes {
         public SpringReqMapCVAV(AnnotationVisitor av) {
-            super(ASM8, av);
+            super(ASM9, av);
         }
 
         @Override
@@ -114,7 +114,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
     class SpringReqMapCVAVAV extends AnnotationVisitor implements Opcodes {
         public SpringReqMapCVAVAV(AnnotationVisitor av) {
-            super(ASM8, av);
+            super(ASM9, av);
         }
 
         @Override
@@ -145,7 +145,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
         private String desc;
 
         public SpringReqMapMV(String className, int access, String methodName, String desc, MethodVisitor mv) {
-            super(ASM8, access, desc, mv);
+            super(ASM9, access, desc, mv);
             this.className = className;
             this.access = access;
             this.methodName = methodName;
@@ -266,7 +266,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
 
         class SpringReqMapMVAV extends AnnotationVisitor implements Opcodes {
             public SpringReqMapMVAV(AnnotationVisitor av) {
-                super(ASM8, av);
+                super(ASM9, av);
             }
 
             @Override
@@ -285,7 +285,7 @@ class SpringReqMapCV extends ClassVisitor implements Opcodes {
             String paramName;
 
             public SpringReqMapMVAVAV(AnnotationVisitor av, String paramName) {
-                super(ASM8, av);
+                super(ASM9, av);
                 this.paramName = paramName;
             }
 

@@ -81,4 +81,41 @@ class HeapDumpService {
             dout.writePack(mpack);
         }
     }
+
+    @ServiceHandler(RequestCmd.OBJECT_CALL_BLOCK_PROFILE)
+    def callBlockProfile(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val mpack = AgentCall.call(o, RequestCmd.OBJECT_CALL_BLOCK_PROFILE, param);
+        if (mpack != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(mpack);
+        }
+    }
+
+    @ServiceHandler(RequestCmd.OBJECT_CALL_MUTEX_PROFILE)
+    def callMutexProfile(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val mpack = AgentCall.call(o, RequestCmd.OBJECT_CALL_MUTEX_PROFILE, param);
+        if (mpack != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(mpack);
+        }
+    }
+
+    @ServiceHandler(RequestCmd.OBJECT_CALL_CPU_PROFILE)
+    def callCpuProfile(din: DataInputX, dout: DataOutputX, login: Boolean) {
+        val param = din.readMapPack();
+        val objHash = param.getInt("objHash");
+        val o = AgentManager.getAgent(objHash);
+        val mpack = AgentCall.call(o, RequestCmd.OBJECT_CALL_CPU_PROFILE, param);
+        if (mpack != null) {
+            dout.writeByte(TcpFlag.HasNEXT);
+            dout.writePack(mpack);
+        }
+    }
+
 }

@@ -42,7 +42,6 @@
    <launcher name="scouter">
       <linux icon="icons/launcher.xpm"/>
       <macosx icon="icons/launcher.icns"/>
-      <solaris/>
       <win useIco="true">
          <ico path="icons/launcher.ico"/>
          <bmp/>
@@ -60,11 +59,13 @@
       <feature id="scouter.client.feature"/>
       <feature id="org.eclipse.emf.ecore"/>
       <feature id="org.eclipse.emf.common"/>
+      <feature id="org.eclipse.e4.rcp" installMode="root"/>
+      <feature id="org.eclipse.draw2d" installMode="root"/>
    </features>
 
    <configurations>
       <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
-      <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
+      <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
    </configurations>
 
    <preferencesInfo>
