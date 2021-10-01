@@ -141,10 +141,13 @@ public class Configure extends Thread {
 //    @ConfigDesc("Activating profile summary function")
 //    public boolean profile_summary_mode_enabled = false;
 
+    @ConfigDesc("turn off profile")
+    public boolean profile_off = false;
+
     @ConfigDesc("Profiling the memory usage of each method")
     public boolean profile_thread_cputime_enabled = false;
     @ConfigDesc("Profiling the memory usage of each service")
-    public boolean profile_thread_memory_usage_enabled = true;
+    public boolean profile_thread_memory_usage_enabled = false;
     @ConfigDesc("ThreadStack profile for open socket")
     public boolean profile_socket_open_fullstack_enabled = false;
     @ConfigDesc("ThreadStack profile for a certain port of open socket")
@@ -227,6 +230,8 @@ public class Configure extends Thread {
     public String trace_http_client_ip_header_key = "";
     @ConfigDesc("Activating gxid connection in HttpTransfer")
     public boolean trace_interservice_enabled = true;
+    @ConfigDesc("propagate b3 header")
+    public boolean trace_propagete_b3_header = true;
     @ConfigDesc("")
     public String _trace_interservice_gxid_header_key = "X-Scouter-Gxid";
     @ConfigDesc("")
@@ -366,6 +371,8 @@ public class Configure extends Thread {
 
     @ConfigDesc("XLog sampling mode enabled")
     public boolean xlog_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_sampling_rate_precision = 1;
     @ConfigDesc("XLog sampling but discard profile only not XLog.")
     public boolean xlog_sampling_only_profile = false;
     @ConfigDesc("XLog sampling bound millisecond - step1(lowest : range - from 0 to here)")
@@ -387,6 +394,8 @@ public class Configure extends Thread {
     //XLog sampling for service patterns options
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_patterned_sampling_rate_precision = 1;
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned_sampling_service_patterns = "";
@@ -411,6 +420,8 @@ public class Configure extends Thread {
     //XLog patterned sampling options for another sampling group
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned2_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_patterned2_sampling_rate_precision = 1;
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned2_sampling_service_patterns = "";
@@ -435,6 +446,8 @@ public class Configure extends Thread {
     //XLog patterned sampling options for another sampling group
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned3_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_patterned3_sampling_rate_precision = 1;
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned3_sampling_service_patterns = "";
@@ -459,6 +472,8 @@ public class Configure extends Thread {
     //XLog patterned sampling options for another sampling group
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned4_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_patterned4_sampling_rate_precision = 1;
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned4_sampling_service_patterns = "";
@@ -483,6 +498,8 @@ public class Configure extends Thread {
     //XLog patterned sampling options for another sampling group
     @ConfigDesc("XLog patterned sampling mode enabled")
     public boolean xlog_patterned5_sampling_enabled = false;
+    @ConfigDesc("rate precision, default 1 means 1%. use 10 for 0.1%.")
+    public int xlog_patterned5_sampling_rate_precision = 1;
     @ConfigDesc("XLog patterned sampling service patterns\neg) /user/{userId}<GET>,/device/*")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String xlog_patterned5_sampling_service_patterns = "";
@@ -780,6 +797,10 @@ public class Configure extends Thread {
     public boolean _psts_enabled = false;
     @ConfigDesc("PSTS(periodical stacktrace step) thread dump Interval(ms) - hard min limit 2000")
     public int _psts_dump_interval_ms = 10000;
+    @ConfigDesc("PSTS(periodical stacktrace step) thread dump min time. it dumps only the elapsed time is over than this option")
+    public int _psts_dump_min_ms = 1000;
+    @ConfigDesc("PSTS(periodical stacktrace step) thread dump max count in 1 interval")
+    public int _psts_dump_max_count = 100;
     public boolean _psts_progressive_reactor_thread_trace_enabled = true;
 
     //Summary
@@ -953,8 +974,10 @@ public class Configure extends Thread {
         this.autodump_cpu_exceeded_dump_cnt = getInt("autodump_cpu_exceeded_dump_cnt", 3);
 
         this.mgr_static_content_extensions = getValue("mgr_static_content_extensions", "js, htm, html, gif, png, jpg, css");
+
+        this.profile_off = getBoolean("profile_off", false);
         this.profile_thread_cputime_enabled = getBoolean("profile_thread_cputime_enabled", false);
-        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", true);
+        this.profile_thread_memory_usage_enabled = getBoolean("profile_thread_memory_usage_enabled", false);
         this.profile_socket_open_fullstack_enabled = getBoolean("profile_socket_open_fullstack_enabled", false);
         this.trace_background_socket_enabled = getBoolean("trace_background_socket_enabled", true);
         this.profile_socket_open_fullstack_port = getInt("profile_socket_open_fullstack_port", 0);
@@ -1099,6 +1122,7 @@ public class Configure extends Thread {
 
         this.trace_http_client_ip_header_key = getValue("trace_http_client_ip_header_key", "");
         this.trace_interservice_enabled = getBoolean("trace_interservice_enabled", true);
+        this.trace_propagete_b3_header = getBoolean("trace_propagete_b3_header", true);
         this.trace_response_gxid_enabled = getBoolean("trace_response_gxid_enabled", false);
         this._trace_interservice_gxid_header_key = getValue("_trace_interservice_gxid_header_key", "X-Scouter-Gxid");
         this._trace_interservice_callee_header_key = getValue("_trace_interservice_callee_header_key", "X-Scouter-Callee");
@@ -1152,6 +1176,8 @@ public class Configure extends Thread {
 
         this._psts_enabled = getBoolean("_psts_enabled", false);
         this._psts_dump_interval_ms = getInt("_psts_dump_interval_ms", 10000);
+        this._psts_dump_min_ms = getInt("_psts_dump_min_ms", 1000);
+        this._psts_dump_max_count = getInt("_psts_dump_max_count", 100);
         this._psts_progressive_reactor_thread_trace_enabled = getBoolean("_psts_progressive_reactor_dump_enabled", true);
 
         // 웹시스템으로 부터 WAS 사이의 성능과 어떤 웹서버가 요청을 보내 왔는지를 추적하는 기능을 ON/OFF하고
@@ -1231,6 +1257,7 @@ public class Configure extends Thread {
         this.xlog_sampling_exclude_patterns = getValue("xlog_sampling_exclude_patterns", "");
 
         this.xlog_sampling_enabled = getBoolean("xlog_sampling_enabled", false);
+        this.xlog_sampling_rate_precision = getInt("xlog_sampling_rate_precision", 1);
         this.xlog_sampling_only_profile = getBoolean("xlog_sampling_only_profile", false);
         this.xlog_sampling_step1_ms = getInt("xlog_sampling_step1_ms", 100);
         this.xlog_sampling_step1_rate_pct = getInt("xlog_sampling_step1_rate_pct", 3);
@@ -1241,6 +1268,7 @@ public class Configure extends Thread {
         this.xlog_sampling_over_rate_pct = getInt("xlog_sampling_over_rate_pct", 100);
 
         this.xlog_patterned_sampling_enabled = getBoolean("xlog_patterned_sampling_enabled", false);
+        this.xlog_patterned_sampling_rate_precision = getInt("xlog_patterned_sampling_rate_precision", 1);
         this.xlog_patterned_sampling_service_patterns = getValue("xlog_patterned_sampling_service_patterns", "");
         this.xlog_patterned_sampling_only_profile = getBoolean("xlog_patterned_sampling_only_profile", false);
         this.xlog_patterned_sampling_step1_ms = getInt("xlog_patterned_sampling_step1_ms", 100);
@@ -1252,6 +1280,7 @@ public class Configure extends Thread {
         this.xlog_patterned_sampling_over_rate_pct = getInt("xlog_patterned_sampling_over_rate_pct", 100);
 
         this.xlog_patterned2_sampling_enabled = getBoolean("xlog_patterned2_sampling_enabled", false);
+        this.xlog_patterned2_sampling_rate_precision = getInt("xlog_patterned2_sampling_rate_precision", 1);
         this.xlog_patterned2_sampling_service_patterns = getValue("xlog_patterned2_sampling_service_patterns", "");
         this.xlog_patterned2_sampling_only_profile = getBoolean("xlog_patterned2_sampling_only_profile", false);
         this.xlog_patterned2_sampling_step1_ms = getInt("xlog_patterned2_sampling_step1_ms", 100);
@@ -1263,6 +1292,7 @@ public class Configure extends Thread {
         this.xlog_patterned2_sampling_over_rate_pct = getInt("xlog_patterned2_sampling_over_rate_pct", 100);
 
         this.xlog_patterned3_sampling_enabled = getBoolean("xlog_patterned3_sampling_enabled", false);
+        this.xlog_patterned3_sampling_rate_precision = getInt("xlog_patterned3_sampling_rate_precision", 1);
         this.xlog_patterned3_sampling_service_patterns = getValue("xlog_patterned3_sampling_service_patterns", "");
         this.xlog_patterned3_sampling_only_profile = getBoolean("xlog_patterned3_sampling_only_profile", false);
         this.xlog_patterned3_sampling_step1_ms = getInt("xlog_patterned3_sampling_step1_ms", 100);
@@ -1274,6 +1304,7 @@ public class Configure extends Thread {
         this.xlog_patterned3_sampling_over_rate_pct = getInt("xlog_patterned3_sampling_over_rate_pct", 100);
 
         this.xlog_patterned4_sampling_enabled = getBoolean("xlog_patterned4_sampling_enabled", false);
+        this.xlog_patterned4_sampling_rate_precision = getInt("xlog_patterned4_sampling_rate_precision", 1);
         this.xlog_patterned4_sampling_service_patterns = getValue("xlog_patterned4_sampling_service_patterns", "");
         this.xlog_patterned4_sampling_only_profile = getBoolean("xlog_patterned4_sampling_only_profile", false);
         this.xlog_patterned4_sampling_step1_ms = getInt("xlog_patterned4_sampling_step1_ms", 100);
@@ -1285,6 +1316,7 @@ public class Configure extends Thread {
         this.xlog_patterned4_sampling_over_rate_pct = getInt("xlog_patterned4_sampling_over_rate_pct", 100);
 
         this.xlog_patterned5_sampling_enabled = getBoolean("xlog_patterned5_sampling_enabled", false);
+        this.xlog_patterned5_sampling_rate_precision = getInt("xlog_patterned5_sampling_rate_precision", 1);
         this.xlog_patterned5_sampling_service_patterns = getValue("xlog_patterned5_sampling_service_patterns", "");
         this.xlog_patterned5_sampling_only_profile = getBoolean("xlog_patterned5_sampling_only_profile", false);
         this.xlog_patterned5_sampling_step1_ms = getInt("xlog_patterned5_sampling_step1_ms", 100);

@@ -52,7 +52,7 @@ class CapThisCV extends ClassVisitor implements Opcodes {
 	private String className;
 
 	public CapThisCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -77,7 +77,7 @@ class CapThisMV extends MethodVisitor implements Opcodes {
 	private String methodDesc;
 
 	public CapThisMV(String classname, String methoddesc, MethodVisitor mv) {
-		super(ASM8, mv);
+		super(ASM9, mv);
 		this.className = classname;
 		this.methodDesc = methoddesc;
 	}

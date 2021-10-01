@@ -16,9 +16,6 @@
  */
 package scouter.agent.trace;
 
-import java.lang.reflect.Method;
-import java.util.Properties;
-
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.meter.MeterInteraction;
@@ -41,6 +38,9 @@ import scouter.util.IntLinkedSet;
 import scouter.util.StringUtil;
 import scouter.util.SysJMX;
 import scouter.util.ThreadUtil;
+
+import java.lang.reflect.Method;
+import java.util.Properties;
 
 /**
  * Trace SQL
@@ -495,7 +495,7 @@ public class TraceSQL {
 			p.start_cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
 		}
 		DBURL dbUrl = getUrl(ctx, msg, pool);
-		if (dbUrl != unknown) {
+		if (dbUrl != unknown && dbUrl.url != null) {
 			hash = DataProxy.sendMethodName(dbUrl.description);
 			int urlHash = DataProxy.sendObjName(dbUrl.url);
 			ctx.lastDbUrl = urlHash;

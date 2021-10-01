@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.10.2</version>
+        <version>2.15.0</version>
     </parent>
 
     <artifactId>scouter-server</artifactId>
@@ -22,12 +22,12 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>2.11.7</version>
+            <version>2.11.12</version>
         </dependency>
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-reflect</artifactId>
-            <version>2.11.7</version>
+            <version>2.11.12</version>
         </dependency>
         <dependency>
             <groupId>io.github.scouter-project</groupId>
@@ -127,6 +127,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.1</version>
                     <configuration>
+                        <compilerVersion>1.8</compilerVersion>
                         <source>1.8</source>
                         <target>1.8</target>
                     </configuration>

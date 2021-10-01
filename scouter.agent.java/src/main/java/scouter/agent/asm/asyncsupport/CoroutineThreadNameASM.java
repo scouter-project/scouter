@@ -51,7 +51,7 @@ class CoroutineIdCV extends ClassVisitor implements Opcodes {
 	public String className;
 
 	public CoroutineIdCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 
@@ -79,7 +79,7 @@ class CoroutineIdUpdateThreadContextMV extends LocalVariablesSorter implements O
 	private String className;
 
 	public CoroutineIdUpdateThreadContextMV(int access, String desc, MethodVisitor mv, String className) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.className = className;
 	}
 
@@ -120,7 +120,7 @@ class CoroutineIdRestoreThreadContextMV extends LocalVariablesSorter implements 
 	private String className;
 
 	public CoroutineIdRestoreThreadContextMV(int access, String desc, MethodVisitor mv, String className) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.className = className;
 	}
 

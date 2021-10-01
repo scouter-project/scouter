@@ -237,6 +237,11 @@ public class CalendarDialog {
         showWithEndTime(stime, etime);
     }
 
+    public void showWithEndTime(Point p, long stime, long etime) {
+    	if (p != null)
+    		showWithEndTime((int) p.getX(), (int) p.getY() + 10, stime, etime);
+    }
+    
     public void showWithEndTime(long stime, long etime) {
         final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
         dialog.setLayout(new GridLayout(4, false));
@@ -328,6 +333,102 @@ public class CalendarDialog {
         dialog.open();
     }
 
+    public void showWithEndTime(int x, int y, long stime, long etime) {
+        final Shell dialog = new Shell(display, SWT.DIALOG_TRIM | SWT.APPLICATION_MODAL);
+        dialog.setLayout(new GridLayout(4, false));
+        dialog.setText("Date/Time");
+
+        final DateTime calendar = new DateTime(dialog, SWT.CALENDAR);
+        GridData data = new GridData(SWT.FILL, SWT.CENTER, false, false, 4, 1);
+        calendar.setLayoutData(data);
+
+        int year = CastUtil.cint(DateUtil.format(stime, "yyyy"));
+        int month = CastUtil.cint(DateUtil.format(stime, "MM")) - 1;
+        int day = CastUtil.cint(DateUtil.format(stime, "dd"));
+        calendar.setDate(year, month, day);
+        calendar.setDay(day);
+
+        Label label = new Label(dialog, SWT.NONE);
+        label.setText("From");
+        final DateTime startTime = new DateTime(dialog, SWT.TIME | SWT.SHORT);
+        startTime.setHours(DateUtil.getHour(stime));
+        startTime.setMinutes(DateUtil.getMin(stime));
+
+        label = new Label(dialog, SWT.NONE);
+        label.setText("To");
+        final DateTime endTime = new DateTime(dialog, SWT.TIME | SWT.SHORT);
+        endTime.setHours(DateUtil.getHour(etime));
+        endTime.setMinutes(DateUtil.getMin(etime));
+
+        Button okButton = new Button(dialog, SWT.PUSH);
+        okButton.setText("&OK");
+        okButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        okButton.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                switch (event.type) {
+                    case SWT.Selection:
+                        try {
+                            String fromTime = (calendar.getMonth() + 1) + "/"
+                                    + calendar.getDay() + "/"
+                                    + calendar.getYear() + " "
+                                    + (startTime.getHours() < 10 ? "0" : "") + startTime.getHours() + ":"
+                                    + (startTime.getMinutes() < 10 ? "0" : "") + startTime.getMinutes();
+
+                            boolean nextDay0 = false;
+                            if (endTime.getHours() == 0 && endTime.getMinutes() == 0) {
+                                nextDay0 = true;
+                            }
+
+                            String toTime = (calendar.getMonth() + 1) + "/"
+                                    + calendar.getDay() + "/"
+                                    + calendar.getYear() + " "
+                                    + (endTime.getHours() < 10 ? "0" : "") + endTime.getHours() + ":"
+                                    + (endTime.getMinutes() < 10 ? "0" : "") + endTime.getMinutes();
+
+                            long startTime = DateUtil.getTime(fromTime, "MM/dd/yyyy HH:mm");
+                            long endTime = DateUtil.getTime(toTime, "MM/dd/yyyy HH:mm");
+                            if (nextDay0) {
+                                endTime += DateUtil.MILLIS_PER_DAY - 1000;
+                            }
+                            if (endTime <= startTime) {
+                                MessageDialog.openWarning(dialog, "Warning", "Time range is incorrect");
+                            } else {
+                                callback.onPressedOk(startTime, endTime);
+                                dialog.close();
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            MessageDialog.openError(dialog, "Error", "Date format error:" + e.getMessage());
+                        }
+                        break;
+                }
+            }
+        });
+
+        Button cancelButton = new Button(dialog, SWT.PUSH);
+        cancelButton.setText("&Cancel");
+        cancelButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false, 2, 1));
+        cancelButton.addListener(SWT.Selection, new Listener() {
+            public void handleEvent(Event event) {
+                switch (event.type) {
+                    case SWT.Selection:
+                        callback.onPressedCancel();
+                        dialog.close();
+                        break;
+                }
+            }
+        });
+
+        
+        if (x > 0 && y > 0) {
+            dialog.setLocation(x, y);
+        }
+        
+        dialog.setDefaultButton(okButton);
+        dialog.pack();
+        dialog.open();
+    }
+    
     public interface ILoadCalendarDialog {
         void onPressedOk(long startTime, long endTime);
 

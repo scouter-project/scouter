@@ -62,7 +62,7 @@ class WebClientRequestBuilderBodyInserterCV extends ClassVisitor implements Opco
 	public String className;
 	private HookingSet mset;
 	public WebClientRequestBuilderBodyInserterCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -90,7 +90,7 @@ class RequestBuilderBodyInserterWriteToMV extends LocalVariablesSorter implement
 	int respIdx;
 
 	public RequestBuilderBodyInserterWriteToMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

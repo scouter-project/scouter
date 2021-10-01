@@ -58,7 +58,7 @@ public class PsExecuteMV extends LocalVariablesSorter implements Opcodes {
 	private static final String END_SIGNATURE = "(Ljava/lang/Object;Ljava/lang/Throwable;I)V";
 
 	public PsExecuteMV(int access, String desc, MethodVisitor mv, String owner,String name) {
-		super(ASM8,access, desc, mv);
+		super(ASM9,access, desc, mv);
 		this.owner = owner;
 		this.returnType = Type.getReturnType(desc);
         this.desc = desc;

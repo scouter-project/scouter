@@ -23,12 +23,14 @@ public class CounterConstants {
 
 	public final static String FAMILY_HOST = "host";
 	public final static String FAMILY_JAVAEE = "javaee";
+	public final static String FAMILY_GOLANG = "golang";
 	public final static String FAMILY_DATABASE = "database";
 	public final static String FAMILY_DATASOURCE = "datasource";
 	public final static String FAMILY_TRACING = "tracing";
 	public final static String FAMILY_REQUEST_PROCESS = "reqproc";
 	public final static String FAMILY_MARIA = "maria";
 	public final static String FAMILY_BATCH = "batch";
+	public final static String FAMILY_CUBRID = "cubrid";
 
 	public final static String HOST = "host";
 	public final static String WINDOWS = "windows";
@@ -58,6 +60,8 @@ public class CounterConstants {
 	public final static String MARIA_DB = "mariadb";
 	public final static String MARIA_PLUGIN = "mariaplugin";
 
+	public final static String CUBRID_AGENT = "cubridagent";
+	
 	public final static String WAS_TPS = "TPS";
 	public final static String WAS_ACTIVE_SPEED = "ActiveSpeed";
 	public final static String WAS_ELAPSED_TIME = "ElapsedTime";
@@ -80,6 +84,13 @@ public class CounterConstants {
 	public final static String JAVA_PERM_PERCENT = "PermPercent";
 	public final static String JAVA_PROCESS_CPU = "ProcCpu";
 	public final static String JAVA_FD_USAGE = "FdUsage";
+
+	public final static String GO_GOROUTINE = "Goroutine";
+	public final static String GO_CGO_CALL = "GoCgoCall";
+
+	public final static String GO_GC_COUNT = "GoGcCount";
+	public final static String GO_GC_PAUSE = "GoGcPause";
+	public final static String GO_HEAP_USED = "GoHeapUsed";
 
 	public final static String REQUESTPROCESS_BYTES_RECEIVED = "BytesReceived";
 	public final static String REQUESTPROCESS_BYTES_SENT = "BytesSent";

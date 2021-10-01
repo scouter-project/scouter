@@ -24,7 +24,7 @@ public class TraceReactive {
     }
 
     public static void startCoroutineIdUpdateThreadContext(long coroutineId) {
-        TraceContext context = TraceContextManager.getContext();
+        TraceContext context = TraceContextManager.getContext(true);
         if (context == null) {
             context = TraceContextManager.getCoroutineContext(coroutineId);
             if (context == null) {
@@ -49,7 +49,7 @@ public class TraceReactive {
     }
 
     public static Object startMonoKtMono(Object coroutineContext) {
-        TraceContext context = TraceContextManager.getContext();
+        TraceContext context = TraceContextManager.getContext(true);
         if (context == null) {
             return coroutineContext;
         }

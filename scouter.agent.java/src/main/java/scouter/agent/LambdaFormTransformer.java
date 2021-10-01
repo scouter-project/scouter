@@ -71,7 +71,7 @@ public class LambdaFormTransformer {
 
             final ClassDesc classDesc = new ClassDesc();
             ClassReader cr = new ClassReader(classfileBuffer);
-            cr.accept(new ClassVisitor(Opcodes.ASM8) {
+            cr.accept(new ClassVisitor(Opcodes.ASM9) {
                 public void visit(int version, int access, String name, String signature, String superName,
                                   String[] interfaces) {
                     classDesc.set(version, access, name, signature, superName, interfaces);

@@ -61,6 +61,12 @@
                 id="scouter.client.PerspectiveStackAnalyzer"
                 name="Stack Frequency Analyzer">
         </perspective>
+        <perspective
+                class="scouter.client.PerspectiveCubrid"
+                icon="icons/object/cubridagent.png"
+                id="scouter.client.PerspectiveCubrid"
+                name="Cubrid">
+        </perspective>
     </extension>
 
     <extension point="org.eclipse.ui.perspectiveExtensions">
@@ -1054,6 +1060,70 @@
                 icon="icons/config.png"
                 name="Edit counters-site.xml file directly"
                 restorable="false">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridRealtimeDmlView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridRealtimeDmlView"
+                name="CubridRealtimeDmlView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridServerInfoView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridServerInfoView"
+                name="CubridServerInfoView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridRealtimeMultiView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridRealtimeMultiView"
+                name="CubridRealtimeMultiView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridSingleRealTimeMultiView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridSingleRealTimeMultiView"
+                name="CubridSingleRealTimeMultiView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridSinglePeriodMultiView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridSinglePeriodMultiView"
+                name="CubridSinglePeriodMultiView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridSingleDailyPeriodMultiView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridSingleDailyPeriodMultiView"
+                name="CubridDbPeriodMultiView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="true"
+                class="scouter.client.cubrid.views.CubridSpaceDbView"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridSpaceDbView"
+                name="CubridSpaceDbView"
+                restorable="true">
+        </view>
+        <view
+                allowMultiple="false"
+                class="scouter.client.cubrid.views.CubridLongTransactionList"
+                icon="icons/perf.png"
+                id="scouter.client.cubrid.views.CubridLongTransactionList"
+                name="CubridLongTransactionList"
+                restorable="true">
         </view>
     </extension>
     <extension point="org.eclipse.ui.commands">

@@ -48,10 +48,13 @@ public class RequestCmd {
 	public static final String OBJECT_THREAD_DUMP = "OBJECT_THREAD_DUMP";
 
 	public static final String TRIGGER_ACTIVE_SERVICE_LIST = "TRIGGER_ACTIVE_SERVICE_LIST";
-	public static final String TRIGGER_THREAD_DUMP = "TRIGGER_THREAD_DUMP";
+	public static final String TRIGGER_THREAD_DUMP = "TRIGGER_THREAD_DUMP"; //java and golang pprof cpu profile as plain text
     public static final String TRIGGER_THREAD_DUMPS_FROM_CONDITIONS = "TRIGGER_THREAD_DUMPS_FROM_CONDITIONS";
 	public static final String TRIGGER_THREAD_LIST = "TRIGGER_THREAD_LIST";
 	public static final String TRIGGER_HEAPHISTO = "TRIGGER_HEAPHISTO";
+
+	public static final String TRIGGER_BLOCK_PROFILE = "TRIGGER_BLOCK_PROFILE"; //golang pprof block profile as plain text
+	public static final String TRIGGER_MUTEX_PROFILE = "TRIGGER_MUTEX_PROFILE"; //golang pprof mutex profile as plain text
 
     public static final String TRIGGER_DUMP_REASON = "TRIGGER_DUMP_REASON";
     public static final String TRIGGER_DUMP_REASON_TYPE_CPU_EXCEEDED = "TRIGGER_DUMP_REASON_TYPE_CPU_EXCEEDED";
@@ -64,6 +67,10 @@ public class RequestCmd {
 	public static final String OBJECT_LIST_HEAP_DUMP = "OBJECT_LIST_HEAP_DUMP";
 	public static final String OBJECT_DOWNLOAD_HEAP_DUMP = "OBJECT_DOWNLOAD_HEAP_DUMP";
 	public static final String OBJECT_DELETE_HEAP_DUMP = "OBJECT_DELETE_HEAP_DUMP";
+
+	public static final String OBJECT_CALL_CPU_PROFILE = "OBJECT_CALL_CPU_PROFILE"; //golang pprof cpu profile as protobuf
+	public static final String OBJECT_CALL_BLOCK_PROFILE = "OBJECT_CALL_BLOCK_PROFILE"; //golang pprof block profile as protobuf
+	public static final String OBJECT_CALL_MUTEX_PROFILE = "OBJECT_CALL_MUTEX_PROFILE"; //golang pprof mutex profile as protobuf
 
 	public static final String OBJECT_LIST_REAL_TIME = "OBJECT_LIST_REAL_TIME";
 	public static final String OBJECT_LIST_LOAD_DATE = "OBJECT_LIST_LOAD_DATE";
@@ -311,6 +318,18 @@ public class RequestCmd {
 	public static final String BATCH_ACTIVE_STACK = "BATCH_ACTIVE_STACK";
 	public static final String OBJECT_BATCH_ACTIVE_LIST = "OBJECT_BATCH_ACTIVE_LIST";
 	
+	// CUBRID - AGENT
+	public static final String CUBRID_DB_REALTIME_DML = "CUBRID_DB_REALTIME_DML";
+	public static final String CUBRID_DB_REALTIME_STATUS = "CUBRID_DB_REALTIME_STATUS";
+	public static final String CUBRID_ACTIVE_DB_LIST = "CUBRID_ACTIVE_DB_LIST";
+	public static final String CUBRID_DB_SERVER_INFO = "CUBRID_DB_SERVER_INFO";
+	public static final String CUBRID_DB_PERIOD_MULTI_DATA = "CUBRID_DB_PERIOD_MULTI_DATA";
+	public static final String CUBRID_DB_LONG_PERIOD_MULTI_DATA = "CUBRID_DB_LONG_PERIOD_MULTI_DATA";
+	public static final String CUBRID_DB_REALTIME_MULTI_DATA = "CUBRID_DB_REALTIME_MULTI_DATA";
+	public static final String CUBRID_DB_LONG_TRANSACTION_DATA = "CUBRID_DB_LONG_TRANSACTION_DATA";
+	public static final String CUBRID_GET_ALERT_CONFIGURE = "CUBRID_GET_ALERT_CONFIGURE";
+	public static final String CUBRID_SET_ALERT_CONFIGURE = "CUBRID_SET_ALERT_CONFIGURE";
+
 	protected static Set<String> freeCmdSet = new HashSet<String>();
 	
 	static {

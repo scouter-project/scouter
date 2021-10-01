@@ -64,7 +64,7 @@ public class ReactorModifyASM implements IASM, Opcodes {
 		}
 
 		public OptimizableOperatorCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 	}
@@ -91,7 +91,7 @@ public class ReactorModifyASM implements IASM, Opcodes {
 		}
 
 		public MonoOnAssemblyCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 	}
@@ -118,7 +118,7 @@ public class ReactorModifyASM implements IASM, Opcodes {
 		}
 
 		public FluxOnAssemblyCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 	}
@@ -145,7 +145,7 @@ public class ReactorModifyASM implements IASM, Opcodes {
 		}
 
 		public AssemblySnapshotCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 	}

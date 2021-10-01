@@ -6,7 +6,8 @@ Bundle-Version: 1.0.0.qualifier
 Bundle-Activator: scouter.client.Activator
 Bundle-Localization: message/localization
 Bundle-Vendor: Scouter Project
-Require-Bundle: org.eclipse.ui,
+Require-Bundle: 
+ org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.ui.console,
  org.eclipse.draw2d,
@@ -20,7 +21,10 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.core.databinding.observable,
  org.eclipse.core.databinding.property,
  org.eclipse.jface.databinding,
- com.ibm.icu
+ com.ibm.icu,
+ org.eclipse.swt,
+ org.eclipse.e4.core.commands,
+ org.eclipse.e4.ui.services
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,

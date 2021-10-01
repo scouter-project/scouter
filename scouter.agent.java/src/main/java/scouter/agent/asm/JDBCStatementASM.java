@@ -76,7 +76,7 @@ public class JDBCStatementASM implements IASM, Opcodes {
 class StatementCV extends ClassVisitor implements Opcodes {
 	private String owner;
 	public StatementCV(ClassVisitor cv) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 	}
 	@Override
 	public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {

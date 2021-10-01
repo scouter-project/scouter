@@ -55,7 +55,7 @@ class HttpNioEntityCV extends ClassVisitor implements Opcodes {
 	public String className;
 
 	public HttpNioEntityCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 
@@ -95,7 +95,7 @@ class HttpNioEntityMV extends LocalVariablesSorter implements Opcodes {
 	private String className;
 
 	public HttpNioEntityMV(int access, String desc, MethodVisitor mv, String className) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.className = className;
 	}
 

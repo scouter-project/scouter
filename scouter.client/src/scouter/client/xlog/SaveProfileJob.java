@@ -17,13 +17,6 @@
  */
 package scouter.client.xlog;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashMap;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -33,7 +26,6 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import scouter.client.Images;
 import scouter.client.actions.OpenWorkspaceExplorerAction;
 import scouter.client.model.TextProxy;
@@ -44,14 +36,21 @@ import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ExUtil;
 import scouter.client.util.RCPUtil;
 import scouter.client.util.StepWrapper;
+import scouter.io.DataInputX;
+import scouter.io.DataOutputX;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.step.Step;
 import scouter.lang.step.StepSingle;
 import scouter.lang.step.StepSummary;
-import scouter.io.DataInputX;
-import scouter.io.DataOutputX;
 import scouter.util.DateUtil;
 import scouter.util.SortUtil;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.HashMap;
 
 public class SaveProfileJob extends Job{
 
@@ -117,7 +116,7 @@ public class SaveProfileJob extends Job{
 		File rootDir = new File(dir);
 		File[] fs = rootDir.listFiles();
 		if(fs != null){
-			workingDir = dir+"/"+"["+String.format("%03d-", (fs.length+1))+DateUtil.format(date, "HHmmss")+"]"+txid+"_"+service+"/";
+			workingDir = dir+"/"+"_"+String.format("%03d-", (fs.length+1))+DateUtil.format(date, "HHmmss")+"_"+txid+"_"+service+"/";
 			for(File f : fs){
 				String dirPath = f.getAbsolutePath();
 				if(f.isDirectory() && dirPath != null && dirPath.indexOf(txid+"_"+service) != -1){

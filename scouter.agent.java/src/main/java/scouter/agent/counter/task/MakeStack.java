@@ -20,6 +20,7 @@ import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 public class MakeStack {
     static Configure conf = Configure.getInstance();
@@ -82,20 +83,34 @@ public class MakeStack {
             return;
         }
         lastStackTraceGenTime = now;
+        int minMs = conf._psts_dump_min_ms;
+        int maxCount = conf._psts_dump_max_count;
 
         ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
-        Enumeration<TraceContext> en = TraceContextManager.getContextEnumeration();
-        while (en.hasMoreElements()) {
-            TraceContext ctx = en.nextElement();
+
+        List<TraceContext> ctxList = new ArrayList<TraceContext>();
+        int doCount = 0;
+        for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
+            if (maxCount > 0 && doCount >= maxCount) {
+                break;
+            }
+            doCount++;
+            TraceContext ctx = e.getValue();
             if (ctx != null) {
-                if (ctx.isReactiveStarted) {
-                    reactiveStepDump(tmxBean, ctx);
-                } else {
-                    stepDump(tmxBean, ctx);
+                long elapsed = (System.currentTimeMillis() - ctx.startTime);
+                if (minMs <= 0 || elapsed >= minMs) {
+                    ctxList.add(ctx);
                 }
             }
         }
-        long elapsed = (System.currentTimeMillis() - now);
+
+        for (TraceContext ctx : ctxList) {
+            if (ctx.isReactiveStarted) {
+                reactiveStepDump(tmxBean, ctx);
+            } else {
+                stepDump(tmxBean, ctx);
+            }
+        }
     }
 
     private void stepDump(ThreadMXBean tmxBean, TraceContext ctx) {

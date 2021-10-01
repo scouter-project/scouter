@@ -66,7 +66,7 @@ class HttpReactiveServiceCV extends ClassVisitor implements Opcodes {
 	private String className;
 
 	public HttpReactiveServiceCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 	@Override
@@ -95,7 +95,7 @@ class HttpReactiveServiceCV extends ClassVisitor implements Opcodes {
 //	private static final String START_SIGNATURE = "(Ljava/lang/Object;)V";
 //
 //	public HttpReactiveInitMV(int access, String desc, MethodVisitor mv) {
-//		super(ASM8, access, desc, mv);
+//		super(ASM9, access, desc, mv);
 //	}
 //
 //	@Override
@@ -117,7 +117,7 @@ class HttpReactiveServiceMV extends LocalVariablesSorter implements Opcodes {
 	//TODO private final static String REJECT = "reject";
 
 	public HttpReactiveServiceMV(int access, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 	}
 
 	@Override
@@ -147,7 +147,7 @@ class HttpReactiveServiceMV extends LocalVariablesSorter implements Opcodes {
 //	private String className;
 //
 //	public HttpReactiveServiceResCV(ClassVisitor cv, String className) {
-//		super(ASM8, cv);
+//		super(ASM9, cv);
 //		this.className = className;
 //	}
 //	@Override
@@ -172,7 +172,7 @@ class HttpReactiveServiceMV extends LocalVariablesSorter implements Opcodes {
 //
 //
 //	public HttpReactiveServiceResMV(int access, String desc, MethodVisitor mv) {
-//		super(ASM8, access, desc, mv);
+//		super(ASM9, access, desc, mv);
 //	}
 //
 //	@Override

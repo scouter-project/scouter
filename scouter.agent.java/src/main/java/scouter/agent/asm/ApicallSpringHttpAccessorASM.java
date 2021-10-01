@@ -54,7 +54,7 @@ class HttpAccessorCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public HttpAccessorCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -84,7 +84,7 @@ class CreateRequestMV extends LocalVariablesSorter implements Opcodes {
 	private Type returnType;
 
 	public CreateRequestMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);

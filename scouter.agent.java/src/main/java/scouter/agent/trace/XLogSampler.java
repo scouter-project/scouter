@@ -156,19 +156,19 @@ public class XLogSampler {
 
     private XLogDiscard sampling4Elapsed(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_sampling_rate_precision)) >= conf.xlog_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_sampling_rate_precision)) >= conf.xlog_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_sampling_rate_precision)) >= conf.xlog_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_sampling_rate_precision)) >= conf.xlog_sampling_over_rate_pct) {
                 discardMode = conf.xlog_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
@@ -177,19 +177,19 @@ public class XLogSampler {
 
     private XLogDiscard samplingPatterned5(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_patterned5_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned5_sampling_rate_precision)) >= conf.xlog_patterned5_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned5_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned5_sampling_rate_precision)) >= conf.xlog_patterned5_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned5_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned5_sampling_rate_precision)) >= conf.xlog_patterned5_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned5_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned5_sampling_rate_precision)) >= conf.xlog_patterned5_sampling_over_rate_pct) {
                 discardMode = conf.xlog_patterned5_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
@@ -198,19 +198,19 @@ public class XLogSampler {
 
     private XLogDiscard samplingPatterned4(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_patterned4_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned4_sampling_rate_precision)) >= conf.xlog_patterned4_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned4_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned4_sampling_rate_precision)) >= conf.xlog_patterned4_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned4_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned4_sampling_rate_precision)) >= conf.xlog_patterned4_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned4_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned4_sampling_rate_precision)) >= conf.xlog_patterned4_sampling_over_rate_pct) {
                 discardMode = conf.xlog_patterned4_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
@@ -219,19 +219,19 @@ public class XLogSampler {
 
     private XLogDiscard samplingPatterned3(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_patterned3_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned3_sampling_rate_precision)) >= conf.xlog_patterned3_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned3_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned3_sampling_rate_precision)) >= conf.xlog_patterned3_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned3_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned3_sampling_rate_precision)) >= conf.xlog_patterned3_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned3_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned3_sampling_rate_precision)) >= conf.xlog_patterned3_sampling_over_rate_pct) {
                 discardMode = conf.xlog_patterned3_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
@@ -240,19 +240,19 @@ public class XLogSampler {
 
     private XLogDiscard samplingPatterned2(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_patterned2_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned2_sampling_rate_precision)) >= conf.xlog_patterned2_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned2_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned2_sampling_rate_precision)) >= conf.xlog_patterned2_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned2_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned2_sampling_rate_precision)) >= conf.xlog_patterned2_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned2_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned2_sampling_rate_precision)) >= conf.xlog_patterned2_sampling_over_rate_pct) {
                 discardMode = conf.xlog_patterned2_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }
@@ -261,19 +261,19 @@ public class XLogSampler {
 
     private XLogDiscard samplingPatterned1(int elapsed, XLogDiscard discardMode) {
         if (elapsed < conf.xlog_patterned_sampling_step1_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step1_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned_sampling_rate_precision)) >= conf.xlog_patterned_sampling_step1_rate_pct) {
                 discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned_sampling_step2_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step2_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned_sampling_rate_precision)) >= conf.xlog_patterned_sampling_step2_rate_pct) {
                 discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else if (elapsed < conf.xlog_patterned_sampling_step3_ms) {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_step3_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned_sampling_rate_precision)) >= conf.xlog_patterned_sampling_step3_rate_pct) {
                 discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         } else {
-            if (Math.abs(KeyGen.next() % 100) >= conf.xlog_patterned_sampling_over_rate_pct) {
+            if (Math.abs(KeyGen.next() % (100 * conf.xlog_patterned_sampling_rate_precision)) >= conf.xlog_patterned_sampling_over_rate_pct) {
                 discardMode = conf.xlog_patterned_sampling_only_profile ? XLogDiscard.DISCARD_PROFILE : XLogDiscard.DISCARD_ALL;
             }
         }

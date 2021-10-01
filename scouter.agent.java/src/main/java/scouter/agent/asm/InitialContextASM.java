@@ -50,7 +50,7 @@ class InitialContextCV extends ClassVisitor implements Opcodes {
 
 	public String className;
 	public InitialContextCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 
@@ -78,7 +78,7 @@ class InitialContextMV extends LocalVariablesSorter implements Opcodes {
 
 	public InitialContextMV(int access, String desc, MethodVisitor mv, String classname, String methodname,
 			String methoddesc) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.returnType = Type.getReturnType(desc);
 	}
 
