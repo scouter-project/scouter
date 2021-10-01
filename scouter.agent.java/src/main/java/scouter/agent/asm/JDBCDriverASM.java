@@ -49,7 +49,7 @@ class JDBCDriverCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public JDBCDriverCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -78,7 +78,7 @@ class JDBCDriverMV extends LocalVariablesSorter implements Opcodes {
 	
 	private Label startFinally = new Label();
 	public JDBCDriverMV(int access, String desc, MethodVisitor mv, String fullname) {
-		super(ASM8,access, desc, mv);
+		super(ASM9,access, desc, mv);
 		this.strArgIdx = AsmUtil.getStringIdx(access, desc);
 	}
 	private int strArgIdx;

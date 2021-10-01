@@ -74,7 +74,7 @@ class SqlMapCV extends ClassVisitor implements Opcodes {
 	public String className;
 
 	public SqlMapCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 
@@ -106,7 +106,7 @@ class SqlMapMV extends LocalVariablesSorter implements Opcodes {
 
 	public SqlMapMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic, String classname,
 			String methodname, String methoddesc) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.methodName = methodname;

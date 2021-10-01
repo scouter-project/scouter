@@ -32,7 +32,7 @@ public class PsUpdateCountMV extends MethodVisitor implements Opcodes {
     private static final String SIGNATURE = "(I)I";
 
     public PsUpdateCountMV(MethodVisitor mv) {
-        super(ASM8, mv);
+        super(ASM9, mv);
     }
 
     @Override

@@ -48,7 +48,7 @@ public class UserTxASM implements IASM, Opcodes {
 class UserTxCV extends ClassVisitor implements Opcodes {
 
 	public UserTxCV(ClassVisitor cv) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 	}
 	@Override
 	public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
@@ -72,7 +72,7 @@ class UTXOpenMV extends LocalVariablesSorter implements Opcodes {
 	private static final String SIGNATURE = "()V";
 
 	public UTXOpenMV(int access, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 	}
 
 	@Override
@@ -91,7 +91,7 @@ class UTXCloseMV extends LocalVariablesSorter implements Opcodes {
 	private String method;
 
 	public UTXCloseMV(int access, String desc, MethodVisitor mv, String method) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.method = method;
 	}
 

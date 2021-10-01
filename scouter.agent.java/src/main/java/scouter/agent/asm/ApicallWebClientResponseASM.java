@@ -60,7 +60,7 @@ class WebClientResponseLogCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public WebClientResponseLogCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -88,7 +88,7 @@ class WebClientResponseLogMV extends LocalVariablesSorter implements Opcodes {
 	int respIdx;
 
 	public WebClientResponseLogMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

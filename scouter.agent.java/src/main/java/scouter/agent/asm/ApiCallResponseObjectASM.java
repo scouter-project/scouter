@@ -58,7 +58,7 @@ class ApiCallResponseObjectCV extends ClassVisitor implements Opcodes {
     String className;
 
     public ApiCallResponseObjectCV(ClassVisitor cv, String className) {
-        super(ASM8, cv);
+        super(ASM9, cv);
         this.className = className;
     }
 
@@ -89,7 +89,7 @@ class ApiCallResponseObjectInitMV extends LocalVariablesSorter implements Opcode
     private Label startFinally = new Label();
 
     public ApiCallResponseObjectInitMV(String className, int access, String name, String desc, MethodVisitor mv) {
-        super(ASM8, access, desc, mv);
+        super(ASM9, access, desc, mv);
         this.className = className;
         this.name = name;
         this.desc = desc;

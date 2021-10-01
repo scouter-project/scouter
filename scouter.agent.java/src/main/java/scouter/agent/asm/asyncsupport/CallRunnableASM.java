@@ -94,7 +94,7 @@ class CallRunnableCV extends ClassVisitor implements Opcodes {
 	String className;
 
 	public CallRunnableCV(ClassVisitor cv, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.className = className;
 	}
 
@@ -136,7 +136,7 @@ class CallOrRunMV extends LocalVariablesSorter implements Opcodes {
 	private int statIdx;
 
 	public CallOrRunMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 		this.returnType = Type.getReturnType(desc);
@@ -217,7 +217,7 @@ class InitMV extends LocalVariablesSorter implements Opcodes {
 	String desc;
 
 	public InitMV(int access, String name, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.name = name;
 		this.desc = desc;
 	}

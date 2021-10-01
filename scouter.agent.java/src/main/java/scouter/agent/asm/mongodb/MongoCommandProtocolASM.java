@@ -57,7 +57,7 @@ public class MongoCommandProtocolASM implements IASM, Opcodes {
         public String className;
 
         public MongoCommandProtocolCV(ClassVisitor cv, String className) {
-            super(ASM8, cv);
+            super(ASM9, cv);
             this.className = className;
         }
 
@@ -139,7 +139,7 @@ public class MongoCommandProtocolASM implements IASM, Opcodes {
 
         public ExecuteAsyncMV(int access, String desc, MethodVisitor mv, String className, boolean namespace,
                               boolean command, boolean readPreference, boolean payload, String version) {
-            super(ASM8, access, desc, mv);
+            super(ASM9, access, desc, mv);
             this.className = className;
             this.namespace = namespace;
             this.command = command;
@@ -215,7 +215,7 @@ public class MongoCommandProtocolASM implements IASM, Opcodes {
 
         public ExecuteMV(int access, String desc, MethodVisitor mv, String className, boolean namespace,
                               boolean command, boolean readPreference, boolean payload, String version) {
-            super(ASM8, access, desc, mv);
+            super(ASM9, access, desc, mv);
             this.className = className;
             this.namespace = namespace;
             this.command = command;

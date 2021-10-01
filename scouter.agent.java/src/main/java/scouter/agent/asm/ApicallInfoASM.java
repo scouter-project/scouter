@@ -59,7 +59,7 @@ class ApicallInfoCV extends ClassVisitor implements Opcodes {
 	public String className;
 	private HookingSet mset;
 	public ApicallInfoCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -84,7 +84,7 @@ class ApicallInfoMV extends LocalVariablesSorter implements Opcodes {
 	private static final String START_SIGNATURE = "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/Object;[Ljava/lang/Object;)V";
 	public ApicallInfoMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic,
 			String classname, String methodname, String methoddesc) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 		this.className = classname;

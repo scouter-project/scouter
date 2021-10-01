@@ -72,7 +72,7 @@ class JspServletCV extends ClassVisitor implements Opcodes {
 	private HookingSet mset;
 
 	public JspServletCV(ClassVisitor cv, HookingSet mset, String className) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.mset = mset;
 		this.className = className;
 	}
@@ -100,7 +100,7 @@ class JspServletMV extends LocalVariablesSorter implements Opcodes {
 	private boolean isStatic;
 
 	public JspServletMV(int access, String desc, MethodVisitor mv, Type[] paramTypes, boolean isStatic) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 		this.paramTypes = paramTypes;
 		this.isStatic = isStatic;
 

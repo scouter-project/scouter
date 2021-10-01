@@ -32,7 +32,7 @@ public class RsInitMV extends LocalVariablesSorter implements Opcodes {
 	private final static String SIGNATURE = "(Ljava/lang/Object;)V";
 
 	public RsInitMV(int access, String desc, MethodVisitor mv) {
-		super(ASM8, access, desc, mv);
+		super(ASM9, access, desc, mv);
 	}
 
 	@Override

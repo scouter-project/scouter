@@ -28,7 +28,7 @@ public class StInitMV extends LocalVariablesSorter implements Opcodes {
 	private final static String SIGNATURE_INIT = "(Ljava/lang/Object;)V";
 
 	public StInitMV(int access, String desc, MethodVisitor mv) {
-		super(ASM8,access, desc, mv);
+		super(ASM9,access, desc, mv);
 	}
 
 	@Override

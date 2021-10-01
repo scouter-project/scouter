@@ -111,7 +111,7 @@ class PreparedStatementCV extends ClassVisitor implements Opcodes {
     private String owner;
 
     public PreparedStatementCV(ClassVisitor cv, HashSet<String> noField) {
-		super(ASM8, cv);
+		super(ASM9, cv);
 		this.noField = noField;
 	}
 

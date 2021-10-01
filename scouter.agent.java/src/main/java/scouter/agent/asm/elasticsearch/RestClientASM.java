@@ -50,7 +50,7 @@ public class RestClientASM implements IASM, Opcodes {
 		public String className;
 
 		public RestClientCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 
@@ -76,7 +76,7 @@ public class RestClientASM implements IASM, Opcodes {
 		private String className;
 
 		public RestClientStartMV(int access, String desc, MethodVisitor mv, String className) {
-			super(ASM8, access, desc, mv);
+			super(ASM9, access, desc, mv);
 			this.className = className;
 		}
 
@@ -93,7 +93,7 @@ public class RestClientASM implements IASM, Opcodes {
 		public String className;
 
 		public RequestLoggerCV(ClassVisitor cv, String className) {
-			super(ASM8, cv);
+			super(ASM9, cv);
 			this.className = className;
 		}
 
@@ -122,7 +122,7 @@ public class RestClientASM implements IASM, Opcodes {
 			private String className;
 
 			public RequestLoggerMV(int access, String desc, MethodVisitor mv, String className) {
-				super(ASM8, access, desc, mv);
+				super(ASM9, access, desc, mv);
 				this.className = className;
 			}
 
@@ -144,7 +144,7 @@ public class RestClientASM implements IASM, Opcodes {
 			private String className;
 
 			public RequestFailLoggerMV(int access, String desc, MethodVisitor mv, String className) {
-				super(ASM8, access, desc, mv);
+				super(ASM9, access, desc, mv);
 				this.className = className;
 			}
 
