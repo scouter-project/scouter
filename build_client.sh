@@ -4,6 +4,11 @@
 # download maven from :
 #   https://maven.apache.org
 
+if [ ! -z "${JAVA_11_HOME}" ]; then
+	echo JAVA_11_HOME: ${JAVA_11_HOME}
+	JAVA_HOME=${JAVA_11_HOME}
+fi
+
 MVN="`which mvn`"
 if [ ! -z "${MAVEN_HOME}" ]; then
 	echo MAVEN_HOME: ${MAVEN_HOME}
