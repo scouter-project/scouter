@@ -142,9 +142,10 @@ All options and default values are available from the scouter client's **Object 
 1. Download suitable one of `scouter.client.product-${os}[.tar.gz|.zip]` 
  - [Release Page](https://github.com/scouter-project/scouter/releases)
 2. Extract all files to new directory
-3. Execute scouter.exe(windows), scouter.app(osx) or scouter(linux)
-4. You will see a dialog
-5. Fill the authentication info(default : admin/admin) and press OK button
+3. Execute scouter.exe(windows), scouter.app(osx) or scouter(linux)  
+  **Important:** run the command if can not run the file. `xattr -cr scouter.client.app`
+5. You will see a dialog
+6. Fill the authentication info(default : admin/admin) and press OK button
   (First, the scouter server must be running.)
 6. The real-time chart will be shown.
 
