@@ -36,9 +36,9 @@ public class TraceContextManager {
 //	private static LongKeyMap<TraceContext> entryByThreadId = new LongKeyMap<TraceContext>();
 //	private static LongKeyLinkedMap<TraceContext> entryByTxid = new LongKeyLinkedMap<TraceContext>().setMax(10000);
 
-	private static SimpleLru<Long, TraceContext> entryByThreadId = new SimpleLru<>(10000);
-	private static SimpleLru<Long, TraceContext> entryByTxid = new SimpleLru<>(10000);
-	private static SimpleLru<Long, TraceContext> deferredEntry = new SimpleLru<>(10000);
+	private static SimpleLru<Long, TraceContext> entryByThreadId = new SimpleLru<Long, TraceContext>(10000);
+	private static SimpleLru<Long, TraceContext> entryByTxid = new SimpleLru<Long, TraceContext>(10000);
+	private static SimpleLru<Long, TraceContext> deferredEntry = new SimpleLru<Long, TraceContext>(10000);
 
 	private static final ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
 	private static final ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();

@@ -88,7 +88,7 @@ public class MakeStack {
 
         ThreadMXBean tmxBean = ManagementFactory.getThreadMXBean();
 
-        List<TraceContext> ctxList = new ArrayList<>();
+        List<TraceContext> ctxList = new ArrayList<TraceContext>();
         int doCount = 0;
         for (Map.Entry<Long, TraceContext> e : TraceContextManager.getContextEntries()) {
             if (maxCount > 0 && doCount >= maxCount) {

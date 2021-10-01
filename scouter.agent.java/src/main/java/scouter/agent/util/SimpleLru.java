@@ -30,9 +30,9 @@ public class SimpleLru<K, V> {
 
 
 	final int maxSize;
-	public SimpleLru(int maxSize) {
+	public SimpleLru(final int maxSize) {
 		this.maxSize = maxSize;
-		this.accessCache = new ConcurrentHashMap<>(maxSize);
+		this.accessCache = new ConcurrentHashMap<K, V>(maxSize);
 		this.creationCache =
 				new LinkedHashMap<K, V>(maxSize, 0.75f) {
 					@Override
