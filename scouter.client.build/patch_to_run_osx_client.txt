@@ -1,0 +1,1 @@
+xattr -cr ./scouter.client.app
