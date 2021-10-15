@@ -89,6 +89,8 @@
         </Family>
 		<Family name="tracing">
 		</Family>
+	        <Family name="cubrid">
+	        </Family>
 	</Familys>
 	<Types>
 		<ObjectType name="linux" family="host" disp="Linux" />
@@ -107,5 +109,6 @@
 		<ObjectType name="zipkin" family="tracing" disp="Zipkin" />
 		<ObjectType name="datasource" family="datasource" disp="DataSource" sub-object="true" />
 		<ObjectType name="reqproc" family="reqproc" disp="RequestProc" sub-object="true"/>
+		<ObjectType name="cubridagent" family="cubrid" disp="Cubrid" />
 	</Types>
 </Counters>
