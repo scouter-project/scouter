@@ -317,9 +317,11 @@ public class TraceMain {
         ctx.threadId = ctx.thread.getId();
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
-        ctx.startCpu = SysJMX.getCurrentThreadCPU();
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
         ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
+        if (ctx.profile_thread_cputime) {
+            ctx.startCpu = SysJMX.getCurrentThreadCPU();
+        }
 
         HashedMessageStep step = new HashedMessageStep();
         step.time = -1;
@@ -670,10 +672,12 @@ public class TraceMain {
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
                     || (!pack.isDriving() && discardMode == XLogDiscard.DISCARD_ALL)) {
                 if (!ctx.isReactiveStarted) {
-                    if (ctx.latestCpu > 0) {
-                        pack.cpu = (int) (ctx.latestCpu - ctx.startCpu);
-                    } else {
-                        pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+                    if (ctx.profile_thread_cputime) {
+                        if (ctx.latestCpu > 0) {
+                            pack.cpu = (int) (ctx.latestCpu - ctx.startCpu);
+                        } else {
+                            pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+                        }
                     }
                     if (ctx.latestBytes > 0) {
                         pack.kbytes = (int) ((ctx.latestBytes - ctx.bytes) / 1024.0d);
@@ -778,7 +782,6 @@ public class TraceMain {
             ctx.serviceHash = HashUtil.hash(service_name);
             ctx.serviceName = service_name;
             ctx.startTime = System.currentTimeMillis();
-            ctx.startCpu = SysJMX.getCurrentThreadCPU();
             ctx.txid = KeyGen.next();
             ctx.thread = Thread.currentThread();
             ctx.threadId = ctx.thread.getId();
@@ -787,6 +790,9 @@ public class TraceMain {
 
             ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
+            if (ctx.profile_thread_cputime) {
+                ctx.startCpu = SysJMX.getCurrentThreadCPU();
+            }
             ctx.xType = xType;
 
             HashedMessageStep step = new HashedMessageStep();
@@ -917,7 +923,9 @@ public class TraceMain {
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
                     || (!pack.isDriving() && discardMode == XLogDiscard.DISCARD_ALL)) {
 
-                pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+                if (ctx.profile_thread_cputime) {
+                    pack.cpu = (int) (SysJMX.getCurrentThreadCPU() - ctx.startCpu);
+                }
                 pack.kbytes = (int) ((SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled) - ctx.bytes) / 1024.0d);
                 DataProxy.sendXLog(pack);
             } else {
@@ -1088,6 +1096,10 @@ public class TraceMain {
     }
 
     public static Object startMethod(int hash, String classMethod) {
+        return startMethod(hash, classMethod, null);
+    }
+
+    public static Object startMethod(int hash, String classMethod, TraceContext ctx) {
         if (conf.profile_method_enabled == false) {
             return null;
         }
@@ -1096,7 +1108,10 @@ public class TraceMain {
             return null;
         }
 
-        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            ctx = TraceContextManager.getContext();
+        }
+
         if (ctx == null) {
             //System.out.println("[Scouter][HookMethodCtxNull]" + classMethod);
             if (conf._trace_auto_service_enabled) {

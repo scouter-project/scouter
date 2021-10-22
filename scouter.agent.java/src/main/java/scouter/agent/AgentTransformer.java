@@ -77,6 +77,7 @@ import scouter.agent.asm.redis.RedisKeyASM;
 import scouter.agent.asm.test.MongoModifyASM;
 import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.asm.weaver.WeaverClassASM;
 import scouter.agent.util.AsyncRunner;
 import scouter.lang.conf.ConfObserver;
 import scouter.util.FileUtil;
@@ -178,6 +179,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new UserExceptionHandlerASM());
 
         temp.add(new AddFieldASM());
+        temp.add(new WeaverClassASM());
 
         asms = temp;
     }
