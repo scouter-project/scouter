@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.15.0</version>
+    <version>2.16.0</version> <!--scouter-->
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -16,6 +16,7 @@
     <modules>
         <module>scouter.common</module>
         <module>scouter.webapp</module>
+        <module>scouter.weaver</module>
         <module>scouter.server.boot</module>
         <module>scouter.server</module>
         <module>scouter.agent.host</module>

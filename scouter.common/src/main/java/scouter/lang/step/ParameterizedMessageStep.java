@@ -86,6 +86,10 @@ public class ParameterizedMessageStep extends StepSingle {
 		this.level = level.getLevel();
 	}
 
+	public void setLevelOfByte(byte level) {
+		this.level = level;
+	}
+
 	public ParameterizedMessageLevel getLevel() {
 		return ParameterizedMessageLevel.of(this.level);
 	}

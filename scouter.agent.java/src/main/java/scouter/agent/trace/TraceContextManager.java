@@ -40,6 +40,8 @@ public class TraceContextManager {
 	private static SimpleLru<Long, TraceContext> entryByTxid = new SimpleLru<Long, TraceContext>(10000);
 	private static SimpleLru<Long, TraceContext> deferredEntry = new SimpleLru<Long, TraceContext>(10000);
 
+	private static SimpleLru<String, Long> customTxidMap = new SimpleLru<String, Long>(10000);
+
 	private static final ThreadLocal<TraceContext> local = new ThreadLocal<TraceContext>();
 	private static final ThreadLocal<Long> txidLocal = new ThreadLocal<Long>();
 	public static final ThreadLocal<Long> txidByCoroutine = new ThreadLocal<Long>();
@@ -148,6 +150,23 @@ public class TraceContextManager {
 
 	public static TraceContext getCoroutineContext(long id) {
 		return  coroutineDebuggingLocal.get(id);
+	}
+
+	public static TraceContext getContextByCustomTxid(String customTxid) {
+		Long txid = customTxidMap.get(customTxid);
+		if (txid == null) {
+			return null;
+		}
+		return getContextByTxid(txid);
+	}
+
+	public static void linkCustomTxid(String customTxid, long txid) {
+		TraceContext ctx = getContextByTxid(txid);
+		if (ctx == null) {
+			return;
+		}
+		ctx.ctxid = customTxid;
+		customTxidMap.put(customTxid, txid);
 	}
 
 	public static Long getLocalTxid() {
@@ -280,6 +299,10 @@ public class TraceContextManager {
 		o._res = null;
 		local.set(null);
 		coroutineDebuggingLocal.clear(); //it should be prev of txidLocal clear
+
+		if (o.ctxid != null) {
+			customTxidMap.remove(o.ctxid);
+		}
 
 		entryByTxid.remove(o.txid);
 		if (conf._psts_progressive_reactor_thread_trace_enabled) {

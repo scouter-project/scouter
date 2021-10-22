@@ -709,6 +709,9 @@ public class Configure extends Thread {
     @ConfigDesc("hystrix execution hook enabled")
     public boolean hook_hystrix_enabled = false;
 
+    @ConfigDesc("scouter weaver support hook enabled")
+    public boolean hook_scouter_weaver_enabled = true;
+
     @ConfigDesc("")
     public String hook_add_fields = "";
     @ConfigDesc("")

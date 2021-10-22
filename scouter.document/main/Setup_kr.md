@@ -138,6 +138,8 @@ obj_name=myFirstTomcat1
 ### Start Client
 1. Download suitable one of `scouter.client.product-${os}[.tar.gz|.zip]` 
  - [Release Page](https://github.com/scouter-project/scouter/releases)
+ - **Important for Mac(OSX)**: run the command if you can not open it. `xattr -cr scouter.client.app`   
+ - scouter client needs java 11+  
 2. Extract all files to new directory
 3. Execute scouter.exe(windows), scouter.app(osx) or scouter(linux)
 4. You will see a dialog
