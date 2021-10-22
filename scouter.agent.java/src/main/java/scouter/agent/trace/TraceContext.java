@@ -84,6 +84,7 @@ public class TraceContext {
 
 	public TraceContext parent;
 	public long txid;
+	public String ctxid;
 	public Thread thread;
 	public long threadId;
 	public long gxid;
