@@ -63,7 +63,7 @@ Client(Viewer)    | Client program to check the collected performance informatio
  decompress the client file you downloaded.
  Click the scouter client execution file and run.  
 * (**Important for Mac(OSX)**: run the command if you can not open it. `xattr -cr scouter.client.app`  
-* scouter client for mac needs java 11+
+* scouter client needs java 11+
  
  On the login form, you can login with 127.0.0.1:6100 for collector server and admin/admin for default id/password.
  

@@ -64,7 +64,7 @@ Client(Viewer)    | 수집된 성능 정보를 확인하기 위한 Client 프로
  다운로드 받은 Client를 적절한 위치에 압축 해제 한다
  scouter client를 클릭하여 실행한다.  
 * (**Important for Mac(OSX)**: 파일이 열리지 않으면 다음 명령을 실행한다. `xattr -cr scouter.client.app`  
-* scouter client for mac needs java 11+
+* scouter client needs java 11+
 
  Collector Server의 IP 를 127.0.0.1:6100, id/password를 admin/admin을 입력하여 로그인 한다.
  
