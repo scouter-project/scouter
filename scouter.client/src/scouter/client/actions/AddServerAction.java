@@ -44,7 +44,7 @@ public class AddServerAction extends Action {
 
 	public void run() {
 		if (window != null) {
-			dialog = new LoginDialog2(window.getShell(), null, LoginDialog2.TYPE_ADD_SERVER, null);
+			dialog = new LoginDialog2(window.getShell(), null, LoginDialog2.TYPE_ADD_SERVER, null, null);
 			dialog.open();
 		}
 	}

@@ -56,15 +56,43 @@ public class Server {
 	private MapValue groupPolicyMap = new MapValue();
 	private MapValue menuEnableMap = new MapValue();
 	
+	private String socksIp;
+	private int socksPort;
+
+	
 	public Server(String ip, String port) {
 		this(ip, port, null);
 	}
 	
 	public Server(String ip, String port, String name) {
+		this(ip, port, name, null, null);
+	}
+	
+	public Server(String ip, String port, String name, String socksIp, String socksPort) {
 		this.id = HashUtil.hash(ip + port);
 		this.ip = ip;
 		this.port = Integer.valueOf(port);
 		this.name = name;
+		this.socksIp = socksIp;
+		if ( socksPort != null ) {
+			try {
+				this.socksPort = Integer.valueOf(socksPort);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public String getSocksAddr() {
+		String socksAddr = null;
+		if (getSocksIp() != null && getSocksPort() != 0) {
+			socksAddr = getSocksIp() + ":" + getSocksPort();
+		}
+		return socksAddr;
+	}
+	
+	public boolean isSocksLogin() {
+		return getSocksIp() != null && getSocksPort() != 0;
 	}
 	
 	public int getId() {
@@ -79,6 +107,22 @@ public class Server {
 		return port;
 	}
 	
+	public String getSocksIp() {
+		return socksIp;
+	}
+
+	public void setSocksIp(String socksIp) {
+		this.socksIp = socksIp;
+	}
+
+	public int getSocksPort() {
+		return socksPort;
+	}
+
+	public void setSocksPort(int socksPort) {
+		this.socksPort = socksPort;
+	}
+
 	public ConnectionPool getConnectionPool() {
 		return this.connPool;
 	}

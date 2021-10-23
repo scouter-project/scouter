@@ -20,6 +20,7 @@ package scouter.client.net;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 
 import scouter.client.server.Server;
@@ -35,14 +36,19 @@ public class ClientTCP{
 	DataInputX in;
 	DataOutputX out;
 
-	public void open(int serverId) {
+	public void open(int serverId, boolean socksLogin) {
 		close();
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server == null) {
 			return;
 		}
 		try {
-			socket = new Socket();
+			if (socksLogin) {
+				InetSocketAddress proxyAddr = new InetSocketAddress(server.getSocksIp(), server.getSocksPort() );
+				socket = new Socket(new Proxy(Proxy.Type.SOCKS, proxyAddr));
+			}else {
+				socket = new Socket();
+			}
 			///
 			socket.setKeepAlive(true); 
 			socket.setTcpNoDelay(true);

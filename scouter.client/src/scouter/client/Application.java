@@ -93,7 +93,7 @@ public class Application implements IApplication {
 				ServerManager.getInstance().setDefaultServer(server);						
 			}
 			
-		}, LoginDialog2.TYPE_STARTUP, null);
+		}, LoginDialog2.TYPE_STARTUP, null, null);
 		return (dialog.open() == Window.OK);
 	}
 
@@ -113,7 +113,17 @@ public class Application implements IApplication {
 				if (iport == null || iport.length < 2) {
 					continue;
 				}
-				Server server = new Server(iport[0], iport[1]);
+				
+				String socksIp = null;
+				String socksPort = null;
+				if (ServerPrefUtil.isSocksLogin(addr)) {
+					String socksAddr = ServerPrefUtil.getStoredSocksServer(addr);
+					String[] socksAddrs = socksAddr.split(":");
+					socksIp = socksAddrs[0];
+					socksPort = socksAddrs[1];
+				}
+				
+				Server server = new Server(iport[0], iport[1], null, socksIp, socksPort);
 				if (addr.equals(defaultSrv)) {
 					manager.setDefaultServer(server);
 				} else {

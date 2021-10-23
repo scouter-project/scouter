@@ -17,6 +17,7 @@
  */
 package scouter.client.net;
 
+import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.io.DataInputX;
@@ -75,9 +76,17 @@ public class TcpProxy {
 
 	public synchronized void open() {
 		if (tcp.isSessionOk() == false) {
-			tcp.open(this.server.getId());
+			boolean socksLogin =ServerPrefUtil.isSocksLogin(this.getServer().getIp()+":"+this.getServer().getPort());
+			tcp.open(this.server.getId(),socksLogin);
 		}
 	}
+	
+	public synchronized void open(boolean socksLogin) {
+		if (tcp.isSessionOk() == false) {
+			tcp.open(this.server.getId(), socksLogin);
+		}
+	}
+	
 	
 	public synchronized void close() {
 		sendClose();
@@ -181,8 +190,10 @@ public class TcpProxy {
 	}
 	
 	public static MapPack loginProxy(int serverId, MapPack param) throws IOException {
+		Boolean socksLogin = param.getBoolean("isSocks");
+	    
 		TcpProxy proxy = new TcpProxy(serverId);
-		proxy.open();
+		proxy.open(socksLogin);
 		if (proxy.isValid() == false) {
 			return null;
 		}

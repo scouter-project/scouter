@@ -64,31 +64,34 @@ public class LoginDialog2 extends Dialog {
 
 	ArrayList<String> storeAddr = new ArrayList<String>();
 	FormData data;
-	Combo addrCombo;
+	Combo addrCombo, socksAddrCombo;
 	Text id, pass;
 	Label idLabel, passLabel;
 
 	List list;
 
-	Button autoLoginCheck, secureCheck;
+	Button autoLoginCheck, secureCheck, sock5Check;
 	boolean autoLogin;
 	boolean secureLogin = true;
+	boolean sock5Login = false;
 
 	String address = null;
+	String socksAddress = null;
 
-	public LoginDialog2(Shell shell, ILoginDialog callback, int openType, String address) {
+	public LoginDialog2(Shell shell, ILoginDialog callback, int openType, String address, String socksAddress) {
 		super(shell);
 		this.shell = shell;
 		this.callback = callback;
 		this.openType = openType;
 		this.address = address;
+		this.socksAddress = socksAddress;
+		this.sock5Login = StringUtil.isNotEmpty(socksAddress);
 	}
-	
 	
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
-		Composite comp =  (Composite) super.createDialogArea(parent);
+		Composite comp = (Composite) super.createDialogArea(parent);
 		comp.setLayout(UIUtil.formLayout(5, 5));
 		final Group parentGroup = new Group(comp, SWT.NONE);
 		parentGroup.setText("Authentication Info");
@@ -142,7 +145,7 @@ public class LoginDialog2 extends Dialog {
 			}
 		});
 		autoLoginCheck.setSelection(false);
-		
+
 		// to hash password before transfer, default true
 		secureCheck = new Button(parentGroup, SWT.CHECK);
 		secureCheck.setText("Secure Login");
@@ -158,12 +161,56 @@ public class LoginDialog2 extends Dialog {
 		});
 		secureCheck.setSelection(true);
 		
-		list = new List(parentGroup, SWT.NONE);
-		list.setLayoutData(UIUtil.formData(0, 5, secureCheck, 10, 100, -5, null, -1, -1, 60));
+		// console group
+		final Group socksGroup = new Group(comp, SWT.NONE);
+		socksGroup.setText("SOCKS5");
+		socksGroup.setLayout(UIUtil.formLayout(5, 5));
+		socksGroup.setLayoutData(UIUtil.formData(null, -1, parentGroup, 0, null, -1, null, -1));
+
+		// to use SOCKS5
+		sock5Check = new Button(socksGroup, SWT.CHECK|SWT.LEFT);
+		sock5Check.setText("SOCKS5");
+		sock5Check.setLayoutData(UIUtil.formData(0, 0, 0, 5, 100, -5, null, -1));
+		sock5Check.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (sock5Check.getSelection()) {
+					sock5Login = true;
+				} else {
+					sock5Login = false;
+				}
+				socksAddrCombo.setEnabled(sock5Login);
+			}
+		});
+		sock5Check.setSelection(false);
+
+		// socks5 address
+		Label socks5AddrLabel = new Label(socksGroup, SWT.RIGHT);
+		socks5AddrLabel.setText("SOCKS5 Address :");
+		socks5AddrLabel.setLayoutData(UIUtil.formData(null, -1, sock5Check, 10, null, -1, null, -1, 100));
+
+		// socks5 address combo
+		String[] socks5Addrs = ServerPrefUtil.getStoredSocks5ServerList();
+
+		socksAddrCombo = new Combo(socksGroup, SWT.VERTICAL | SWT.BORDER | SWT.H_SCROLL);
+		if (socks5Addrs != null && socks5Addrs.length > 0) {
+			socksAddrCombo.setItems(socks5Addrs);
+		}
+		socksAddrCombo.setEnabled(sock5Login);
+		socksAddrCombo.setLayoutData(UIUtil.formData(socks5AddrLabel, 5, sock5Check, 10, 100, -5, null, -1, 150));
+
+		
+		// console group
+		final Group consoleGroup = new Group(comp, SWT.NONE);
+		consoleGroup.setLayout(UIUtil.formLayout(5, 5));
+		consoleGroup.setLayoutData(UIUtil.formData(null, -1, socksGroup, 0, null, -1, null, -1));
+		
+		// connection status console
+		list = new List(consoleGroup, SWT.NONE);
+		list.setLayoutData(UIUtil.formData(0, 5, 0, 5, 100, -5, null, -1, 250, 60));
+		//list.setLayoutData(UIUtil.formData(0, 5, socks5AddrLabel, 10, 100, -5, null, -1, -1, 60));
 		list.add("Type your authentication info...");
 		list.select(list.getItemCount() - 1);
 		list.showSelection();
-
 
 		if (StringUtil.isNotEmpty(this.address)) {
 			addrCombo.setText(address);
@@ -173,16 +220,25 @@ public class LoginDialog2 extends Dialog {
 				secureCheck.setSelection(server.isSecureMode());
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
-		} else if (openType == TYPE_STARTUP){
+		} else if (openType == TYPE_STARTUP) {
 			addrCombo.setText("127.0.0.1:" + NetConstants.SERVER_TCP_PORT);
 			id.setText("admin");
 		}
 		
+		if (StringUtil.isNotEmpty(this.socksAddress)) {
+			socksAddrCombo.setText(socksAddress);
+			sock5Check.setSelection(true);
+			Server server = ServerManager.getInstance().getServer(address);
+			if (server != null && StringUtil.isNotEmpty(server.getUserId())) {
+				id.setText(server.getUserId());
+				secureCheck.setSelection(server.isSecureMode());
+			}
+			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
+		} 
+
 		return comp;
 	}
-	
-	
-	
+
 	@Override
 	protected Point getInitialLocation(Point initialSize) {
 		Monitor primaryMonitor = Display.getDefault().getPrimaryMonitor();
@@ -191,8 +247,6 @@ public class LoginDialog2 extends Dialog {
 		int y = bounds.y + (bounds.height) / 2;
 		return new Point(x, y);
 	}
-
-
 
 	@Override
 	protected void configureShell(Shell newShell) {
@@ -221,7 +275,7 @@ public class LoginDialog2 extends Dialog {
 	protected boolean isResizable() {
 		return false;
 	}
-	
+
 	private void createPasswordInput(Composite parentGroup) {
 		pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
 		pass.addFocusListener(new FocusListener() {
@@ -234,19 +288,15 @@ public class LoginDialog2 extends Dialog {
 		});
 		pass.setLayoutData(UIUtil.formData(passLabel, 5, id, 7, 100, -5, null, -1));
 	}
-	
-	
 
 	@Override
 	protected void okPressed() {
-		if (loginInToServer(addrCombo.getText())) {
+		if (loginInToServer(addrCombo.getText(), socksAddrCombo.getText())) {
 			super.okPressed();
 		}
 	}
 
-
-
-	public boolean loginInToServer(String address) {
+	public boolean loginInToServer(String address, String socksAddress) {
 		Server server = null;
 		if (StringUtil.isEmpty(address)) {
 			errMsg("Please check server address");
@@ -264,6 +314,16 @@ public class LoginDialog2 extends Dialog {
 			String addr[] = address.split(":");
 			ip = addr[0];
 			port = addr[1];
+			
+			String socksIp = null;
+			String socksPort = null;
+			if (socksAddress.contains(":") == false) {
+				errMsg("Check SOCKS Address");
+			}
+			String socksAddr[] = socksAddress.split(":");
+			socksIp = socksAddr[0];
+			socksPort = socksAddr[1];
+			
 			msg("Log in..." + address);
 
 			ServerManager srvMgr = ServerManager.getInstance();
@@ -272,21 +332,24 @@ public class LoginDialog2 extends Dialog {
 				msg("");
 				return false;
 			}
+			
 
-			server = new Server(ip, port);
+			server = new Server(ip, port,null, socksIp, socksPort);
 			if (srvMgr.getServer(server.getId()) == null) {
 				srvMgr.addServer(server);
 			} else {
 				existServer = true;
 				server = srvMgr.getServer(server.getId());
+				server.setSocksIp(socksIp);
+				server.setSocksPort(socksPort == null ? 0 : Integer.parseInt(socksPort));
 			}
 
-			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText(), secureLogin);
+			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText());
 			if (result.success) {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);
 				if (autoLogin) {
-					ServerPrefUtil.addAutoLoginServer(address, id.getText(), server.getPassword());
+					ServerPrefUtil.addAutoLoginServer(address, id.getText(), server.getPassword(), socksAddress);
 				} else {
 					ServerPrefUtil.removeAutoLoginServer(address);
 				}
