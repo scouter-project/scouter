@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Configure extends Thread {
 
@@ -62,6 +63,27 @@ public class Configure extends Thread {
 			instance.start();
 		}
 		return instance;
+	}
+
+	private static long randomNo = ThreadLocalRandom.current().nextLong(100000L, 999999L);
+	private long seqNoForKube = -1;
+	private boolean useKubeHostName = false;
+	private String podName = "";
+
+	public long getSeqNoForKube() {
+		return seqNoForKube;
+	}
+
+	public void setSeqNoForKube(long seqNoForKube) {
+		this.seqNoForKube = seqNoForKube;
+	}
+
+	public boolean isUseKubeHostName() {
+		return useKubeHostName;
+	}
+
+	public String getPodName() {
+		return podName;
 	}
 
 	//Network
@@ -91,6 +113,16 @@ public class Configure extends Thread {
 	public String monitoring_group_type = "";
 	@ConfigDesc("Object Name")
 	public String obj_name = "";
+
+	public String host_name = StringUtil.emptyToDefault(SysJMX.getHostName(), "host_" + randomNo);
+
+	@ConfigDesc("is it on kube env. auto detecting.")
+	public boolean kube = isKube();
+	//KUBERNETES_SERVICE_HOST
+	@ConfigDesc("use sequencial name on kube. {obj_name}_{seq}")
+	public boolean kube_pod_sequence_name_enabled = true;
+	@ConfigDesc("use just hostname as obj_name if do not exceed this number of hostname size.")
+	public int kube_pod_sequence_name_min_length = 18;
 
 	//Manager
 	@ConfigDesc("")
@@ -301,10 +333,38 @@ public class Configure extends Thread {
 		this.monitoring_group_type = getValue("monitoring_group_type");
 		this.obj_type = StringUtil.isEmpty(this.monitoring_group_type) ? getValue("obj_type", detected) : this.monitoring_group_type;
 
-		this.obj_name = getValue("obj_name", SysJMX.getHostName());
+		this.kube = getBoolean("kube", isKube());
+		this.kube_pod_sequence_name_enabled = getBoolean("kube_pod_sequence_name_enabled", true);
+		this.kube_pod_sequence_name_min_length = getInt("kube_pod_sequence_name_min_length", 18);
 
+		String hostNameForTest = getValue("test_host_name", host_name);
+		host_name = hostNameForTest;
+		String applyingObjName = getValue("obj_name", host_name);
+
+		boolean tmpUseKubeHostName = false;
+		if (kube && kube_pod_sequence_name_enabled && host_name.length() > kube_pod_sequence_name_min_length) {
+			String[] split = host_name.split("-");
+			if (split.length > 2) {
+				tmpUseKubeHostName = true;
+				StringBuilder builder = new StringBuilder();
+				builder.append(split[0]);
+				for (int i = 1; i < split.length - 2; i++) {
+					builder.append('-');
+					builder.append(split[i]);
+				}
+				podName = getValue("obj_name", builder.toString());
+				if (seqNoForKube > -1) {
+					applyingObjName = podName + "_" + seqNoForKube;
+				} else {
+					applyingObjName = podName + "_rnd" + randomNo;
+				}
+			}
+		}
+
+		this.obj_name = applyingObjName;
 		this.objName = "/" + this.obj_name;
 		this.objHash = HashUtil.hash(objName);
+		this.useKubeHostName = tmpUseKubeHostName;
 
 	}
 
@@ -441,6 +501,11 @@ public class Configure extends Thread {
 
 	public StringKeyLinkedMap<ValueType> getConfigureValueType() {
 		return ConfigValueUtil.getConfigValueTypeMap(this);
+	}
+
+	private boolean isKube() {
+		Properties properties = System.getProperties();
+		return !StringUtil.isEmpty(properties.getProperty("KUBERNETES_SERVICE_HOST"));
 	}
 
 	public static void main(String[] args) {

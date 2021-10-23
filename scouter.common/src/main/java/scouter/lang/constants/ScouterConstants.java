@@ -14,4 +14,9 @@ public class ScouterConstants {
     public static final String TAG_OBJ_DETECTED_TYPE = "detected";
 
     public static final String SHORTENER_KEY_SPACE = "shortner";
+
+    public static final String POD_NAME = "podName";
+    public static final String HOST_NAME = "hostName";
+    public static final String USE_KUBE_SEQ = "useKubeSeq";
+    public static final String KUBE_SEQ = "kubeSeq";
 }
