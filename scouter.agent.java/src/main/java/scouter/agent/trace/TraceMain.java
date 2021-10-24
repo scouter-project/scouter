@@ -881,6 +881,8 @@ public class TraceMain {
 
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.userAgent = ctx.userAgent;
+            pack.referer = ctx.referer;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
 

@@ -28,16 +28,29 @@ public class TraceSupportWeave {
 		return null;
 	}
 
-	public static Object startServiceAndGetCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		return TraceSupport.startServiceAndGetCtxTransfer((String)arg[0]);
+
+	public static Object isScouterJavaAgentActivated(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return true;
 	}
 
-	public static Object startServiceWithCustomTxidAndGetCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		return TraceSupport.startServiceWithCustomTxidAndGetCtxTransfer((String)arg[0], (String)arg[1]);
+	public static Object getCtxOnTheSameThread(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.getCtxOnTheSameThread();
 	}
 
-	public static Object endServiceByCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		TraceSupport.endServiceByCtxTransfer(arg[0], (Throwable)arg[1]);
+	public static Object getCtxByCustomTxid(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.getCtxByCustomTxid((String)arg[0]);
+	}
+
+	public static Object startServiceAndGetCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.startServiceAndGetCtx((String)arg[0]);
+	}
+
+	public static Object startServiceWithCustomTxidAndGetCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.startServiceWithCustomTxidAndGetCtx((String)arg[0], (String)arg[1]);
+	}
+
+	public static Object endServiceByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.endServiceByCtx(arg[0], (Throwable)arg[1]);
 		return null;
 	}
 
@@ -51,8 +64,8 @@ public class TraceSupportWeave {
 		return null;
 	}
 
-	public static Object startMethodByCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		return TraceSupport.startMethodByCtxTransfer(arg[0], (String)arg[1]);
+	public static Object startMethodByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.startMethodByCtx(arg[0], (String)arg[1]);
 	}
 
 	public static Object startMethodByCustomTxid(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
@@ -68,8 +81,8 @@ public class TraceSupportWeave {
 		return null;
 	}
 
-	public static Object addMessageProfileByCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		TraceSupport.addMessageProfileByCtxTransfer(arg[0], (String)arg[1]);
+	public static Object addMessageProfileByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.addMessageProfileByCtx(arg[0], (String)arg[1]);
 		return null;
 	}
 
@@ -83,8 +96,8 @@ public class TraceSupportWeave {
 		return null;
 	}
 
-	public static Object addHashedMessageProfileByCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		TraceSupport.addHashedMessageProfileByCtxTransfer(arg[0], (String)arg[1], (int)arg[2], (int)arg[3]);
+	public static Object addHashedMessageProfileByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.addHashedMessageProfileByCtx(arg[0], (String)arg[1], (int)arg[2], (int)arg[3]);
 		return null;
 	}
 
@@ -98,8 +111,8 @@ public class TraceSupportWeave {
 		return null;
 	}
 
-	public static Object addParameterizedMessageProfileByCtxTransfer(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
-		TraceSupport.addParameterizedMessageProfileByCtxTransfer(arg[0], (String)arg[1], (byte)arg[2], (int)arg[3], (String[])arg[4]);
+	public static Object addParameterizedMessageProfileByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.addParameterizedMessageProfileByCtx(arg[0], (String)arg[1], (byte)arg[2], (int)arg[3], (String[])arg[4]);
 		return null;
 	}
 
@@ -110,6 +123,78 @@ public class TraceSupportWeave {
 
 	public static Object addParameterizedMessageProfileOnTheSameThread(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
 		TraceSupport.addParameterizedMessageProfileOnTheSameThread((String)arg[0], (byte)arg[1], (int)arg[2], (String[])arg[3]);
+		return null;
+	}
+
+
+	//txid getters
+	public static Object getTxidOnTheSameThread(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.getTxidOnTheSameThread();
+	}
+
+	public static Object getTxidByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.getTxidByCtx(arg[0]);
+	}
+
+	public static Object getTxidByCustomTxid(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		return TraceSupport.getTxidByCustomTxid((String)arg[0]);
+	}
+
+	//link custom txid
+	public static Object linkCustomTxidOnTheSameThread(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.linkCustomTxidOnTheSameThread((String)arg[0]);
+		return null;
+	}
+
+	public  static Object linkCustomTxidByCtx(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.linkCustomTxidByCtx((String)arg[0], arg[1]);
+		return null;
+	}
+
+	//xlog info setters
+	public  static Object setXlogServiceValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogServiceValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogIpValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogIpValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogUaValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogUaValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogErrorValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogErrorValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+
+	public  static Object setXlogLoginValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogLoginValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogDescValue(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogDescValue((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogText1Value(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogText1Value((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogText2Value(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogText2Value((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogText3Value(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogText3Value((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogText4Value(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogText4Value((long)arg[0], (String)arg[1]);
+		return null;
+	}
+	public  static Object setXlogText5Value(String className, String methodName, String methodDesc, Object this1, Object[] arg) {
+		TraceSupport.setXlogText5Value((long)arg[0], (String)arg[1]);
 		return null;
 	}
 

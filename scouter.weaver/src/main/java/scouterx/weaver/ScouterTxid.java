@@ -17,29 +17,46 @@ package scouterx.weaver;
  */
 
 /**
- * Created by Gun Lee(gunlee01@gmail.com) on 2021/10/22
+ * Created by Gun Lee(gunlee01@gmail.com) on 2021/10/23
  */
-public class TransferCtx {
+public class ScouterTxid {
 
-	protected static TransferCtx EMPTY = new TransferCtx(null, ScouterTxid.EMPTY);
+	protected static ScouterTxid EMPTY = new ScouterTxid(0);
 
-	protected Object ctx; //Scouter's TraceContext or LocalContext
-	protected ScouterTxid stxid;
+	private long txid;
+	private String stxid;
 
-	public TransferCtx(Object o, ScouterTxid stxid) {
-		this.ctx = o;
-		this.stxid = stxid;
+	protected ScouterTxid(long txid) {
+		if (txid == 0) {
+			this.txid = 0;
+			this.stxid = "";
+		} else {
+			this.txid = txid;
+			this.stxid = Hexa32.toString32(txid);
+		}
 	}
 
-	public ScouterTxid getScouterTxid() {
-		if (stxid == null) {
-			return ScouterTxid.EMPTY;
+	protected static ScouterTxid of(Object txid) {
+		if (txid instanceof Long) {
+			long longTxid = (long) txid;
+			if (longTxid == 0) {
+				return EMPTY;
+			}
+			return new ScouterTxid(longTxid);
 		}
+		return EMPTY;
+	}
+
+	public long getTxid() {
+		return txid;
+	}
+
+	public String getStxid() {
 		return stxid;
 	}
 
 	public boolean isEmpty() {
-		return ctx == null;
+		return txid == 0;
 	}
 
 	@Override
@@ -47,14 +64,15 @@ public class TransferCtx {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		TransferCtx that = (TransferCtx) o;
+		ScouterTxid that = (ScouterTxid) o;
 
+		if (txid != that.txid) return false;
 		return stxid != null ? stxid.equals(that.stxid) : that.stxid == null;
 	}
 
 	@Override
 	public int hashCode() {
-		int result = ctx != null ? ctx.hashCode() : 0;
+		int result = (int) (txid ^ txid >>> 32);
 		result = 31 * result + (stxid != null ? stxid.hashCode() : 0);
 		return result;
 	}

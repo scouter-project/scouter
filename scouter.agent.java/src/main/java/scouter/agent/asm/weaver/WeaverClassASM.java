@@ -44,7 +44,7 @@ public class WeaverClassASM implements IASM, Opcodes {
 			return cv;
 		}
 
-		if ("scouterx/weaver/ScouterTraceSupport$ScouterTraceSupport0".equalsIgnoreCase(className)) {
+		if ("scouterx/weaver/Scouter$Weaving".equalsIgnoreCase(className)) {
 			TraceSupportWeave.touch();
 			Method[] weaveMethods = TraceSupportWeave.class.getDeclaredMethods();
 			for (int i = 0; i < weaveMethods.length; i++) {
