@@ -40,6 +40,7 @@ public class RequestCmd {
 	public static final String OBJECT_DOWNLOAD_JAR = "OBJECT_DOWNLOAD_JAR";
 	public static final String OBJECT_STAT_LIST = "OBJECT_STAT_LIST";
 	public static final String OBJECT_RESET_CACHE = "OBJECT_RESET_CACHE";
+	public static final String OBJECT_SET_KUBE_SEQ = "OBJECT_SET_KUBE_SEQ";
 	public static final String OBJECT_ACTIVE_SERVICE_LIST = "OBJECT_ACTIVE_SERVICE_LIST";
 	public static final String OBJECT_ACTIVE_SERVICE_LIST_GROUP = "OBJECT_ACTIVE_SERVICE_LIST_GROUP";
 	public static final String OBJECT_TODAY_FULL_LIST = "OBJECT_TODAY_FULL_LIST";

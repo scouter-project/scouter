@@ -16,18 +16,21 @@
  */
 package scouter.agent.netio.request.handle;
 
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-
+import scouter.agent.Configure;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.TextValue;
 import scouter.net.RequestCmd;
 
+import java.util.Enumeration;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 public class HostAgentEnv {
+
+	private static Configure conf = Configure.getInstance();
 
 	@RequestHandler(RequestCmd.OBJECT_ENV)
 	public Pack getAgentEnv(Pack param) {
@@ -47,4 +50,16 @@ public class HostAgentEnv {
 		}
 		return m;
 	}
+
+	@RequestHandler(RequestCmd.OBJECT_SET_KUBE_SEQ)
+	public Pack setKubePodSeq(Pack param) {
+		long seq = ((MapPack)param).getLong("seq");
+		if (seq != conf.getSeqNoForKube()) {
+			conf.setSeqNoForKube(seq);
+			conf.resetObjInfo();
+		}
+
+		return new MapPack();
+	}
+
 }

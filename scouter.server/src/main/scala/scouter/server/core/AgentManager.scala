@@ -16,8 +16,9 @@
  *
  */
 package scouter.server.core;
-import java.util.{ArrayList, Enumeration, HashSet, List}
+import scouter.lang.constants.ScouterConstants.{POD_NAME, USE_KUBE_SEQ}
 
+import java.util.{ArrayList, Enumeration, HashSet, List}
 import scouter.lang.{AlertLevel, TextTypes}
 import scouter.lang.pack.{AlertPack, MapPack, ObjectPack, TextPack}
 import scouter.server.{Configure, CounterManager, Logger}
@@ -25,8 +26,13 @@ import scouter.server.core.cache.{AlertCache, CommonCache}
 import scouter.server.db.{AlertWR, ObjectRD, ObjectWR}
 import scouter.server.plugin.PlugInManager
 import scouter.server.util.{EnumerScala, ThreadScala}
-import scouter.util.{CompareUtil, DateUtil, HashUtil}
+import scouter.util.{CompareUtil, DateUtil, HashUtil, IntKeyMap, StringUtil}
 import scouter.lang.counters.{CounterConstants, CounterEngine}
+import scouter.net.RequestCmd
+import scouter.server.kube.PodSeqManager
+import scouter.server.netio.AgentCall
+
+import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 
 object AgentManager {
@@ -74,13 +80,23 @@ object AgentManager {
     }
 
     def active(p: ObjectPack) {
+        p.allowProceed = true;
         if (p.objHash == 0) {
             p.objHash = HashUtil.hash(p.objName);
         }
-
         CounterManager.getInstance().addObjectTypeIfNotExist(p);
-
         PlugInManager.active(p);
+
+        val useKubeSeq = p.tags.getBoolean(USE_KUBE_SEQ)
+        val podName = p.tags.getText(POD_NAME)
+        if (useKubeSeq && StringUtil.isNotEmpty(podName)) {
+            val podSeqManager = PodSeqManager.getInstance(podName)
+            podSeqManager.applyPodSeq(p)
+            PodSeqManager.pushSeqToAgent(p)
+        }
+        if (!p.allowProceed) {
+            return;
+        }
 
         var objPack = objMap.getObject(p.objHash);
         if (objPack == null) {
@@ -91,6 +107,7 @@ object AgentManager {
             procObjName(objPack);
             ObjectWR.add(objPack);
             Logger.println("S104", "New " + objPack);
+
         } else {
             if (!objPack.alive && counterEngine.isPrimaryObject(objPack.objType)) {
                 alertReactiveObject(objPack);
@@ -104,13 +121,13 @@ object AgentManager {
             objPack.wakeup();
             objPack.tags = p.tags;
 
-            if (CompareUtil.equals(p.address, objPack.address) == false) {
+            if (!CompareUtil.equals(p.address, objPack.address)) {
                 save = true;
             }
-            if (CompareUtil.equals(p.objType, objPack.objType) == false) {
+            if (!CompareUtil.equals(p.objType, objPack.objType)) {
                 save = true;
             }
-            if (CompareUtil.equals(p.version, objPack.version) == false) {
+            if (!CompareUtil.equals(p.version, objPack.version)) {
                 save = true;
             }
             if (save) {
@@ -126,6 +143,10 @@ object AgentManager {
                 Logger.println("S105", "Update " + p);
             }
         }
+    }
+
+    def getNewPodSeq(podName: String): String = {
+        return ""
     }
 
     private def alertTooManyChange(objPack: ObjectPack) {
@@ -188,6 +209,9 @@ object AgentManager {
             val obj = counterEngine.getObjectType(objPack.objType);
             if (obj != null && obj.isSubObject() == false) {
                 alertInactiveObject(objPack);
+            }
+            if (objPack.podName != null) {
+                PodSeqManager.getInstance(objPack.podName).objectInactivated(objPack.hostName)
             }
         }
     }
