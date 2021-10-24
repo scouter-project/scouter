@@ -21,9 +21,9 @@ import java.util.LinkedList;
 
 public class ConnectionPool {
 	
-	private final static int POOL_SIZE = 3;
+	private static final int POOL_SIZE = 3;
 
-	private LinkedList<TcpProxy> pool = new LinkedList<TcpProxy>();
+	private final LinkedList<TcpProxy> pool = new LinkedList<>();
 	
 	public int size() {
 		return pool.size();
@@ -41,7 +41,7 @@ public class ConnectionPool {
 	}
 	
 	public void closeAll() {
-		while (pool.size() > 0) {
+		while (!pool.isEmpty()) {
 			pool.removeFirst().close();
 		}
 	}

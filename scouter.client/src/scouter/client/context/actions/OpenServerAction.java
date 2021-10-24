@@ -48,7 +48,8 @@ public class OpenServerAction extends Action {
 				ConsoleProxy.errorSafe(result.getErrorMessage());
 			}
 		} else {
-			LoginDialog2 dialog = new LoginDialog2(Display.getDefault().getActiveShell(), null, LoginDialog2.TYPE_OPEN_SERVER, server.getIp() + ":" + server.getPort());
+
+			LoginDialog2 dialog = new LoginDialog2(Display.getDefault().getActiveShell(), null, LoginDialog2.TYPE_OPEN_SERVER, server.getIp() + ":" + server.getPort(), server.getSocksAddr());
 			dialog.open();
 		}
 	}

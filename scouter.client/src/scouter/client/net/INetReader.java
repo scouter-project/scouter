@@ -23,5 +23,5 @@ import scouter.io.DataInputX;
 
 
 public interface INetReader {
-	public void process(DataInputX in) throws IOException;
+	void process(DataInputX in) throws IOException;
 }

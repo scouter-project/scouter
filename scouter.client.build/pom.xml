@@ -11,14 +11,14 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>2.3.0</tycho-version>
+		<tycho-version>2.5.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
 	        <repository>
-	        	<id>eclipse-simultaneous-2021-09</id>
+	        	<id>eclipse-simultaneous-2021-12</id>
 	        	<layout>p2</layout>
-        		<url>https://download.eclipse.org/releases/2021-09/</url>
+        		<url>https://download.eclipse.org/releases/2021-12/</url>
 	        </repository>
 	</repositories>
 
@@ -35,7 +35,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
-                                <configuration>
+				<configuration>
 					<environments>
 						<environment>
 							<os>win32</os>

@@ -25,7 +25,7 @@ Require-Bundle:
  org.eclipse.swt,
  org.eclipse.e4.core.commands,
  org.eclipse.e4.ui.services
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-11
 Bundle-ActivationPolicy: lazy
 Bundle-ClassPath: .,
  lib/scouter.common.jar,

@@ -36,7 +36,6 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 
-import scouter.client.Images;
 import scouter.util.CastUtil;
 
 public class UIUtil {
