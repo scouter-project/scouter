@@ -45,7 +45,7 @@ public class TcpProxy {
 	
 	public static synchronized TcpProxy getTcpProxy(int serverId) {
 		Server server = ServerManager.getInstance().getServer(serverId);
-		if (server == null || server.isOpen() == false || server.isConnected() == false) {
+		if (server == null || !server.isOpen() || !server.isConnected()) {
 			return new DummyTcpProxy();
 		}
 		ConnectionPool pool = server.getConnectionPool();
@@ -75,14 +75,14 @@ public class TcpProxy {
 	}
 
 	public synchronized void open() {
-		if (tcp.isSessionOk() == false) {
+		if (!tcp.isSessionOk()) {
 			boolean socksLogin =ServerPrefUtil.isSocksLogin(this.getServer().getIp()+":"+this.getServer().getPort());
 			tcp.open(this.server.getId(),socksLogin);
 		}
 	}
 	
 	public synchronized void open(boolean socksLogin) {
-		if (tcp.isSessionOk() == false) {
+		if (!tcp.isSessionOk()) {
 			tcp.open(this.server.getId(), socksLogin);
 		}
 	}
@@ -95,11 +95,11 @@ public class TcpProxy {
 	
 	protected void finalize() throws Throwable {
 		tcp.close();
-	};
+	}
 
 	public Pack getSingle(String cmd, Pack param) {
 		List<Pack> values = process(cmd, param);
-		if (values == null || values.size() == 0)
+		if (values == null || values.isEmpty())
 			return null;
 		else
 			return values.get(0);
@@ -107,31 +107,27 @@ public class TcpProxy {
 
 	public List<Pack> process(String cmd, Pack param) {
 
-		final List<Pack> list = new ArrayList<Pack>();
-		process(cmd, param, new INetReader() {
-			public void process(DataInputX in) throws IOException {
-				Pack p = in.readPack();
-				list.add(p);
-			}
+		final List<Pack> list = new ArrayList<>();
+		process(cmd, param, in -> {
+			Pack p = in.readPack();
+			list.add(p);
 		});
 		return list;
 	}
 	
 	public Value getSingleValue(String cmd, Pack param) {
 		List<Value> values = processValues(cmd, param);
-		if (values == null || values.size() == 0)
+		if (values == null || values.isEmpty())
 			return null;
 		else
 			return values.get(0);
 	}
 
 	public List<Value> processValues(String cmd, Pack param) {
-		final List<Value> list = new ArrayList<Value>();
-		process(cmd, param, new INetReader() {
-			public void process(DataInputX in) throws IOException {
-				Value v = in.readValue();
-				list.add(v);
-			}
+		final List<Value> list = new ArrayList<>();
+		process(cmd, param, in -> {
+			Value v = in.readValue();
+			list.add(v);
 		});
 		return list;
 	}
@@ -145,7 +141,7 @@ public class TcpProxy {
 
 	public synchronized void process(String cmd, Object param, INetReader recv) {
 		open();
-		if (tcp.isSessionOk() == false) {
+		if (!tcp.isSessionOk()) {
 			return;
 		}
 		
@@ -178,7 +174,7 @@ public class TcpProxy {
 	}
 
 	public synchronized void sendClose() {
-		if (tcp.isSessionOk() == false) {
+		if (!tcp.isSessionOk()) {
 			return;
 		}
 		DataOutputX out = tcp.getOutput();
@@ -190,11 +186,11 @@ public class TcpProxy {
 	}
 	
 	public static MapPack loginProxy(int serverId, MapPack param) throws IOException {
-		Boolean socksLogin = param.getBoolean("isSocks");
+		boolean socksLogin = param.getBoolean("isSocks");
 	    
 		TcpProxy proxy = new TcpProxy(serverId);
 		proxy.open(socksLogin);
-		if (proxy.isValid() == false) {
+		if (!proxy.isValid()) {
 			return null;
 		}
 		param.put("ip", proxy.getLocalInetAddress().getHostAddress());

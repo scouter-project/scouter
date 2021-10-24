@@ -32,6 +32,7 @@ import scouter.util.FileUtil;
 
 
 public class ClientTCP{
+
 	Socket socket;
 	DataInputX in;
 	DataOutputX out;
@@ -64,8 +65,11 @@ public class ClientTCP{
 			out.writeInt(NetCafe.TCP_CLIENT);
 			out.flush();
 			//*************//
-			if (server.isConnected() == false) {
-				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
+			if (!server.isConnected()) {
+				System.out.println(
+						String.format("Success to connect %s:%d (%s)",
+								server.getIp(), server.getPort(),
+								server.isSocksLogin()?server.getSocksIp()+":"+server.getSocksPort() : "direct"));
 			}
 			server.setConnected(true);
 		} catch (Throwable t) {
@@ -86,7 +90,7 @@ public class ClientTCP{
 	}
 
 	public boolean isSessionOk() {
-		return socket != null && socket.isClosed() == false;
+		return socket != null && !socket.isClosed();
 	}
 
 	public void close() {

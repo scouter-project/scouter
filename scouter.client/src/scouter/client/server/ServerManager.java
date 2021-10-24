@@ -28,19 +28,21 @@ import scouter.util.HashUtil;
 import scouter.util.LinkedMap;
 import scouter.util.ThreadUtil;
 
+
 public class ServerManager extends Thread {
 	
 	private static volatile ServerManager instance;
-	private LinkedMap<Integer, Server> serverMap = new LinkedMap<Integer, Server>();
+	private final LinkedMap<Integer, Server> serverMap = new LinkedMap<>();
 	
 	public static ServerManager getInstance() {
 		if (instance == null) {
 			synchronized (ServerManager.class) {
 				if (instance == null) {
-					instance = new ServerManager();
-					instance.setName(ThreadUtil.getName(instance));
-					instance.setDaemon(true);
-					instance.start();
+					ServerManager serverManager = new ServerManager();
+					serverManager.setName(ThreadUtil.getName(serverManager));
+					serverManager.setDaemon(true);
+					serverManager.start();
+					instance = serverManager;
 				}
 			}
 		}
@@ -66,7 +68,7 @@ public class ServerManager extends Thread {
 	public void run() {
 		while (true) {
 			syncServerTime();
-			ThreadUtil.sleep(2000);
+			ThreadUtil.sleep(2000L);
 		}
 	}
 	
@@ -103,11 +105,13 @@ public class ServerManager extends Thread {
 	}
 	
 	public Server getServer(String addr) {
-		String[] iport = addr.split(":");
-		if (iport == null || iport.length < 2) {
+		if (addr == null) return null;
+
+		String[] addrSplits = addr.split(":");
+		if (addrSplits.length < 2) {
 			return null;
 		}
-		return getServer(HashUtil.hash(iport[0] + iport[1]));
+		return getServer(HashUtil.hash(addrSplits[0] + addrSplits[1]));
 	}
 	
 	public void removeServer(int serverId) {
@@ -119,7 +123,7 @@ public class ServerManager extends Thread {
 	}
 	
 	public Set<Integer> getOpenServerList() {
-		Set<Integer> keySet = new HashSet<Integer>();
+		Set<Integer> keySet = new HashSet<>();
 		Enumeration<Server> servers = serverMap.values();
 		while (servers.hasMoreElements()) {
 			Server server = servers.nextElement();

@@ -1,8 +1,8 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2015 the original author or authors.
  *  @https://github.com/scouter-project/scouter
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
@@ -12,44 +12,31 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package scouter.client.popup;
-
-import java.util.ArrayList;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.FocusEvent;
-import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Monitor;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
-
+import org.eclipse.swt.widgets.*;
 import scouter.Version;
 import scouter.client.net.LoginMgr;
 import scouter.client.net.LoginResult;
+import scouter.client.popup.event.AbstractFocusGainedListener;
 import scouter.client.preferences.ServerPrefUtil;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.util.UIUtil;
 import scouter.net.NetConstants;
 import scouter.util.StringUtil;
+import scouter.util.ThreadUtil;
 
 public class LoginDialog2 extends Dialog {
 	public static final String ID = LoginDialog2.class.getName();
@@ -62,21 +49,27 @@ public class LoginDialog2 extends Dialog {
 	public static final int TYPE_OPEN_SERVER = 993;
 	public static final int TYPE_EDIT_SERVER = 994;
 
-	ArrayList<String> storeAddr = new ArrayList<String>();
-	FormData data;
-	Combo addrCombo, socksAddrCombo;
-	Text id, pass;
-	Label idLabel, passLabel;
+	Combo addrCombo;
+	Combo socksAddrCombo;
 
-	List list;
+	Text idText;
+	Text passText;
 
-	Button autoLoginCheck, secureCheck, sock5Check;
+	Label idLabel;
+	Label passLabel;
+
+	List messageList;
+
+	Button autoLoginCheck;
+    Button secureCheck;
+    Button sock5Check;
+
 	boolean autoLogin;
 	boolean secureLogin = true;
-	boolean sock5Login = false;
+	boolean sock5Login;
 
-	String address = null;
-	String socksAddress = null;
+	String address;
+	String socksAddress;
 
 	public LoginDialog2(Shell shell, ILoginDialog callback, int openType, String address, String socksAddress) {
 		super(shell);
@@ -87,7 +80,7 @@ public class LoginDialog2 extends Dialog {
 		this.socksAddress = socksAddress;
 		this.sock5Login = StringUtil.isNotEmpty(socksAddress);
 	}
-	
+
 
 	@Override
 	protected Control createDialogArea(Composite parent) {
@@ -115,20 +108,17 @@ public class LoginDialog2 extends Dialog {
 		idLabel.setText("ID :");
 		idLabel.setLayoutData(UIUtil.formData(null, -1, addrCombo, 10, null, -1, null, -1, 100));
 
-		id = new Text(parentGroup, SWT.SINGLE | SWT.BORDER);
-		id.setLayoutData(UIUtil.formData(idLabel, 5, addrCombo, 7, 100, -5, null, -1));
-		id.addFocusListener(new FocusListener() {
-			public void focusLost(FocusEvent e) {
-			}
-
+		idText = new Text(parentGroup, SWT.SINGLE | SWT.BORDER);
+		idText.setLayoutData(UIUtil.formData(idLabel, 5, addrCombo, 7, 100, -5, null, -1));
+		idText.addFocusListener(new AbstractFocusGainedListener() {
 			public void focusGained(FocusEvent e) {
-				id.selectAll();
+				idText.selectAll();
 			}
 		});
 
 		passLabel = new Label(parentGroup, SWT.RIGHT);
 		passLabel.setText("Password :");
-		passLabel.setLayoutData(UIUtil.formData(null, -1, id, 10, null, -1, null, -1, 100));
+		passLabel.setLayoutData(UIUtil.formData(null, -1, idText, 10, null, -1, null, -1, 100));
 
 		createPasswordInput(parentGroup);
 
@@ -137,11 +127,7 @@ public class LoginDialog2 extends Dialog {
 		autoLoginCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, 100, -5, null, -1));
 		autoLoginCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (autoLoginCheck.getSelection()) {
-					autoLogin = true;
-				} else {
-					autoLogin = false;
-				}
+                autoLogin = autoLoginCheck.getSelection();
 			}
 		});
 		autoLoginCheck.setSelection(false);
@@ -152,15 +138,11 @@ public class LoginDialog2 extends Dialog {
 		secureCheck.setLayoutData(UIUtil.formData(null, -1, passLabel, 10, autoLoginCheck, -5, null, -1));
 		secureCheck.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (secureCheck.getSelection()) {
-					secureLogin = true;
-				} else {
-					secureLogin = false;
-				}
+                secureLogin = secureCheck.getSelection();
 			}
 		});
 		secureCheck.setSelection(true);
-		
+
 		// console group
 		final Group socksGroup = new Group(comp, SWT.NONE);
 		socksGroup.setText("SOCKS5");
@@ -173,11 +155,7 @@ public class LoginDialog2 extends Dialog {
 		sock5Check.setLayoutData(UIUtil.formData(0, 0, 0, 5, 100, -5, null, -1));
 		sock5Check.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				if (sock5Check.getSelection()) {
-					sock5Login = true;
-				} else {
-					sock5Login = false;
-				}
+                sock5Login = sock5Check.getSelection();
 				socksAddrCombo.setEnabled(sock5Login);
 			}
 		});
@@ -198,43 +176,42 @@ public class LoginDialog2 extends Dialog {
 		socksAddrCombo.setEnabled(sock5Login);
 		socksAddrCombo.setLayoutData(UIUtil.formData(socks5AddrLabel, 5, sock5Check, 10, 100, -5, null, -1, 150));
 
-		
+
 		// console group
 		final Group consoleGroup = new Group(comp, SWT.NONE);
 		consoleGroup.setLayout(UIUtil.formLayout(5, 5));
 		consoleGroup.setLayoutData(UIUtil.formData(null, -1, socksGroup, 0, null, -1, null, -1));
-		
+
 		// connection status console
-		list = new List(consoleGroup, SWT.NONE);
-		list.setLayoutData(UIUtil.formData(0, 5, 0, 5, 100, -5, null, -1, 250, 60));
-		//list.setLayoutData(UIUtil.formData(0, 5, socks5AddrLabel, 10, 100, -5, null, -1, -1, 60));
-		list.add("Type your authentication info...");
-		list.select(list.getItemCount() - 1);
-		list.showSelection();
+		messageList = new List(consoleGroup, SWT.NONE);
+		messageList.setLayoutData(UIUtil.formData(0, 5, 0, 5, 100, -5, null, -1, 250, 60));
+		messageList.add("Type your authentication info...");
+		messageList.select(messageList.getItemCount() - 1);
+		messageList.showSelection();
 
 		if (StringUtil.isNotEmpty(this.address)) {
 			addrCombo.setText(address);
 			Server server = ServerManager.getInstance().getServer(address);
 			if (server != null && StringUtil.isNotEmpty(server.getUserId())) {
-				id.setText(server.getUserId());
+				idText.setText(server.getUserId());
 				secureCheck.setSelection(server.isSecureMode());
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
 		} else if (openType == TYPE_STARTUP) {
 			addrCombo.setText("127.0.0.1:" + NetConstants.SERVER_TCP_PORT);
-			id.setText("admin");
+			idText.setText("admin");
 		}
-		
+
 		if (StringUtil.isNotEmpty(this.socksAddress)) {
 			socksAddrCombo.setText(socksAddress);
 			sock5Check.setSelection(true);
 			Server server = ServerManager.getInstance().getServer(address);
 			if (server != null && StringUtil.isNotEmpty(server.getUserId())) {
-				id.setText(server.getUserId());
+				idText.setText(server.getUserId());
 				secureCheck.setSelection(server.isSecureMode());
 			}
 			autoLoginCheck.setSelection(ServerPrefUtil.isAutoLoginAddress(address));
-		} 
+		}
 
 		return comp;
 	}
@@ -277,16 +254,13 @@ public class LoginDialog2 extends Dialog {
 	}
 
 	private void createPasswordInput(Composite parentGroup) {
-		pass = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
-		pass.addFocusListener(new FocusListener() {
-			public void focusLost(FocusEvent e) {
-			}
-
+		passText = new Text(parentGroup, SWT.SINGLE | SWT.BORDER | SWT.PASSWORD);
+		passText.addFocusListener(new AbstractFocusGainedListener() {
 			public void focusGained(FocusEvent e) {
-				pass.selectAll();
+				passText.selectAll();
 			}
 		});
-		pass.setLayoutData(UIUtil.formData(passLabel, 5, id, 7, 100, -5, null, -1));
+		passText.setLayoutData(UIUtil.formData(passLabel, 5, idText, 7, 100, -5, null, -1));
 	}
 
 	@Override
@@ -308,22 +282,22 @@ public class LoginDialog2 extends Dialog {
 		try {
 			String ip = null;
 			String port = null;
-			if (address.contains(":") == false) {
+			if (!address.contains(":")) {
 				address = address.concat(":" + NetConstants.SERVER_TCP_PORT);
 			}
-			String addr[] = address.split(":");
+			String[] addr = address.split(":");
 			ip = addr[0];
 			port = addr[1];
-			
-			String socksIp = null;
-			String socksPort = null;
-			if (socksAddress.contains(":") == false) {
+
+			String socksIp;
+			String socksPort;
+			if (!socksAddress.contains(":")) {
 				errMsg("Check SOCKS Address");
 			}
-			String socksAddr[] = socksAddress.split(":");
+			String[] socksAddr = socksAddress.split(":");
 			socksIp = socksAddr[0];
 			socksPort = socksAddr[1];
-			
+
 			msg("Log in..." + address);
 
 			ServerManager srvMgr = ServerManager.getInstance();
@@ -332,7 +306,7 @@ public class LoginDialog2 extends Dialog {
 				msg("");
 				return false;
 			}
-			
+
 
 			server = new Server(ip, port,null, socksIp, socksPort);
 			if (srvMgr.getServer(server.getId()) == null) {
@@ -344,12 +318,12 @@ public class LoginDialog2 extends Dialog {
 				server.setSocksPort(socksPort == null ? 0 : Integer.parseInt(socksPort));
 			}
 
-			LoginResult result = LoginMgr.login(server.getId(), id.getText(), pass.getText());
+			LoginResult result = LoginMgr.login(server.getId(), idText.getText(), passText.getText());
 			if (result.success) {
 				msg("Successfully log in to " + address);
 				ServerPrefUtil.addServerAddr(address);
 				if (autoLogin) {
-					ServerPrefUtil.addAutoLoginServer(address, id.getText(), server.getPassword(), socksAddress);
+					ServerPrefUtil.addAutoLoginServer(address, idText.getText(), server.getPassword(), socksAddress);
 				} else {
 					ServerPrefUtil.removeAutoLoginServer(address);
 				}
@@ -358,14 +332,10 @@ public class LoginDialog2 extends Dialog {
 				if (callback != null) {
 					callback.loginSuccess(address, server.getId());
 				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				ThreadUtil.sleep(100L);
 				return true;
 			} else {
-				if (existServer == false) {
+				if (!existServer) {
 					ServerManager.getInstance().removeServer(server.getId());
 				}
 				errMsg(result.getErrorMessage());
@@ -373,19 +343,19 @@ public class LoginDialog2 extends Dialog {
 				return false;
 			}
 		} catch (Exception e) {
-			if (server != null && existServer == false) {
+			if (server != null && !existServer) {
 				ServerManager.getInstance().removeServer(server.getId());
 			}
 			e.printStackTrace();
-			MessageDialog.openError(shell, "Error", "error occured:" + e.getMessage());
+			MessageDialog.openError(shell, "Error", "error occurred:" + e.getMessage());
 		}
 		return false;
 	}
 
 	private void msg(String msg) {
-		list.add(msg);
-		list.select(list.getItemCount() - 1);
-		list.showSelection();
+		messageList.add(msg);
+		messageList.select(messageList.getItemCount() - 1);
+		messageList.showSelection();
 	}
 
 	private void errMsg(String msg) {
@@ -395,5 +365,4 @@ public class LoginDialog2 extends Dialog {
 	public interface ILoginDialog {
 		void loginSuccess(String serverAddr, int serverId);
 	}
-
 }
