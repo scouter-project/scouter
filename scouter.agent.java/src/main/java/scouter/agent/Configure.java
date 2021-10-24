@@ -118,6 +118,10 @@ public class Configure extends Thread {
     @ConfigDesc("Activating collect sub counters using JMX")
     public boolean jmx_counter_enabled = false;
 
+    @ConfigDesc("is it on kube env. auto detecting.")
+    public boolean kube = isKube();
+    public boolean obj_host_name_follow_host_agent = true;
+
     //profile
     @ConfigDesc("Http Query String profile")
     public boolean profile_http_querystring_enabled;
@@ -1446,7 +1450,19 @@ public class Configure extends Thread {
             detected = CounterConstants.HPUX;
         }
         this.obj_host_type = getValue("obj_host_type", detected);
-        this.obj_host_name = getValue("obj_host_name", SysJMX.getHostName());
+
+        this.kube = getBoolean("kube", isKube());
+        this.obj_host_name_follow_host_agent = getBoolean("obj_host_name_follow_host_agent", true);
+
+        String tempObjHostName = getValue("obj_host_name", SysJMX.getHostName());
+        if (kube && obj_host_name_follow_host_agent) {
+            String nameFromHost = readHostNameFromHostAgent();
+            if (StringUtil.isNotEmpty(nameFromHost) && nameFromHost.length() > 1 && nameFromHost.length() < 100) {
+                tempObjHostName = nameFromHost;
+            }
+        }
+
+        this.obj_host_name = tempObjHostName;
         this.objHostName = "/" + this.obj_host_name;
         this.objHostHash = HashUtil.hash(objHostName);
         this.obj_name_auto_pid_enabled = getBoolean("obj_name_auto_pid_enabled", false);
@@ -1587,6 +1603,74 @@ public class Configure extends Thread {
     public int getHookSignature() {
         return this.hook_signature;
     }
+
+    private File regRoot = null;
+
+    public void initTmpDir() {
+        try {
+            if (regRoot != null) {
+                return;
+            }
+            String objReg = counter_object_registry_path;
+            File objRegFile = new File(objReg);
+            if (!objRegFile.canRead()) {
+                objRegFile.mkdirs();
+            }
+            if (objRegFile.exists()) {
+                regRoot = objRegFile;
+            } else {
+                regRoot = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isKube() {
+        Properties properties = System.getProperties();
+        return !StringUtil.isEmpty(properties.getProperty("KUBERNETES_SERVICE_HOST"));
+    }
+
+    private String readHostNameFromHostAgent() {
+        try {
+            initTmpDir();
+            File dir = regRoot;
+            if (dir == null)
+                return null;
+
+            File[] kubeHostSeq = dir.listFiles();
+            for (int i = 0; i < kubeHostSeq.length; i++) {
+                if (kubeHostSeq[i].isDirectory())
+                    continue;
+                String name = kubeHostSeq[i].getName();
+                if (!name.endsWith(".scouterkubeseq")) {
+                    continue;
+                }
+                int kubeSeq = cintErrorMinusOne(name.substring(0, name.lastIndexOf(".")));
+                if (kubeSeq < 0)
+                    continue;
+
+                return new String(FileUtil.readAll(kubeHostSeq[i]));
+            }
+            return null;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static int cintErrorMinusOne(String value) {
+        if (value == null) {
+            return -1;
+        } else {
+            try {
+                return Integer.parseInt(value);
+            } catch (Exception e) {
+                return -1;
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         Configure o = new Configure(true);

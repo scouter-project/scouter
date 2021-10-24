@@ -64,7 +64,19 @@ public class ObjectPack implements Pack {
 	 * More info
 	 */
 	public MapValue tags = new MapValue();
-	transient public int updated;
+
+	//internal use
+
+	//------  for kube support
+	public transient long initialTime;
+	public transient boolean allowProceed;
+	public transient boolean pushSeq;
+	public transient String podName;
+	public transient String hostName;
+	public transient int podSeq;
+	//-----------------------------
+
+	public transient int updated;
 
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -141,5 +153,18 @@ public class ObjectPack implements Pack {
 		if (getClass() != obj.getClass())
 			return false;
 		return (objHash == ((ObjectPack) obj).objHash);
+	}
+
+	public void copyKubePropFrom(ObjectPack initialPack) {
+		this.initialTime = initialPack.initialTime;
+		this.podName = initialPack.podName;
+		this.hostName = initialPack.hostName;
+		this.podSeq = initialPack.podSeq;
+	}
+
+	public void addKubeProp(String podName, String hostName, int podSeq) {
+		this.podName = podName;
+		this.hostName = hostName;
+		this.podSeq = podSeq;
 	}
 }

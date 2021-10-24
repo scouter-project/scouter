@@ -1,13 +1,15 @@
 package scouter.agent.netio.data.net;
 
-import java.util.concurrent.Executor;
-
 import scouter.agent.Configure;
+import scouter.util.IntEnumer;
 import scouter.util.ThreadUtil;
+
+import java.util.concurrent.Executor;
 
 public class TcpRequestMgr extends Thread {
 
 	private static TcpRequestMgr instance;
+	private static Configure conf = Configure.getInstance();
 
 	public static synchronized TcpRequestMgr getInstance() {
 		if (instance == null) {
@@ -39,6 +41,15 @@ public class TcpRequestMgr extends Thread {
 				while (TcpWorker.LIVE.size() > sessionCount) {
 					TcpWorker w = TcpWorker.LIVE.removeFirst();
 					w.close();
+				}
+
+				IntEnumer keys = TcpWorker.LIVE.keys();
+				while (keys.hasMoreElements()) {
+					int key = keys.nextInt();
+					TcpWorker w = TcpWorker.LIVE.get(key);
+					if (w.objHash != conf.getObjHash()) {
+						w.close();
+					}
 				}
 			} catch (Throwable t) {
 			}
