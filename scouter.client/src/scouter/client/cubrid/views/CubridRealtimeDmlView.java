@@ -275,7 +275,8 @@ public class CubridRealtimeDmlView extends ViewPart implements Refreshable {
 		manager.add(new Action("&Add Realtime DML", ImageDescriptor.createFromImage(Images.add)) {
 			public void run() {
 				IWorkbenchWindow window = getSite().getWorkbenchWindow();
-				AddLongTransactionList dialog = new AddLongTransactionList(getSite().getWorkbenchWindow().getShell().getDisplay(),
+				AddLongTransactionList dialog = new AddLongTransactionList(
+						getSite().getWorkbenchWindow().getShell().getDisplay(), serverId,
 						new AddLongTransactionList.IAddLongTransactionList() {
 							@Override
 							public void onPressedOk(String dbName) {
@@ -326,7 +327,7 @@ public class CubridRealtimeDmlView extends ViewPart implements Refreshable {
 		try {
 			MapPack param = new MapPack();
 
-			if (ActiveDbInfo.getInstance() == null || ActiveDbInfo.getInstance().isEmpty()) {
+			if (ActiveDbInfo.getInstance() == null || ActiveDbInfo.getInstance().isEmpty(serverId)) {
 				return;
 			}
 
@@ -338,7 +339,7 @@ public class CubridRealtimeDmlView extends ViewPart implements Refreshable {
 				System.out.println("CubridRealtimeDmlView ActiveDbInfo.getInstance() is null");
 			}
 
-			String objectName = ActiveDbInfo.getInstance().getObjectName(selectionDB);
+			String objectName = ActiveDbInfo.getInstance().getObjectName(serverId, selectionDB);
 
 			if (objectName == null) {
 				return;
@@ -491,11 +492,11 @@ public class CubridRealtimeDmlView extends ViewPart implements Refreshable {
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(canvas, new Runnable() {
 			public void run() {
@@ -503,10 +504,10 @@ public class CubridRealtimeDmlView extends ViewPart implements Refreshable {
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);

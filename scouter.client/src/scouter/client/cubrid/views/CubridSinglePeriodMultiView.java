@@ -507,8 +507,8 @@ public class CubridSinglePeriodMultiView extends ViewPart implements Refreshable
 		}
 		
 		if (viewType.getInfoType() == InfoType.BROKER_INFO) {
-			if (!ActiveDbInfo.getInstance().getDbList().isEmpty()) {
-				selectionDB = ActiveDbInfo.getInstance().getDbList().get(0);
+			if (!ActiveDbInfo.getInstance().getDbList(serverId).isEmpty()) {
+				selectionDB = ActiveDbInfo.getInstance().getDbList(serverId).get(0);
 			} else {
 				return;
 			}
@@ -545,7 +545,7 @@ public class CubridSinglePeriodMultiView extends ViewPart implements Refreshable
 		try {
 			MapPack param = new MapPack();
 			ListValue objHashLv = new ListValue();
-			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(selectionDB));
+			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(serverId, selectionDB));
 			param.put("objHash", objHashLv);
 			param.put("counter", viewType.getCounterName());
 			v = tcp.getSingleValue(RequestCmd.CUBRID_DB_REALTIME_MULTI_DATA, param);
@@ -614,11 +614,11 @@ public class CubridSinglePeriodMultiView extends ViewPart implements Refreshable
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(canvas, new Runnable() {
 			public void run() {
@@ -626,10 +626,10 @@ public class CubridSinglePeriodMultiView extends ViewPart implements Refreshable
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);
@@ -675,12 +675,12 @@ public class CubridSinglePeriodMultiView extends ViewPart implements Refreshable
 		try {
 			MapPack param = new MapPack();
 			ListValue objHashLv = new ListValue();
-			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(selectionDB));
+			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(serverId, selectionDB));
 			param.put("objHash", objHashLv);
 			param.put("counter", viewType.getCounterName());
 			param.put("stime", pastStime);
 			param.put("etime", pastEtime);
-			param.put("objName", ActiveDbInfo.getInstance().getObjectName(selectionDB));
+			param.put("objName", ActiveDbInfo.getInstance().getObjectName(serverId, selectionDB));
 
 			tcp.process(RequestCmd.CUBRID_DB_PERIOD_MULTI_DATA, param, new INetReader() {
 				public void process(DataInputX in) throws IOException {

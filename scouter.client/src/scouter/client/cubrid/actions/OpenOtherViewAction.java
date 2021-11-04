@@ -25,6 +25,7 @@ import org.eclipse.ui.PlatformUI;
 import scouter.client.Images;
 import scouter.client.cubrid.views.CubridLongTransactionList;
 import scouter.client.cubrid.views.CubridRealtimeDmlView;
+import scouter.client.cubrid.views.CubridServerInfoView;
 import scouter.client.cubrid.views.CubridSpaceDbView;
 import scouter.client.util.ConsoleProxy;
 import scouter.client.util.ImageUtil;
@@ -53,6 +54,9 @@ public class OpenOtherViewAction extends Action {
 			} else if (viewType.equals(OtherViewType.DML_REALTIME)) {
 				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CubridRealtimeDmlView.ID,
 						serverId + "&" + "default", IWorkbenchPage.VIEW_ACTIVATE);
+			} else if (viewType.equals(OtherViewType.CUBRID_SERVERINFO)) {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView(CubridServerInfoView.ID,
+						"" + serverId, IWorkbenchPage.VIEW_ACTIVATE);
 			}
 		} catch (PartInitException e) {
 			ConsoleProxy.errorSafe(e.toString());
@@ -62,7 +66,8 @@ public class OpenOtherViewAction extends Action {
 	public enum OtherViewType {
 		DB_SPACE_INFO("DB Space Info"),
 		LONG_TRANSACTION("Long Tranjaction List"), 
-		DML_REALTIME("Realtime DML");
+		DML_REALTIME("Realtime DML"),
+		CUBRID_SERVERINFO("CUBRID ServerInfo");
 
 		private String title;
 

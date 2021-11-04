@@ -136,7 +136,10 @@ public class CubridSingleRealTimeMultiView extends ViewPart implements Refreshab
 
 	public void createPartControl(Composite parent) {
 		Server server = ServerManager.getInstance().getServer(serverId);
-		this.setPartName("SingleRealTimeMultiView " + viewType.getTitle() + " [" + server.getName() + "]");
+		if (viewType != null && server != null) {
+			this.setPartName("SingleRealTimeMultiView " + viewType.getTitle() + " [" + server.getName() + "]");
+		} 
+		
 		IWorkbenchWindow window = getSite().getWorkbenchWindow();
 		
 		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
@@ -377,13 +380,14 @@ public class CubridSingleRealTimeMultiView extends ViewPart implements Refreshab
 
 	public void refresh() {
 		
-		if (ActiveDbInfo.getInstance() == null) {
+		if (ActiveDbInfo.getInstance() == null 
+				|| ActiveDbInfo.getInstance().getDbList(serverId) == null) {
 			return;
 		}
 
 		if (viewType.getInfoType() == InfoType.BROKER_INFO) {
-			if (!ActiveDbInfo.getInstance().getDbList().isEmpty()) {
-				selectionDB = ActiveDbInfo.getInstance().getDbList().get(0);
+			if (!ActiveDbInfo.getInstance().getDbList(serverId).isEmpty()) {
+				selectionDB = ActiveDbInfo.getInstance().getDbList(serverId).get(0);
 			} else {
 				return;
 			}
@@ -400,7 +404,7 @@ public class CubridSingleRealTimeMultiView extends ViewPart implements Refreshab
 		try {
 			MapPack param = new MapPack();
 			ListValue objHashLv = new ListValue();
-			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(selectionDB));
+			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(serverId, selectionDB));
 			param.put("objHash", objHashLv);
 			param.put("counter", viewType.getCounterName());
 			v = tcp.getSingleValue(RequestCmd.CUBRID_DB_REALTIME_MULTI_DATA, param);
@@ -470,11 +474,15 @@ public class CubridSingleRealTimeMultiView extends ViewPart implements Refreshab
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId) == null) {
+			return;
+		}
+		
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(canvas, new Runnable() {
 			public void run() {
@@ -482,10 +490,10 @@ public class CubridSingleRealTimeMultiView extends ViewPart implements Refreshab
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);

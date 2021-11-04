@@ -142,7 +142,12 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 
 	private void initialLayout(Composite parent) {
 		Server server = ServerManager.getInstance().getServer(serverId);
-		this.setPartName("Long Transaction List[" + server.getName() + "]");
+		
+		if (server != null) {
+			this.setPartName("Long Transaction List[" + server.getName() + "]");
+		} else {
+			this.setPartName("Long Transaction List");
+		}
 		parent.setLayout(new GridLayout(2, true));
 		
 		dbListCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -343,7 +348,7 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 		manager.add(new Action("&Add LongTransaction ListView", ImageDescriptor.createFromImage(Images.add)) {
 			public void run() {
 				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(),
+				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(), serverId,
 						new AddLongTransactionList.IAddLongTransactionList() {
 							@Override
 							public void onPressedOk(String dbName) {
@@ -644,7 +649,7 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			MapValue mv = null;
 
 			if (objHashLv.size() > 0) {
-				if (activeDBList.isEmpty()) {
+				if (activeDBList.isEmpty(serverId)) {
 					transactionList.clear();
 				}
 
@@ -719,11 +724,15 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId) == null) {
+			return;
+		}
+		
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(dbListCombo, new Runnable() {
 			public void run() {
@@ -731,10 +740,10 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(dbListCombo, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);

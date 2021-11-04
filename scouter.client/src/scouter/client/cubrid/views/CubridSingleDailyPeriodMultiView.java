@@ -181,8 +181,8 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 							dbListCombo.removeAll();
 							dbListCombo.add("BROKER_INFO");
 							dbListCombo.select(0);
-							if (ActiveDbInfo.getInstance().getDbList().isEmpty()) {
-								selectionDB = ActiveDbInfo.getInstance().getDbList().get(0);
+							if (ActiveDbInfo.getInstance().getDbList(serverId).isEmpty()) {
+								selectionDB = ActiveDbInfo.getInstance().getDbList(serverId).get(0);
 							}
 						} else {
 							dbListCombo.removeAll();
@@ -556,11 +556,11 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(canvas, new Runnable() {
 			public void run() {
@@ -568,10 +568,10 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(canvas, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);
@@ -619,8 +619,8 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 		}
 
 		if (viewType.getInfoType() == InfoType.BROKER_INFO) {
-			if (!ActiveDbInfo.getInstance().getDbList().isEmpty()) {
-				selectionDB = ActiveDbInfo.getInstance().getDbList().get(0);
+			if (!ActiveDbInfo.getInstance().getDbList(serverId).isEmpty()) {
+				selectionDB = ActiveDbInfo.getInstance().getDbList(serverId).get(0);
 			} else {
 				return;
 			}
@@ -643,7 +643,7 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 		try {
 			MapPack param = new MapPack();
 			ListValue objHashLv = new ListValue();
-			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(selectionDB));
+			objHashLv.add(ActiveDbInfo.getInstance().getObjectHash(serverId, selectionDB));
 			param.put("objHash", objHashLv);
 			param.put("counter", viewType.getCounterName());
 			param.put("sDate", pastSdate);
@@ -717,8 +717,8 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 		}
 
 		if (viewType.getInfoType() == InfoType.BROKER_INFO) {
-			if (!ActiveDbInfo.getInstance().getDbList().isEmpty()) {
-				selectionDB = ActiveDbInfo.getInstance().getDbList().get(0);
+			if (!ActiveDbInfo.getInstance().getDbList(serverId).isEmpty()) {
+				selectionDB = ActiveDbInfo.getInstance().getDbList(serverId).get(0);
 			} else {
 				return;
 			}
@@ -740,7 +740,7 @@ public class CubridSingleDailyPeriodMultiView extends ViewPart implements Refres
 			}
 		});
 
-		if (ActiveDbInfo.getInstance().isEmpty()) {
+		if (ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			return;
 		}
 
