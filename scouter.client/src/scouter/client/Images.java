@@ -371,5 +371,6 @@ public class Images {
 	public static final Image star                             = Activator.getImage("icons/star.png");
 	public static final Image page_white_stack                 = Activator.getImage("icons/page_white_stack.png");
 	public static final Image page_white_text                  = Activator.getImage("icons/page_white_text.png");
+	public static final Image table_scroll_lock                = Activator.getImage("icons/table_scroll_lock.png");
 }
 
