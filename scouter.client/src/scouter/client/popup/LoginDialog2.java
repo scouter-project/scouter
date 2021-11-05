@@ -294,6 +294,7 @@ public class LoginDialog2 extends Dialog {
 			if (this.sock5Login) {
 				if (StringUtil.isEmpty(socksAddress) || !socksAddress.contains(":")) {
 					errMsg("Check SOCKS Address");
+					return false;
 				}
 				String[] socksAddr = socksAddress.split(":");
 				socksIp = socksAddr[0];
