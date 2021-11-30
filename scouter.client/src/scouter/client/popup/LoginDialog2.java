@@ -289,14 +289,17 @@ public class LoginDialog2 extends Dialog {
 			ip = addr[0];
 			port = addr[1];
 
-			String socksIp;
-			String socksPort;
-			if (!socksAddress.contains(":")) {
-				errMsg("Check SOCKS Address");
+			String socksIp = null;
+			String socksPort = null;
+			if (this.sock5Login) {
+				if (StringUtil.isEmpty(socksAddress) || !socksAddress.contains(":")) {
+					errMsg("Check SOCKS Address");
+					return false;
+				}
+				String[] socksAddr = socksAddress.split(":");
+				socksIp = socksAddr[0];
+				socksPort = socksAddr[1];
 			}
-			String[] socksAddr = socksAddress.split(":");
-			socksIp = socksAddr[0];
-			socksPort = socksAddr[1];
 
 			msg("Log in..." + address);
 
