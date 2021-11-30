@@ -49,7 +49,7 @@ public class MultiViewDialogAction extends Action {
 	public void run() {
 
 		if (periodType == CubridTypePeriod.REALTIME) {
-			AddRealTimeDialog dialog = new AddRealTimeDialog(window.getShell().getDisplay(),
+			AddRealTimeDialog dialog = new AddRealTimeDialog(window.getShell().getDisplay(), serverId,
 					new AddRealTimeDialog.IAddSingleRealTimeDialog() {
 						@Override
 						public void onPressedOk(String dbName, CubridSingleItem viewType, long timeRange) {
@@ -70,7 +70,7 @@ public class MultiViewDialogAction extends Action {
 
 			dialog.show();
 		} else if (periodType == CubridTypePeriod.PAST_LESS_1DAY) {
-			AddShortPeriodCalendarDialog dialog = new AddShortPeriodCalendarDialog(window.getShell().getDisplay(),
+			AddShortPeriodCalendarDialog dialog = new AddShortPeriodCalendarDialog(window.getShell().getDisplay(), serverId,
 					new AddShortPeriodCalendarDialog.IAddSingleShortPeriodDialog() {
 
 						@Override
@@ -99,7 +99,7 @@ public class MultiViewDialogAction extends Action {
 						TimeUtil.getCurrentTime(serverId));
 			}
 		} else {
-			AddLongPeriodCalendarDialog dialog = new AddLongPeriodCalendarDialog(window.getShell().getDisplay(),
+			AddLongPeriodCalendarDialog dialog = new AddLongPeriodCalendarDialog(window.getShell().getDisplay(), serverId,
 					new AddLongPeriodCalendarDialog.IAddSingleLongPeriodDialog() {
 
 						@Override

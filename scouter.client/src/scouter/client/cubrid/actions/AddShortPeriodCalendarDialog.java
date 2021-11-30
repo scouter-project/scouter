@@ -47,13 +47,15 @@ import scouter.util.DateUtil;
 public class AddShortPeriodCalendarDialog {
 	private final Display display;
 	private final IAddSingleShortPeriodDialog callback;
+	private final int serverId; 
 
 	Combo dbListCombo;
 	Combo counterCombo;
 
-	public AddShortPeriodCalendarDialog(Display display, IAddSingleShortPeriodDialog callback) {
+	public AddShortPeriodCalendarDialog(Display display, int serverId, IAddSingleShortPeriodDialog callback) {
 		this.display = display;
 		this.callback = callback;
+		this.serverId = serverId;
 	}
 
 	public void show(Point p, long stime, long etime) {
@@ -368,8 +370,8 @@ public class AddShortPeriodCalendarDialog {
 
 	private void dbLoad() {
 		ActiveDbInfo activeDBList = ActiveDbInfo.getInstance();
-		if (!activeDBList.isEmpty()) {
-			for (String dbName : activeDBList.keySet()) {
+		if (!activeDBList.isEmpty(serverId)) {
+			for (String dbName : activeDBList.keySet(serverId)) {
 				dbListCombo.add(dbName);
 			}
 		} else {

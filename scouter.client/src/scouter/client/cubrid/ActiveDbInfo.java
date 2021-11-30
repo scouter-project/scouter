@@ -27,7 +27,7 @@ public class ActiveDbInfo {
 
 	private static ActiveDbInfo instance;
 
-	private static Hashtable<String, String> dbInfo = new Hashtable<>();
+	private static Hashtable <Integer, Hashtable<String, String>> ServerInfo = new Hashtable<>(); 
 
 	public synchronized static ActiveDbInfo getInstance() {
 		if (instance == null) {
@@ -39,58 +39,112 @@ public class ActiveDbInfo {
 	private ActiveDbInfo() {
 	}
 
-	public ArrayList<String> getDbList() {
-		ArrayList<String> dbList = new ArrayList<>();
-		for (String dbName : dbInfo.keySet()) {
-			dbList.add(dbName);
+	public void addServerInfo(int serverId) {
+		if (ServerInfo.get(serverId) == null) {
+			Hashtable<String, String> dbInfo = new Hashtable<>();
+			ServerInfo.put(serverId, dbInfo);
 		}
-
-		return dbList;
 	}
 
-	public Set<String> keySet() {
-		return dbInfo.keySet();
+	public ArrayList<String> getDbList(int serverId) {
+		ArrayList<String> dbList = new ArrayList<>();
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+
+		if (dbInfo != null) {
+			for (String dbName : dbInfo.keySet()) {
+				dbList.add(dbName);
+			}
+			
+			return dbList;
+		}
+		
+		return null;
 	}
 
-	public String getObjectName(String dbname) {
-		return dbInfo.get(dbname);
+	public Set<String> keySet(int serverId) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			return dbInfo.keySet();
+		}
+		
+		return null;
 	}
 
-	public int getObjectHash(String dbname) {
-		if (dbInfo.get(dbname) != null) {
+	public String getObjectName(int serverId, String dbname) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			return String.valueOf(dbInfo.get(dbname));
+		}
+		
+		return null;
+	}
+
+	public int getObjectHash(int serverId, String dbname) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null && dbInfo.get(dbname) != null) {
 			return HashUtil.hash(dbInfo.get(dbname));
 		} else {
 			return -1;
 		}
 	}
 
-	public void setActiveDBInfo(Hashtable<String, String> info) {
-		dbInfo = info;
+	public void setActiveDBInfo(int serverId, Hashtable<String, String> info) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			dbInfo = info;
+		}
 	}
 
-	public boolean isEmpty() {
-		return dbInfo.isEmpty();
+	public boolean isEmpty(int serverId) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			return dbInfo.isEmpty();
+		} else {
+			return true;
+		}
 	}
 
-	public int size() {
-		return dbInfo.size();
+	public int size(int serverId) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			return dbInfo.size();
+		} else {
+			return 0;
+		}
 	}
 
-	public void clear() {
-		dbInfo.clear();
+	public void clear(int serverId) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
+		if (dbInfo != null) {
+			dbInfo.clear();
+		}
 	}
 
-	public void put(String dbName, String ObjectName) {
-		dbInfo.put(dbName, ObjectName);
+	public void put(int serverId, String dbName, String ObjectName) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		if (dbInfo != null) {
+			dbInfo.put(dbName, ObjectName);
+		} 
 	}
 
-	public Hashtable<String, String> getActiveDBInfo() {
+	public Hashtable<String, String> getActiveDBInfo(int serverId) {
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
 		return dbInfo;
 	}
 
-	public boolean equals(Hashtable<String, String> other) {
+	public boolean equals(int serverId, Hashtable<String, String> other) {
 		if (other == null)
 			return false;
+		
+		Hashtable<String, String> dbInfo = ServerInfo.get(serverId);
+		
 		if (dbInfo == null)
 			return false;
 

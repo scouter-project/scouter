@@ -41,6 +41,8 @@ import scouter.client.model.AgentModelThread;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.net.TcpProxy;
+import scouter.client.server.Server;
+import scouter.client.server.ServerManager;
 import scouter.client.sorter.TableLabelSorter;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
@@ -86,7 +88,15 @@ public class CubridServerInfoView extends ViewPart implements Refreshable {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.setPartName("CUBRID ServerInfo");
+		Server server = ServerManager.getInstance().getServer(serverId);
+		ActiveDbInfo activeDBList = ActiveDbInfo.getInstance();
+		
+		if (server != null) {
+			this.setPartName("CUBRID ServerInfo" + "[" + server.getName() + "]");
+			activeDBList.addServerInfo(serverId);
+		} else {
+			this.setPartName("CUBRID ServerInfo");
+		}
 
 		Composite tableComposite = new Composite(parent, SWT.NONE);
 		tableColumnLayout = new TableColumnLayout();
@@ -238,11 +248,11 @@ public class CubridServerInfoView extends ViewPart implements Refreshable {
 			MapValue mv = null;
 
 			if (objHashLv.size() > 0) {
-				if (activeDBList.isEmpty()) {
+				if (activeDBList.isEmpty(serverId)) {
 					dataList.clear();
 				}
 
-				for (String dbName : activeDBList.keySet()) {
+				for (String dbName : activeDBList.keySet(serverId)) {
 					param.put("objHash", objHashLv);
 					param.put("date", date);
 					param.put("stime", stime);
@@ -254,6 +264,8 @@ public class CubridServerInfoView extends ViewPart implements Refreshable {
 						sp = (StatusPack) p;
 						mv = sp.data;
 						responseData.add(mv);
+					} else {
+						System.out.println("CubridServerInfoView p is null");
 					}
 				}
 			}
@@ -337,16 +349,16 @@ public class CubridServerInfoView extends ViewPart implements Refreshable {
 				}
 
 				prvData = mv;
-				activeDBList.clear();
+				activeDBList.clear(serverId);
 				for (String key : mv.keySet()) {
-					activeDBList.put(key, String.valueOf(mv.get(key)));
+					activeDBList.put(serverId, key, String.valueOf(mv.get(key)));
 				}
 			} else {
 
 				if (prvData != null)
 					prvData.clear();
 
-				activeDBList.clear();
+				activeDBList.clear(serverId);
 				return false;
 			}
 
