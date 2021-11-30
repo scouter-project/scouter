@@ -195,6 +195,7 @@ public class TraceContext {
 	public Throwable asyncThrowable;
 
     public boolean alreadySetControllerName = false;
+    public boolean forceNotSamplingDrop = false;
 
     private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
 
