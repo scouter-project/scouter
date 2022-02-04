@@ -59,8 +59,8 @@ public class XLogService {
     /**
      * retrieve various condition search
      */
-    public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
-        return xLogConsumer.searchXLogDataList(searchXLogRequest);
+    public List<SXLog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogList(searchXLogRequest);
     }
 
     /**
