@@ -73,6 +73,14 @@ public class XLogService {
     /**
      * retrieve single xLog
      */
+    public XLogData retrieveSingleXLogData(final SingleXLogRequest singleXlogRequest) {
+        return xLogConsumer.retrieveByTxidAsXLogData(singleXlogRequest);
+
+    }
+
+    /**
+     * retrieve single xLog
+     */
     public SXLog retrieveSingleXLog(final SingleXLogRequest singleXlogRequest) {
         return xLogConsumer.retrieveByTxidAsXLog(singleXlogRequest);
 
