@@ -59,16 +59,15 @@ public class XLogService {
     /**
      * retrieve various condition search
      */
-    public List<XLogData> retrieveConditionSearchXLog(final CondSearchXLogRequest condSearchXlogRequest) {
-        return xLogConsumer.retrieveConditionSearchXLog(condSearchXlogRequest);
+    public List<SXLog> searchXLogList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogList(searchXLogRequest);
     }
-    
-    /**
-     * retrieve single xLog
-     */
-    public XLogData retrieveSingleXLogData(final SingleXLogRequest singleXlogRequest) {
-        return xLogConsumer.retrieveByTxidAsXLogData(singleXlogRequest);
 
+    /**
+     * retrieve various condition search
+     */
+    public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
+        return xLogConsumer.searchXLogDataList(searchXLogRequest);
     }
 
     /**
