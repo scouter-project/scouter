@@ -43,14 +43,16 @@ import scouter.client.cubrid.CubridSingleItem.InfoType;
 public class AddRealTimeDialog {
 	private final Display display;
 	private final IAddSingleRealTimeDialog callback;
-
+	private int serverId;
+	
 	Combo dbListCombo;
 	Combo counterCombo;
 	Combo timeRangeCombo;
 
-	public AddRealTimeDialog(Display display, IAddSingleRealTimeDialog callback) {
+	public AddRealTimeDialog(Display display, int serverId, IAddSingleRealTimeDialog callback) {
 		this.display = display;
 		this.callback = callback;
+		this.serverId = serverId;
 	}
 
 	public void show(Point p) {
@@ -189,8 +191,8 @@ public class AddRealTimeDialog {
 
 	private void dbLoad() {
 		ActiveDbInfo activeDBList = ActiveDbInfo.getInstance();
-		if (!activeDBList.isEmpty()) {
-			for (String dbName : activeDBList.keySet()) {
+		if (!activeDBList.isEmpty(serverId)) {
+			for (String dbName : activeDBList.keySet(serverId)) {
 				dbListCombo.add(dbName);
 			}
 		} else {

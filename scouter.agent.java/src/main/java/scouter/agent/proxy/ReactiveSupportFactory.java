@@ -21,6 +21,7 @@ import scouter.agent.trace.TraceContext;
 
 public class ReactiveSupportFactory {
 	private static final String REACTIVE_SUPPORT = "scouter.xtra.reactive.ReactiveSupport";
+	private static final String REACTIVE_SUPPORT_W_COROUTINE = "scouter.xtra.reactive.ReactiveSupportWithCoroutine";
 
 	public static final IReactiveSupport dummy = new IReactiveSupport() {
 		public Object subscriptOnContext(Object mono0, TraceContext traceContext) {
@@ -46,11 +47,20 @@ public class ReactiveSupportFactory {
 			if (loader == null) {
 				return dummy;
 			}
-			Class c = Class.forName(REACTIVE_SUPPORT, true, loader);
-			return (IReactiveSupport) c.newInstance();
+			IReactiveSupport reactiveSupport = null;
+			try {
+				Class c = Class.forName(REACTIVE_SUPPORT_W_COROUTINE, true, loader);
+				reactiveSupport = (IReactiveSupport) c.newInstance();
+			} catch (Throwable e) {
+				Logger.println("A133-0", "fail to create reactive support: REACTIVE_SUPPORT_W_COROUTINE", e);
+				Class c = Class.forName(REACTIVE_SUPPORT, true, loader);
+				reactiveSupport = (IReactiveSupport) c.newInstance();
+				Logger.println("success to create reactive support without coroutine support");
+			}
+			return reactiveSupport;
 
 		} catch (Throwable e) {
-			Logger.println("A133-1", "fail to create", e);
+			Logger.println("A133-2", "fail to create", e);
 			return dummy;
 		}
 	}

@@ -18,7 +18,6 @@
 package scouter.client.preferences;
 
 import scouter.util.StringUtil;
-import scouter.util.StringUtil;
 
 public class ServerPrefUtil {
 	
@@ -38,7 +37,7 @@ public class ServerPrefUtil {
 		}
 	}
 	
-	public static void addAutoLoginServer(String addr, String id, String encryptedPass) {
+	public static void addAutoLoginServer(String addr, String id, String encryptedPass, String socksAddr) {
 		String addrs = PManager.getInstance().getString(PreferenceConstants.P_SVR_AUTOLOGIN_LIST);
 		if (StringUtil.isEmpty(addrs)) {
 			 PManager.getInstance().setValue(PreferenceConstants.P_SVR_AUTOLOGIN_LIST, addr);
@@ -48,7 +47,20 @@ public class ServerPrefUtil {
 				PManager.getInstance().setValue(PreferenceConstants.P_SVR_AUTOLOGIN_LIST, addrs);
 			}
 		}
+		
+		
+		String socksAddrs = PManager.getInstance().getString(PreferenceConstants.P_SOCKS_SVR_AUTOLOGIN_LIST);
+		if (StringUtil.isEmpty(socksAddrs)) {
+			 PManager.getInstance().setValue(PreferenceConstants.P_SOCKS_SVR_AUTOLOGIN_LIST, socksAddr);
+		} else {
+			if (socksAddrs.contains(socksAddr) == false) {
+				socksAddrs += (PreferenceConstants.P_SVR_DIVIDER + socksAddr);
+				PManager.getInstance().setValue(PreferenceConstants.P_SOCKS_SVR_AUTOLOGIN_LIST, socksAddrs);
+			}
+		}
+		
 		PManager.getInstance().setValue(PreferenceConstants.P_SVR_ACCOUNT_PREFIX + addr, id + PreferenceConstants.P_SVR_DIVIDER + encryptedPass);
+		PManager.getInstance().setValue(PreferenceConstants.P_SOCKS_SVR_ADDR_PREFIX + addr, socksAddr);
 	}
 	
 	public static void removeServerAddr(String addr) {
@@ -78,6 +90,11 @@ public class ServerPrefUtil {
 		return StringUtil.tokenizer(addrs, PreferenceConstants.P_SVR_DIVIDER);
 	}
 	
+	public static String[] getStoredSocks5ServerList() {
+		String addrs = PManager.getInstance().getString(PreferenceConstants.P_SOCKS_SVR_AUTOLOGIN_LIST);
+		return StringUtil.tokenizer(addrs, PreferenceConstants.P_SVR_DIVIDER);
+	}
+	
 	public static String[] getStoredAutoLoginServerList() {
 		String addrs = PManager.getInstance().getString(PreferenceConstants.P_SVR_AUTOLOGIN_LIST);
 		return StringUtil.tokenizer(addrs, PreferenceConstants.P_SVR_DIVIDER);
@@ -85,6 +102,14 @@ public class ServerPrefUtil {
 	
 	public static String getStoredAccountInfo(String addr) {
 		return PManager.getInstance().getString(PreferenceConstants.P_SVR_ACCOUNT_PREFIX + addr);
+	}
+	
+	public static boolean isSocksLogin(String addr) {
+		return StringUtil.isNotEmpty(PManager.getInstance().getString(PreferenceConstants.P_SOCKS_SVR_ADDR_PREFIX + addr));
+	}
+	
+	public static String getStoredSocksServer(String addr) {
+		return PManager.getInstance().getString(PreferenceConstants.P_SOCKS_SVR_ADDR_PREFIX + addr);
 	}
 	
 	public static boolean isAutoLoginAddress(String addr) {

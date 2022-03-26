@@ -54,6 +54,8 @@ import scouter.client.model.AgentModelThread;
 import scouter.client.model.RefreshThread;
 import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.net.TcpProxy;
+import scouter.client.server.Server;
+import scouter.client.server.ServerManager;
 import scouter.client.util.ExUtil;
 import scouter.client.util.TimeUtil;
 import scouter.lang.constants.StatusConstants;
@@ -119,7 +121,12 @@ public class CubridSpaceDbView extends ViewPart implements Refreshable {
 
 	@Override
 	public void createPartControl(Composite parent) {
-		this.setPartName("CUBRID DBSpaceInfo");
+		Server server = ServerManager.getInstance().getServer(serverId);
+		if (server != null) {
+			this.setPartName("CUBRID DBSpaceInfo" + "[" + server.getName() + "]");
+		} else {
+			this.setPartName("CUBRID DBSpaceInfo");
+		}
 		composite = parent;
 		GridLayout layout = new GridLayout(3, true);
 		parent.setLayout(layout);
@@ -245,7 +252,7 @@ public class CubridSpaceDbView extends ViewPart implements Refreshable {
 		manager.add(new Action("&Add DBSpaceInfo", ImageDescriptor.createFromImage(Images.add)) {
 			public void run() {
 				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(),
+				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(), serverId,
 						new AddLongTransactionList.IAddLongTransactionList() {
 							@Override
 							public void onPressedOk(String dbName) {
@@ -341,11 +348,15 @@ public class CubridSpaceDbView extends ViewPart implements Refreshable {
 
 	public void checkDBList() {
 
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId) == null) {
+			return;
+		}
+		
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(composite, new Runnable() {
 			public void run() {
@@ -353,10 +364,10 @@ public class CubridSpaceDbView extends ViewPart implements Refreshable {
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(composite, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);

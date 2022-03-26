@@ -54,6 +54,9 @@ public class LoginMgr{
 			param.put("pass", password);
 			param.put("version", Version.getClientFullVersion());
 			param.put("hostname", SysJMX.getHostName());
+			param.put("isSocks", server.isSocksLogin());
+			param.put("socksIp", server.getSocksIp());
+			param.put("socksPort", server.getSocksPort());
 			
 			MapPack out = TcpProxy.loginProxy(server.getId(), param);
 			if (out == null) {

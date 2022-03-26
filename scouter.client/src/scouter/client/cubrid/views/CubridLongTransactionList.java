@@ -22,6 +22,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.layout.TableColumnLayout;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -34,7 +36,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -63,8 +64,8 @@ import scouter.client.model.RefreshThread.Refreshable;
 import scouter.client.net.TcpProxy;
 import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
-import scouter.client.sorter.ColumnLabelSorter;
 import scouter.client.util.ExUtil;
+import scouter.client.util.ImageUtil;
 import scouter.client.util.TimeUtil;
 import scouter.lang.constants.StatusConstants;
 import scouter.lang.counters.CounterConstants;
@@ -113,6 +114,8 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 	int lastListIndex = 0;
 	int prvActiveDBHash = -1;
 	
+	boolean scrollLock = false;
+	
 	public void init(IViewSite site) throws PartInitException {
 		super.init(site);
 		String secId = site.getSecondaryId();
@@ -142,7 +145,12 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 
 	private void initialLayout(Composite parent) {
 		Server server = ServerManager.getInstance().getServer(serverId);
-		this.setPartName("Long Transaction List[" + server.getName() + "]");
+		
+		if (server != null) {
+			this.setPartName("Long Transaction List[" + server.getName() + "]");
+		} else {
+			this.setPartName("Long Transaction List");
+		}
 		parent.setLayout(new GridLayout(2, true));
 		
 		dbListCombo = new Combo(parent, SWT.DROP_DOWN | SWT.READ_ONLY);
@@ -214,56 +222,21 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 		tableComposite.setLayout(new GridLayout(1, true));
 		createTableViewer(tableComposite);
 		
+		IToolBarManager man = getViewSite().getActionBars().getToolBarManager();
+		Action scrollAct = new Action("Scroll Lock", IAction.AS_CHECK_BOX) {
+			public void run() {
+				scrollLock = isChecked();
+			}
+		};
+		scrollAct.setImageDescriptor(ImageUtil.getImageDescriptor(Images.table_scroll_lock));
+		scrollAct.setChecked(false);
+		man.add(scrollAct);
+		
 		thread = new RefreshThread(this, REFRESH_INTERVAL);
 		thread.start();
 	}
 
-//	private void load() {
-//		ExUtil.asyncRun(new Runnable() {
-//			public void run() {
-//				TcpProxy tcpProxy = TcpProxy.getTcpProxy(serverId);
-//				try {
-//					MapPack param = new MapPack();
-//					param.put("objHash", objHash);
-//					MapPack pack = (MapPack) tcpProxy.getSingle(RequestCmd.HOST_TOP, param);
-//					if (pack == null) return;
-//					String error = pack.getText("error");
-//					if (error != null) {
-//						ConsoleProxy.errorSafe(error);
-//					}
-//					ListValue pidLv = pack.getList("PID");
-//					ListValue userLv = pack.getList("USER");
-//					ListValue cpuLv = pack.getList("CPU");
-//					ListValue memLv = pack.getList("MEM");
-//					ListValue timeLv = pack.getList("TIME");
-//					ListValue nameLv = pack.getList("NAME");
-//					
-//					transactionList = new TransactionObject[pidLv.size()];
-//					for (int i = 0; i < pidLv.size(); i++) {
-//						transactionList[lastListIndex] = new TransactionObject();
-//						transactionList[lastListIndex].sql_text = (int) pidLv.getLong(i);
-//						transactionList[lastListIndex].user = userLv.getString(i);
-//						transactionList[lastListIndex].sql_id = (float) cpuLv.getDouble(i);
-//						transactionList[lastListIndex].host =  memLv.getLong(i);
-//						transactionList[lastListIndex].pid = timeLv.getLong(i);
-//						transactionList[lastListIndex].program = nameLv.getString(i);
-//						transactionList[lastListIndex].tran_time = nameLv.getString(i);
-//						transactionList[lastListIndex].query_time = nameLv.getString(i);
-//					}
-//					ExUtil.exec(viewer.getTable(), new Runnable() {
-//						public void run() {
-//							viewer.setInput(transactionList);
-//						}
-//					});
-//				} catch (Throwable th){
-//					th.printStackTrace();
-//				} finally {
-//					TcpProxy.putTcpProxy(tcpProxy);
-//				}
-//			}
-//		});
-//	}
-	
+
 	private void createTableViewer(Composite composite) {
 		viewer = new TableViewer(composite, SWT.MULTI  | SWT.FULL_SELECTION | SWT.BORDER);
 		tableColumnLayout = new TableColumnLayout();
@@ -273,64 +246,9 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 	    table.setHeaderVisible(true);
 	    table.setLinesVisible(true);
 	    createTableContextMenu();
-//	    table.addMouseListener(new MouseAdapter() {
-//			public void mouseDoubleClick(MouseEvent e) {
-//				TableItem[] item = table.getSelection();
-//				if (item == null || item.length == 0)
-//					return;
-//				int pid = CastUtil.cint(item[0].getText(0));
-//				IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-//				try {
-//					ProcessDetailView view = (ProcessDetailView) win.getActivePage().showView(
-//							ProcessDetailView.ID, "" + pid + objHash, IWorkbenchPage.VIEW_ACTIVATE);
-//					view.setInput(serverId, objHash, pid);
-//				} catch (PartInitException e1) {}
-//			}
-//		});
+
 	    viewer.setContentProvider(new ArrayContentProvider());
-	    viewer.setComparator(new ColumnLabelSorter(viewer).setCustomCompare(new ColumnLabelSorter.ICustomCompare() {
-			public int doCompare(TableColumn col, int index, Object o1, Object o2) {
-				if (!(o1 instanceof TransactionObject) || !(o2 instanceof TransactionObject)) {
-					return 0;
-				}
-				TransactionObject p1 = (TransactionObject) o1;
-				TransactionObject p2 = (TransactionObject) o2;
-				Boolean isNumber = (Boolean) col.getData("isNumber");
-				if (isNumber != null && isNumber.booleanValue()) {
-					String v1 = ColumnLabelSorter.numonly(p1.getValueByIndex(index));
-					String v2 = ColumnLabelSorter.numonly(p2.getValueByIndex(index));
-					if (v1 == null) v1 = "0";
-					if (v2 == null) v2 = "0";
-					if (v1.contains(".") || v2.contains(".")) {
-						double d1 = Double.valueOf(v1);
-						double d2 = Double.valueOf(v2);
-						if (d1 > d2) {
-							return 1;
-						} else if (d2 > d1) {
-							return -1;
-						} else {
-							return 0;
-						}
-					} else {
-						long i1 = Long.valueOf(v1);
-						long i2 = Long.valueOf(v2);
-						if (i1 > i2) {
-							return 1;
-						} else if (i2 > i1) {
-							return -1;
-						} else {
-							return 0;
-						}
-					}
-				} else {
-					String v1 = p1.getValueByIndex(index);
-					String v2 = p2.getValueByIndex(index);
-					if (v1 == null) v1 = "";
-					if (v2 == null) v2 = "";
-					return v1.compareTo(v2);
-				}
-			}
-		}));
+
 	    GridData gridData = new GridData(GridData.FILL, GridData.FILL, true, true);
 	    viewer.getControl().setLayoutData(gridData);
 	}
@@ -343,7 +261,7 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 		manager.add(new Action("&Add LongTransaction ListView", ImageDescriptor.createFromImage(Images.add)) {
 			public void run() {
 				IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(),
+				AddLongTransactionList dialog = new AddLongTransactionList(window.getShell().getDisplay(), serverId,
 						new AddLongTransactionList.IAddLongTransactionList() {
 							@Override
 							public void onPressedOk(String dbName) {
@@ -513,12 +431,6 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 		column.setMoveable(moveable);
 		tableColumnLayout.setColumnData(column, new ColumnWeightData(30, width, resizable));
 		column.setData("isNumber", isNumber);
-		column.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				ColumnLabelSorter sorter = (ColumnLabelSorter) viewer.getComparator();
-				sorter.setColumn(column);
-			}
-		});
 		return viewerColumn;
 	}
 
@@ -565,14 +477,14 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 	}
 	
 	public enum ColumnEnum {
-	    SQL_TEXT("SQL TEXT", 50, SWT.RIGHT, true, true, true),
-	    TRAN_TIME("TRAN TIME", 150, SWT.LEFT, true, true, false),
-		QUERY_TIME("QUERY_TIME", 150, SWT.LEFT, true, true, false),
-		HOST("HOST", 50, SWT.RIGHT, true, true, true),
-		PID("PID", 50, SWT.RIGHT, true, true, true),
+	    SQL_TEXT("SQL TEXT", 50, SWT.RIGHT, true, true, false),
+	    TRAN_TIME("TRAN TIME", 150, SWT.LEFT, true, true, true),
+		QUERY_TIME("QUERY_TIME", 150, SWT.LEFT, true, true, true),
+		HOST("HOST", 50, SWT.RIGHT, true, true, false),
+		PID("PID", 50, SWT.RIGHT, true, true, false),
 	    USER("USER", 70, SWT.RIGHT, true, true, false),
-	    PROGRAM("PROGRAM", 100, SWT.RIGHT, true, true, true),
-	    SQL_ID("SQL_ID", 50, SWT.RIGHT, true, true, true);
+	    PROGRAM("PROGRAM", 100, SWT.RIGHT, true, true, false),
+	    SQL_ID("SQL_ID", 50, SWT.RIGHT, true, true, false);
 
 	    private final String title;
 	    private final int width;
@@ -644,7 +556,7 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			MapValue mv = null;
 
 			if (objHashLv.size() > 0) {
-				if (activeDBList.isEmpty()) {
+				if (activeDBList.isEmpty(serverId)) {
 					transactionList.clear();
 				}
 
@@ -690,12 +602,15 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			TcpProxy.putTcpProxy(tcp);
 		}
 		
-		if (saveData.size() > 0) {
-			updateTableview();
-		}
+		updateTableview();
 	}
 	
 	private void updateTableview() {
+	
+		if (saveData.size() < 1) {
+			return;
+		}
+		
 		int skipCount = saveData.size() - MaxListValue;
 		transactionList.clear();
 		for(String key : saveData.keySet()) {
@@ -709,6 +624,9 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 		ExUtil.exec(viewer.getTable(), new Runnable() {
 			public void run() {
 				viewer.setInput(transactionList.toArray());
+				if (transactionList.size() > 0 && !scrollLock) {
+					viewer.getTable().setTopIndex(transactionList.size() - 1);
+				}
 			}
 		});
 	}
@@ -719,11 +637,15 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			return;
 		}
 		
-		if (ActiveDbInfo.getInstance().getActiveDBInfo().hashCode() == prvActiveDBHash) {
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId) == null) {
+			return;
+		}
+		
+		if (ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode() == prvActiveDBHash) {
 			return;
 		}
 
-		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo().hashCode();
+		prvActiveDBHash = ActiveDbInfo.getInstance().getActiveDBInfo(serverId).hashCode();
 
 		ExUtil.exec(dbListCombo, new Runnable() {
 			public void run() {
@@ -731,10 +653,10 @@ public class CubridLongTransactionList extends ViewPart implements Refreshable {
 			}
 		});
 
-		if (!ActiveDbInfo.getInstance().isEmpty()) {
+		if (!ActiveDbInfo.getInstance().isEmpty(serverId)) {
 			ExUtil.exec(dbListCombo, new Runnable() {
 				public void run() {
-					for (String dbName : ActiveDbInfo.getInstance().keySet()) {
+					for (String dbName : ActiveDbInfo.getInstance().keySet(serverId)) {
 						dbListCombo.add(dbName);
 					}
 					dbListCombo.setEnabled(true);

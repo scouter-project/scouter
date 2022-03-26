@@ -342,6 +342,7 @@ public class MenuUtil implements IMenuCreator{
     		
     		MenuManager cubridDbListView = new MenuManager(MenuStr.CUBRID_DB_LIST_VIEW, Images.CAPTURE, MenuStr.CUBRID_DB_LIST_VIEW_ID);
 	    	mgr.add(cubridDbListView);
+	    	cubridDbListView.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.CUBRID_SERVERINFO));
 	    	cubridDbListView.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.DB_SPACE_INFO));
 	    	cubridDbListView.add(new OpenOtherViewAction(serverId, objHash, OpenOtherViewAction.OtherViewType.LONG_TRANSACTION));
 	    	

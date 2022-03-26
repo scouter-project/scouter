@@ -41,6 +41,10 @@ scouter.server.boot/database/*
 
 scouter.document/.project
 
+build_client_local.sh
+build_package_local.sh
+
+
 ### Vim template
 [._]*.s[a-w][a-z]
 [._]s[a-w][a-z]

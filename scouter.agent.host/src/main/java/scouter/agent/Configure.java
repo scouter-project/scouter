@@ -504,8 +504,8 @@ public class Configure extends Thread {
 	}
 
 	private boolean isKube() {
-		Properties properties = System.getProperties();
-		return !StringUtil.isEmpty(properties.getProperty("KUBERNETES_SERVICE_HOST"));
+		Map<String, String> env = System.getenv();
+		return !StringUtil.isEmpty(env.get("KUBERNETES_SERVICE_HOST"));
 	}
 
 	public static void main(String[] args) {
