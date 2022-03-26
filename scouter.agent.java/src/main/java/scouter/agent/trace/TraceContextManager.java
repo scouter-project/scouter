@@ -19,6 +19,7 @@ package scouter.agent.trace;
 
 import scouter.agent.Configure;
 import scouter.agent.util.SimpleLru;
+import scouter.lang.AlertLevel;
 import scouter.util.KeyGen;
 import scouter.util.LongLongLinkedMap;
 
@@ -71,6 +72,24 @@ public class TraceContextManager {
 				} else {
 					act[2]++;
 				}
+
+				if (conf.profile_force_end_stuck_service && tm > conf.profile_force_end_stuck_millis) {
+					TraceMain.Stat stat = new TraceMain.Stat(ctx);
+					Throwable th = new RuntimeException("Stuck service. finish xlog but actually may be processing.");
+					if (ctx.http != null) {
+						TraceMain.endHttpService(stat, th);
+					} else {
+						TraceMain.endService(stat, null, th);
+					}
+					String msg = String.format("service: %s, elapsed: %d, start thread: %s, txid: %s", ctx.serviceName, tm,
+							ctx.threadName, ctx.txid);
+					if (conf.profile_force_end_stuck_alert) {
+						AlertProxy.sendAlert(AlertLevel.ERROR, "STUCK", msg);
+					} else {
+						AlertProxy.sendAlert(AlertLevel.WARN, "STUCK", msg);
+					}
+				}
+
 			}
 		} catch (Throwable t) {
 		}

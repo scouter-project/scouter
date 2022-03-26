@@ -25,6 +25,9 @@ public class PreferenceConstants {
 	public static final String P_SVR_ACCOUNT_PREFIX       = "autologin_";
 	public static final String P_SVR_DIVIDER         = ",";
 	
+	public static final String P_SOCKS_SVR_ADDR_PREFIX       = "socksServerAddr_";
+	public static final String P_SOCKS_SVR_AUTOLOGIN_LIST       = "socksSvrAddrAutoLogin";
+	
 	
 	public static final String P_PERS_WAS_SERV_DEFAULT_HOST = "wasServiceDefaultHost";
 	public static final String P_PERS_WAS_SERV_DEFAULT_WAS  = "wasServiceDefaultWAS";

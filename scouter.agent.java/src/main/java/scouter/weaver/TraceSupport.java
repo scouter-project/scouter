@@ -49,10 +49,8 @@ public class TraceSupport {
 	}
 
 	public static Object startServiceWithCustomTxidAndGetCtx(String serviceName, String customTxid) {
-		Object o = TraceMain.startService(serviceName, "_custom_", serviceName, "_none_", dummyObj, dummyArgs, XLogTypes.APP_SERVICE);
-		TraceContext ctx = ((LocalContext) o).context;
-		TraceContextManager.linkCustomTxid(customTxid, ctx.txid);
-		return o;
+		return TraceMain.startServiceWithCustomTxid(serviceName, "_custom_", serviceName, "_none_", dummyObj, dummyArgs,
+				XLogTypes.APP_SERVICE, customTxid);
 	}
 
 	public static void endServiceByCtx(Object anyCtx, Throwable thr) {

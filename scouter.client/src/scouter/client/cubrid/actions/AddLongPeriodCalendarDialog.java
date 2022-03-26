@@ -45,13 +45,15 @@ import scouter.util.DateUtil;
 public class AddLongPeriodCalendarDialog {
 
 	private final Display display;
+	private final int serverId;
 	private final IAddSingleLongPeriodDialog callback;
-
+	
 	Combo dbListCombo;
 	Combo counterCombo;
 
-	public AddLongPeriodCalendarDialog(Display display, IAddSingleLongPeriodDialog callback) {
+	public AddLongPeriodCalendarDialog(Display display, int serverId, IAddSingleLongPeriodDialog callback) {
 		this.display = display;
+		this.serverId = serverId;
 		this.callback = callback;
 	}
 
@@ -222,8 +224,8 @@ public class AddLongPeriodCalendarDialog {
 
 	private void dbLoad() {
 		ActiveDbInfo activeDBList = ActiveDbInfo.getInstance();
-		if (!activeDBList.isEmpty()) {
-			for (String dbName : activeDBList.keySet()) {
+		if (!activeDBList.isEmpty(serverId)) {
+			for (String dbName : activeDBList.keySet(serverId)) {
 				dbListCombo.add(dbName);
 			}
 		} else {

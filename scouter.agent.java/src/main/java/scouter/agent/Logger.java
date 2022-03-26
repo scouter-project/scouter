@@ -60,7 +60,7 @@ public class Logger {
 
 	private static String build(String id, String message) {
 		if (message == null) {
-			return "null-err-message";
+			message = "null-err-message";
 		}
 		return new StringBuffer(20 + id.length() + message.length())
 				.append(DateUtil.datetime(System.currentTimeMillis())).append(" [").append(id).append("] ")

@@ -37,12 +37,14 @@ import scouter.client.cubrid.ActiveDbInfo;
 public class AddLongTransactionList {
 	private final Display display;
 	private final IAddLongTransactionList callback;
-
+	private final int serverId;
+	
 	Combo dbListCombo;
 
-	public AddLongTransactionList(Display display, IAddLongTransactionList callback) {
+	public AddLongTransactionList(Display display, int serverId, IAddLongTransactionList callback) {
 		this.display = display;
 		this.callback = callback;
+		this.serverId = serverId;
 	}
 
 	public void show(Point p) {
@@ -124,8 +126,8 @@ public class AddLongTransactionList {
 
 	private void dbLoad() {
 		ActiveDbInfo activeDBList = ActiveDbInfo.getInstance();
-		if (!activeDBList.isEmpty()) {
-			for (String dbName : activeDBList.keySet()) {
+		if (!activeDBList.isEmpty(serverId)) {
+			for (String dbName : activeDBList.keySet(serverId)) {
 				dbListCombo.add(dbName);
 			}
 		} else {
