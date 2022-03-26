@@ -275,7 +275,7 @@ public class WebfluxHttpTrace implements IHttpTrace {
                     }
                 }
 
-                if (b3ModeValid) {
+                if (b3ModeValid && conf.trace_propagete_b3_header) {
                     ctx.gxid = HexCodec.lowerHexToUnsignedLong(b3TraceId);
                     ctx.txid = HexCodec.lowerHexToUnsignedLong(getHeader(request, B3Constant.B3_HEADER_SPANID));
                     String caller = getHeader(request, B3Constant.B3_HEADER_PARENTSPANID);
