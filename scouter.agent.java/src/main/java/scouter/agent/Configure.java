@@ -329,6 +329,8 @@ public class Configure extends Thread {
     public boolean profile_force_end_stuck_alert = true;
     @ConfigDesc("stuck service millis for forcibly ends xlog profile")
     public int profile_force_end_stuck_millis = 300000;
+    @ConfigDesc("ignore metering when forcibly ends xlog profile.")
+    public boolean profile_force_end_stuck_ignore_metering = false;
 
     //Auto dump options on exceeded process cpu
     @ConfigDesc("Enable the function to generate dump file when this process cpu is over than the set threshold")

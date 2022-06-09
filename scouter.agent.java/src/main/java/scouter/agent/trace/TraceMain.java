@@ -665,8 +665,11 @@ public class TraceMain {
             pack.b3Mode = ctx.b3Mode;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
@@ -938,8 +941,10 @@ public class TraceMain {
             pack.text5 = ctx.text5;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
