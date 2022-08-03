@@ -16,6 +16,9 @@
 
 package scouter.agent.proxy;
 
+import scouter.agent.JavaAgent;
+import scouter.agent.Logger;
+import scouter.agent.util.ModuleUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
@@ -27,6 +30,7 @@ import java.util.List;
 
 public class ToolsMainFactory {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
+	private static boolean wasGrantedAccessToHSM = false;
 
 	public static MapPack heaphisto(Pack param) throws Throwable {
 		
@@ -50,6 +54,7 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			List<String> out = toolsMain.heaphisto(0, 100000, "all");
 			ListValue lv = m.newList("heaphisto");
 			for (int i = 0; i < out.size(); i++) {
@@ -76,6 +81,7 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			toolsMain.heaphisto(out);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,6 +121,7 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			List<String> out = (List<String>) toolsMain.threadDump(0, 100000);
 			ListValue lv = m.newList("threadDump");
 			for (int i = 0; i < out.size(); i++) {
@@ -143,9 +150,23 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			toolsMain.threadDump(out);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private static void checkGrantAccess(ClassLoader loader) {
+		if (JavaAgent.isJava9plus() && !wasGrantedAccessToHSM) {
+			try {
+				ModuleUtil.grantAccess(JavaAgent.getInstrumentation(), TOOLS_MAIN, loader,
+					"sun.tools.attach.HotSpotVirtualMachine", loader);
+			} catch (Throwable th) {
+				Logger.println("TOOLS-5", th.getMessage(), th);
+			} finally {
+				wasGrantedAccessToHSM = true;
+			}
 		}
 	}
 }
