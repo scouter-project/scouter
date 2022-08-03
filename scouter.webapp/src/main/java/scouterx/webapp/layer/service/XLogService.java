@@ -69,7 +69,7 @@ public class XLogService {
     public List<XLogData> searchXLogDataList(final SearchXLogRequest searchXLogRequest) {
         return xLogConsumer.searchXLogDataList(searchXLogRequest);
     }
-    
+
     /**
      * retrieve single xLog
      */
