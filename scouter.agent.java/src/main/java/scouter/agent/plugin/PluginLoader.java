@@ -17,12 +17,17 @@
  */
 package scouter.agent.plugin;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceSQL;
-import javassist.*;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
@@ -556,6 +561,8 @@ public class PluginLoader extends Thread {
 		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
+			//fixme
+			e.printStackTrace();
 			Logger.println("A907", e);
 		}
 		return null;
