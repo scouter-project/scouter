@@ -76,19 +76,27 @@ public class ObjectController {
     }
 
     @GET
-    @ApiOperation(value = "/remove/inactive", notes = "remove inactive object.")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
-    })
+    @ApiOperation(value = "/remove/inactive", notes = "remove inactive object. target all connected servers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK - Json Data"),
             @ApiResponse(code = 500, message = "Server error")
     })
     @Path("/remove/inactive")
-    public CommonResultView removeInactive(@QueryParam("serverId") int serverId) {
+    public CommonResultView removeInactiveByAll() {
+        AgentModelThread.removeInactiveByAll();
+        return CommonResultView.success();
+    }
+    @GET
+    @ApiOperation(value = "/remove/inactive/server", notes = "remove inactive object. target by serverId ")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @Path("/remove/inactive/server")
+    public CommonResultView removeInactiveByServerId(@QueryParam("serverId") int serverId) {
         AgentModelThread.removeInactiveByServerId(serverId);
         return CommonResultView.success();
     }
+
 
     @GET
     @ApiOperation(value = "/threadList/{objHash}", notes = "get agent thread list that is monitored by scouter")
