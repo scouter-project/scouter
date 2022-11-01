@@ -18,8 +18,9 @@
 
 package scouter.server.util;
 
-import java.io.File
+import java.io.{File, StringWriter}
 import org.w3c.dom.Document
+
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
@@ -28,14 +29,17 @@ import java.util.Hashtable
 import java.util.ArrayList
 
 object XmlUtil {
-    def writeXmlFileWithIndent(doc: Document, file: File, indent: Int) {
+    def writeXmlFileWithIndent(doc: Document, file: File, indent: Int): String = {
         val transformerFactory = TransformerFactory.newInstance("com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl", this.getClass().getClassLoader());
         val transformer = transformerFactory.newTransformer();
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(indent));
         val source = new DOMSource(doc);
-        val result = new StreamResult(file);
+        val writer = new StringWriter()
+        val result = new StreamResult(writer);
         transformer.transform(source, result);
+
+        return writer.toString();
     }
 
 }
