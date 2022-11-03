@@ -140,7 +140,7 @@ public class AgentModelThread extends Thread {
 		return agentMap;
 	}
 	
-	public static void removeInactive() {
+	public static void removeInactiveByAll() {
 		Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerIdList();
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
@@ -154,7 +154,17 @@ public class AgentModelThread extends Thread {
 			}
 		}
 	}
-	
+	public static void removeInactiveByServerId(int serverId) {
+		Server server = ServerManager.getInstance().getServerIfNullDefault(serverId);
+
+		TcpProxy proxy = TcpProxy.getTcpProxy(server.getId());
+		try {
+			proxy.process(RequestCmd.OBJECT_REMOVE_INACTIVE, null);
+		} finally {
+			TcpProxy.close(proxy);
+		}
+
+	}
 	public Set<AgentObject> getAgentObjectByServerId (int serverId) {
 		Set<AgentObject> set = new HashSet<AgentObject>();
 		for (AgentObject obj : agentMap.values()) {
