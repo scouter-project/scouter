@@ -130,10 +130,12 @@ public class CounterConstants {
 	// public final static String HOST_WRITE_TIME = "WriteTime";
 	public final static String HOST_NET_IN = "NetInBound";
 	public final static String HOST_NET_OUT = "NetOutBound";
-	public final static String HOST_TCPSTAT_CLS = "TcpStatCLS";
+	public final static String HOST_TCPSTAT_SS = "TcpStatSynSent";
+	public final static String HOST_TCPSTAT_SR = "TcpStatSynReceive";
+	public final static String HOST_TCPSTAT_EST = "TcpStatEST";
 	public final static String HOST_TCPSTAT_TIM = "TcpStatTIM";
 	public final static String HOST_TCPSTAT_FIN = "TcpStatFIN";
-	public final static String HOST_TCPSTAT_EST = "TcpStatEST";
+	public final static String HOST_TCPSTAT_CLS = "TcpStatCLS";
 
 	public final static String HOST_NET_RX_BYTES = "NetRxBytes";
 	public final static String HOST_NET_TX_BYTES = "NetTxBytes";

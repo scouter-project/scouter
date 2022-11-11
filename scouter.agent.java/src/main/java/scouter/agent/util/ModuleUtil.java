@@ -17,14 +17,15 @@
 
 package scouter.agent.util;
 
+import scouter.agent.JavaAgent;
+import scouter.agent.Logger;
+
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import scouter.agent.JavaAgent;
-import scouter.agent.Logger;
 
 /**
  * refer to glowroot (https://github.com/glowroot/glowroot)
@@ -42,7 +43,7 @@ public class ModuleUtil {
     }
 
     private final Method getModuleMethod;
-    private final Class<?> moduleClass;
+    private final Class moduleClass;
     private final Method redefineModuleMethod;
 
     private ModuleUtil() {
@@ -56,7 +57,7 @@ public class ModuleUtil {
         }
     }
 
-    public static Object getModule(Class<?> clazz) throws Exception {
+    public static Object getModule(Class clazz) throws Exception {
         return instance.getModuleInternal(clazz);
     }
 
@@ -72,7 +73,7 @@ public class ModuleUtil {
                 toClassLoader);
     }
 
-    private Object getModuleInternal(Class<?> clazz) throws Exception {
+    private Object getModuleInternal(Class clazz) throws Exception {
         // getModule() always returns non-null
         return getModuleMethod.invoke(clazz);
     }
@@ -80,7 +81,7 @@ public class ModuleUtil {
     private void grantAccessInternal(Instrumentation instrumentation, String fromClassName,
             ClassLoader fromClassLoader,
             String toClassName, ClassLoader toClassLoader) throws Exception {
-        Class<?> fromClass;
+        Class fromClass;
         try {
             if (fromClassLoader == null) {
                 fromClass = Class.forName(fromClassName);
@@ -91,7 +92,7 @@ public class ModuleUtil {
             Logger.println("MODULEUTIL-1", e.getMessage() + " : " + fromClassName, e);
             return;
         }
-        Class<?> toClass;
+        Class toClass;
         try {
             if (toClassLoader == null) {
                 toClass = Class.forName(toClassName);
@@ -102,7 +103,7 @@ public class ModuleUtil {
             Logger.println("MODULEUTIL-2", e.getMessage() + " : " + toClassName, e);
             return;
         }
-        Map<String, Set<?>> extraOpens = new HashMap<>();
+        Map extraOpens = new HashMap();
         Package pkg = toClass.getPackage();
         if (pkg != null) {
             Set openSet = new HashSet();
@@ -111,7 +112,7 @@ public class ModuleUtil {
         }
         // getModule() always returns non-null
         redefineModuleMethod.invoke(instrumentation, getModuleMethod.invoke(toClass),
-                new HashSet<>(), new HashMap<>(), extraOpens, new HashSet<>(), new HashMap<>());
+                new HashSet(), new HashMap(), extraOpens, new HashSet(), new HashMap());
         Logger.println("extra opens module. from = " + fromClassName + " to = " + toClassName);
     }
 
