@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.16.0</version> <!--scouter-->
+        <version>2.18.0-SNAPSHOT</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-server-boot</artifactId>

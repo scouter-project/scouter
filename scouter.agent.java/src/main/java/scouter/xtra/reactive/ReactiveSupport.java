@@ -18,9 +18,6 @@
 
 package scouter.xtra.reactive;
 
-import kotlin.coroutines.CoroutineContext;
-import kotlinx.coroutines.ThreadContextElement;
-import kotlinx.coroutines.ThreadContextElementKt;
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import reactor.core.CoreSubscriber;
@@ -136,18 +133,7 @@ public class ReactiveSupport implements IReactiveSupport {
 
     @Override
     public Object monoCoroutineContextHook(Object _coroutineContext, TraceContext traceContext) {
-        try {
-            CoroutineContext coroutineContext = (CoroutineContext) _coroutineContext;
-
-            TraceContextManager.startByCoroutine(traceContext);
-
-            ThreadContextElement<Long> threadContextElement = ThreadContextElementKt
-                    .asContextElement(TraceContextManager.txidByCoroutine, traceContext.txid);
-            return coroutineContext.plus(threadContextElement);
-        } catch (Exception e) {
-            Logger.println("R167p", e.getMessage(), e);
-            return _coroutineContext;
-        }
+        return _coroutineContext;
     }
 
     public static class SubscribeDepth {}

@@ -61,6 +61,8 @@
 - **Web API (Since @1.8.0)** : 성능 카운터, XLog, 프로파일등의 정보를 HTTP 프로토콜을 통해 제공
   - [Web API Guide](./scouter.document/tech/Web-API-Guide_kr.md)
 
+- **Weaver (Since @2.17.0)** : Java 애플리케이션의 코드 수준에서 Scouter XLog와 Profile을 직접 제어하는 기능 제공
+
 ### 3rd-party UIs
 - **scouter paper** : [scouter-paper homepage](https://scouter-contrib.github.io/scouter-paper/)
   - **showcase** : [scouter paper overview](https://www.youtube.com/watch?v=NjJ0dGhdIbU)  

@@ -1,8 +1,8 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2015 the original author or authors.
  *  @https://github.com/scouter-project/scouter
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
@@ -12,12 +12,13 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  */
 package scouter.agent.summary;
 
 import scouter.agent.Configure;
 import scouter.agent.netio.data.DataProxy;
+import scouter.agent.util.SimpleLru;
 import scouter.io.DataInputX;
 import scouter.lang.SummaryEnum;
 import scouter.lang.pack.SummaryPack;
@@ -25,16 +26,33 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.step.ApiCallStep;
 import scouter.lang.step.SqlStep;
 import scouter.lang.value.ListValue;
-import scouter.util.*;
-import scouter.util.IntIntLinkedMap.IntIntLinkedEntry;
-import scouter.util.IntKeyLinkedMap.IntKeyLinkedEntry;
-import scouter.util.LongKeyLinkedMap.LongKeyLinkedEntry;
+import scouter.util.BitUtil;
+import scouter.util.IPUtil;
 
-import java.util.Enumeration;
+import java.util.Map;
 
 public class ServiceSummary {
 
 	private static ServiceSummary instance = null;
+
+	private Configure conf = Configure.getInstance();
+	//	private LongKeyLinkedMap<ErrorData> errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf._summary_error_max_count);
+	private SimpleLru<Long, ErrorData> errorMaster = new SimpleLru<Long, ErrorData>(conf._summary_error_max_count);
+
+	//	private IntKeyLinkedMap<SummaryData> sqlMaster = new SimpleLru<SummaryData>().setMax(conf._summary_sql_max_count);
+	private SimpleLru<Integer, SummaryData> sqlMaster = new SimpleLru<Integer, SummaryData>(conf._summary_sql_max_count);
+
+	//	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_api_max_count);
+	private SimpleLru<Integer, SummaryData> apiMaster = new SimpleLru<Integer, SummaryData>(conf._summary_api_max_count);
+
+	//	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_service_max_count);
+	private SimpleLru<Integer, SummaryData> serviceMaster = new SimpleLru<Integer, SummaryData>(conf._summary_service_max_count);
+
+	//	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf._summary_ip_max_count);
+	private SimpleLru<Integer, Integer> ipMaster = new SimpleLru<Integer, Integer>(conf._summary_ip_max_count);
+
+	//	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf._summary_useragent_max_count);
+	private SimpleLru<Integer, Integer> uaMaster = new SimpleLru<Integer, Integer>(conf._summary_useragent_max_count);
 
 	public final static synchronized ServiceSummary getInstance() {
 		if (instance == null) {
@@ -42,8 +60,6 @@ public class ServiceSummary {
 		}
 		return instance;
 	}
-
-	private Configure conf = Configure.getInstance();
 
 	public void process(XLogPack p) {
 		if (conf.summary_enabled == false)
@@ -61,11 +77,19 @@ public class ServiceSummary {
 		// ip summary
 		if (IPUtil.isOK(p.ipaddr) && p.ipaddr[0] != 0 && p.ipaddr[0] != 127) {
 			int ip = DataInputX.toInt(p.ipaddr, 0);
-			ipMaster.put(ip, ipMaster.get(ip) + 1);
+			Integer v = ipMaster.get(ip);
+			if (v == null) {
+				v = 0;
+			}
+			ipMaster.put(ip, v + 1);
 		}
 		// user-agent summary
 		if (p.userAgent != 0) {
-			uaMaster.put(p.userAgent, uaMaster.get(p.userAgent) + 1);
+			Integer v = uaMaster.get(p.userAgent);
+			if (v == null) {
+				v = 0;
+			}
+			uaMaster.put(p.userAgent, v + 1);
 		}
 	}
 
@@ -114,8 +138,8 @@ public class ServiceSummary {
 		}
 	}
 
-	private synchronized SummaryData getSummaryMap(IntKeyLinkedMap<SummaryData> table, int hash) {
-		IntKeyLinkedMap<SummaryData> tempTable = table;
+	private synchronized SummaryData getSummaryMap(SimpleLru<Integer, SummaryData> table, int hash) {
+		SimpleLru<Integer, SummaryData> tempTable = table;
 		SummaryData d = tempTable.get(hash);
 		if (d == null) {
 			d = new SummaryData();
@@ -124,9 +148,9 @@ public class ServiceSummary {
 		return d;
 	}
 
-	private synchronized ErrorData getSummaryError(LongKeyLinkedMap<ErrorData> table, long key) {
+	private synchronized ErrorData getSummaryError(SimpleLru<Long, ErrorData> table, long key) {
 
-		LongKeyLinkedMap<ErrorData> tempTable = table;
+		SimpleLru<Long, ErrorData> tempTable = table;
 		ErrorData d = tempTable.get(key);
 		if (d == null) {
 			d = new ErrorData();
@@ -135,39 +159,29 @@ public class ServiceSummary {
 		return d;
 	}
 
-	private LongKeyLinkedMap<ErrorData> errorMaster = new LongKeyLinkedMap<ErrorData>()
-			.setMax(conf._summary_error_max_count);
-
-	private IntKeyLinkedMap<SummaryData> sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_sql_max_count);
-	private IntKeyLinkedMap<SummaryData> apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_api_max_count);
-	private IntKeyLinkedMap<SummaryData> serviceMaster = new IntKeyLinkedMap<SummaryData>()
-			.setMax(conf._summary_service_max_count);
-	private IntIntLinkedMap ipMaster = new IntIntLinkedMap().setMax(conf._summary_ip_max_count);
-	private IntIntLinkedMap uaMaster = new IntIntLinkedMap().setMax(conf._summary_useragent_max_count);
-
 	public SummaryPack getAndClear(byte type) {
-		IntKeyLinkedMap<SummaryData> temp;
+		SimpleLru<Integer, SummaryData> temp;
 		switch (type) {
-		case SummaryEnum.APP:
-			if (serviceMaster.size() == 0)
+			case SummaryEnum.APP:
+				if (serviceMaster.size() == 0)
+					return null;
+				temp = serviceMaster;
+				serviceMaster = new SimpleLru<Integer, SummaryData>(conf._summary_service_max_count);
+				break;
+			case SummaryEnum.SQL:
+				if (sqlMaster.size() == 0)
+					return null;
+				temp = sqlMaster;
+				sqlMaster = new SimpleLru<Integer, SummaryData>(conf._summary_sql_max_count);
+				break;
+			case SummaryEnum.APICALL:
+				if (apiMaster.size() == 0)
+					return null;
+				temp = apiMaster;
+				apiMaster = new SimpleLru<Integer, SummaryData>(conf._summary_api_max_count);
+				break;
+			default:
 				return null;
-			temp = serviceMaster;
-			serviceMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_service_max_count);
-			break;
-		case SummaryEnum.SQL:
-			if (sqlMaster.size() == 0)
-				return null;
-			temp = sqlMaster;
-			sqlMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_sql_max_count);
-			break;
-		case SummaryEnum.APICALL:
-			if (apiMaster.size() == 0)
-				return null;
-			temp = apiMaster;
-			apiMaster = new IntKeyLinkedMap<SummaryData>().setMax(conf._summary_api_max_count);
-			break;
-		default:
-			return null;
 		}
 
 		SummaryPack p = new SummaryPack();
@@ -185,9 +199,7 @@ public class ServiceSummary {
 			cpu = p.table.newList("cpu");
 			mem = p.table.newList("mem");
 		}
-		Enumeration<IntKeyLinkedEntry<SummaryData>> en = temp.entries();
-		for (int i = 0; i < cnt; i++) {
-			IntKeyLinkedEntry<SummaryData> ent = en.nextElement();
+		for (Map.Entry<Integer, SummaryData> ent : temp.entrySet()) {
 			int key = ent.getKey();
 			SummaryData data = ent.getValue();
 			id.add(key);
@@ -203,22 +215,22 @@ public class ServiceSummary {
 	}
 
 	public SummaryPack getAndClearX(byte type) {
-		IntIntLinkedMap temp;
+		SimpleLru<Integer, Integer> temp;
 		switch (type) {
-		case SummaryEnum.IP:
-			if (ipMaster.size() == 0)
+			case SummaryEnum.IP:
+				if (ipMaster.size() == 0)
+					return null;
+				temp = ipMaster;
+				ipMaster = new SimpleLru<Integer, Integer>(conf._summary_ip_max_count);
+				break;
+			case SummaryEnum.USER_AGENT:
+				if (uaMaster.size() == 0)
+					return null;
+				temp = uaMaster;
+				uaMaster = new SimpleLru<Integer, Integer>(conf._summary_useragent_max_count);
+				break;
+			default:
 				return null;
-			temp = ipMaster;
-			ipMaster = new IntIntLinkedMap().setMax(conf._summary_ip_max_count);
-			break;
-		case SummaryEnum.USER_AGENT:
-			if (uaMaster.size() == 0)
-				return null;
-			temp = uaMaster;
-			uaMaster = new IntIntLinkedMap().setMax(conf._summary_useragent_max_count);
-			break;
-		default:
-			return null;
 		}
 
 		SummaryPack p = new SummaryPack();
@@ -228,9 +240,7 @@ public class ServiceSummary {
 		ListValue id = p.table.newList("id");
 		ListValue count = p.table.newList("count");
 
-		Enumeration<IntIntLinkedEntry> en = temp.entries();
-		for (int i = 0; i < cnt; i++) {
-			IntIntLinkedEntry ent = en.nextElement();
+		for (Map.Entry<Integer, Integer> ent : temp.entrySet()) {
 			int key = ent.getKey();
 			int value = ent.getValue();
 			id.add(key);
@@ -243,8 +253,8 @@ public class ServiceSummary {
 		if (errorMaster.size() == 0)
 			return null;
 
-		LongKeyLinkedMap<ErrorData> temp = errorMaster;
-		errorMaster = new LongKeyLinkedMap<ErrorData>().setMax(conf._summary_error_max_count);
+		SimpleLru<Long, ErrorData> temp = errorMaster;
+		errorMaster = new SimpleLru<Long, ErrorData>(conf._summary_error_max_count);
 
 		SummaryPack p = new SummaryPack();
 		p.stype = type;
@@ -261,9 +271,7 @@ public class ServiceSummary {
 		ListValue apicall = p.table.newList("apicall");
 		ListValue fullstack = p.table.newList("fullstack");
 
-		Enumeration<LongKeyLinkedEntry<ErrorData>> en = temp.entries();
-		for (int i = 0; i < cnt; i++) {
-			LongKeyLinkedEntry<ErrorData> ent = en.nextElement();
+		for (Map.Entry<Long, ErrorData> ent : temp.entrySet()) {
 			long key = ent.getKey();
 			ErrorData data = ent.getValue();
 			id.add(key);

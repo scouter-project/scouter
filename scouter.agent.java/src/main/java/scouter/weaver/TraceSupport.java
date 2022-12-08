@@ -21,6 +21,7 @@ import scouter.agent.trace.LocalContext;
 import scouter.agent.trace.TraceContext;
 import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
+import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.HashedMessageStep;
 import scouter.lang.step.MessageStep;
@@ -34,22 +35,33 @@ public class TraceSupport {
 	private static final Object dummyObj = new Object();
 	private static final Object[] dummyArgs = new Object[0];
 
-	public static Object startServiceAndGetCtxTransfer(String serviceName) {
+
+	public static Object getCtxOnTheSameThread() {
+		return TraceContextManager.getContext();
+	}
+
+	public static TraceContext getCtxByCustomTxid(String customTxid) {
+		return TraceContextManager.getContextByCustomTxid(customTxid);
+	}
+
+	public static Object startServiceAndGetCtx(String serviceName) {
 		return TraceMain.startService(serviceName, "_custom_", serviceName, "_none_", dummyObj, dummyArgs, XLogTypes.APP_SERVICE);
 	}
 
-	public static Object startServiceWithCustomTxidAndGetCtxTransfer(String serviceName, String customTxid) {
-		Object o = TraceMain.startService(serviceName, "_custom_", serviceName, "_none_", dummyObj, dummyArgs, XLogTypes.APP_SERVICE);
-		TraceContext ctx = ((LocalContext) o).context;
-		TraceContextManager.linkCustomTxid(customTxid, ctx.txid);
-		return o;
+	public static Object startServiceWithCustomTxidAndGetCtx(String serviceName, String customTxid) {
+		return TraceMain.startServiceWithCustomTxid(serviceName, "_custom_", serviceName, "_none_", dummyObj, dummyArgs,
+				XLogTypes.APP_SERVICE, customTxid);
 	}
 
-	public static void endServiceByCtxTransfer(Object ctxTransfer, Throwable thr) {
-		if (ctxTransfer == null) {
+	public static void endServiceByCtx(Object anyCtx, Throwable thr) {
+		if (anyCtx == null) {
 			return;
 		}
-		TraceMain.endService(ctxTransfer, null, thr);
+		Object ctx4EndService = anyCtx;
+		if (anyCtx instanceof TraceContext) {
+			ctx4EndService = new LocalContext((TraceContext) anyCtx, null);
+		}
+		TraceMain.endService(ctx4EndService, null, thr);
 	}
 
 	public static void endServiceByCustomTxid(String customTxid, Throwable thr) {
@@ -69,8 +81,8 @@ public class TraceSupport {
 		TraceMain.endService(new LocalContext(ctx, null), null, thr);
 	}
 
-	public static Object startMethodByCtxTransfer(Object ctxTransfer, String name) {
-		TraceContext ctx = getCtxByCtxTransfer(ctxTransfer);
+	public static Object startMethodByCtx(Object anyCtx, String name) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
 		if (ctx == null) {
 			return null;
 		}
@@ -100,8 +112,8 @@ public class TraceSupport {
 		TraceMain.endMethod(methodTransfer, thr);
 	}
 
-	public static void addMessageProfileByCtxTransfer(Object ctxTransfer, String message) {
-		TraceContext ctx = getCtxByCtxTransfer(ctxTransfer);
+	public static void addMessageProfileByCtx(Object anyCtx, String message) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
 		addMessageProfile0(ctx, message);
 	}
 
@@ -116,13 +128,16 @@ public class TraceSupport {
 	}
 
 	private static void addMessageProfile0(TraceContext ctx, String message) {
+		if (ctx == null) {
+			return;
+		}
 		MessageStep messageStep = new MessageStep((int) (System.currentTimeMillis() - ctx.startTime), message);
 		ctx.profile.add(messageStep);
 	}
 
 
-	public static void addHashedMessageProfileByCtxTransfer(Object ctxTransfer, String message, int elapsedMs, int anyValue) {
-		TraceContext ctx = getCtxByCtxTransfer(ctxTransfer);
+	public static void addHashedMessageProfileByCtx(Object anyCtx, String message, int elapsedMs, int anyValue) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
 		addHashedMessageProfile0(ctx, message, elapsedMs, anyValue);
 	}
 
@@ -137,6 +152,9 @@ public class TraceSupport {
 	}
 
 	private static void addHashedMessageProfile0(TraceContext ctx, String message, int elapsedMs, int anyValue) {
+		if (ctx == null) {
+			return;
+		}
 		HashedMessageStep step = new HashedMessageStep();
 		step.hash = DataProxy.sendHashedMessage(message);
 		step.value = anyValue;
@@ -147,8 +165,8 @@ public class TraceSupport {
 
 
 
-	public static void addParameterizedMessageProfileByCtxTransfer(Object ctxTransfer, String message, byte level, int elapsedMs, String... params) {
-		TraceContext ctx = getCtxByCtxTransfer(ctxTransfer);
+	public static void addParameterizedMessageProfileByCtx(Object anyCtx, String message, byte level, int elapsedMs, String... params) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
 		addParameterizedMessageProfile0(ctx, message, level, elapsedMs, params);
 	}
 
@@ -163,7 +181,9 @@ public class TraceSupport {
 	}
 
 	private static void addParameterizedMessageProfile0(TraceContext ctx, String message, byte level, int elapsedMs, String... params) {
-
+		if (ctx == null) {
+			return;
+		}
 		ParameterizedMessageStep step = new ParameterizedMessageStep();
 		step.setMessage(DataProxy.sendHashedMessage(message), params);
 		step.setElapsed(elapsedMs);
@@ -175,27 +195,131 @@ public class TraceSupport {
 
 
 
-
-
-
-
-	private static TraceContext getCtxByCtxTransfer(Object ctxTransfer) {
-		if (ctxTransfer instanceof LocalContext) {
-			LocalContext localContext = (LocalContext) ctxTransfer;
-			if (localContext != null) {
-				return localContext.context;
-			}
-			return null;
+	//txid getters
+	public static Object getTxidOnTheSameThread() {
+		TraceContext ctx = TraceContextManager.getContext();
+		if (ctx != null) {
+			return ctx.txid;
 		}
-		return null;
+		return 0;
 	}
 
-	private static TraceContext getCtxByCustomTxid(String customTxid) {
-		TraceContext ctx = TraceContextManager.getContextByCustomTxid(customTxid);
-		if (ctx == null) {
-			return null;
-		} else {
-			return ctx;
+	public static Object getTxidByCtx(Object anyCtx) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
+		if (ctx != null) {
+			return ctx.txid;
 		}
+		return 0;
+	}
+
+	public static Object getTxidByCustomTxid(String customTxid) {
+		TraceContext ctx = getCtxByCustomTxid(customTxid);
+		if (ctx != null) {
+			return ctx.txid;
+		}
+		return 0;
+	}
+
+	//link custom txid
+	public static void linkCustomTxidOnTheSameThread(String customTxid) {
+		TraceContext ctx = TraceContextManager.getContext();
+		if (ctx != null) {
+			TraceContextManager.linkCustomTxid(customTxid, ctx.txid);
+		}
+	}
+
+	public static void linkCustomTxidByCtx(String customTxid, Object anyCtx) {
+		TraceContext ctx = getCtxByAnyCtx(anyCtx);
+		if (ctx != null) {
+			TraceContextManager.linkCustomTxid(customTxid, ctx.txid);
+		}
+	}
+
+	//xlog info setters
+	public static void setXlogServiceValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null && value != null) {
+			ctx.serviceName = value;
+			ctx.serviceHash = DataProxy.sendServiceName(ctx.serviceName);
+		}
+	}
+	public static void setXlogIpValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.remoteIp = value;
+		}
+	}
+	public static void setXlogUaValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null && value != null) {
+			ctx.userAgent = DataProxy.sendUserAgent(value);
+			ctx.userAgentString = value;
+		}
+	}
+	public static void setXlogErrorValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null && value != null) {
+			if (ctx.error == 0) {
+				ctx.error = DataProxy.sendError(value);
+			}
+		}
+		addParameterizedMessageProfile0(ctx, value, ParameterizedMessageLevel.ERROR.getLevel(), 0);
+	}
+
+	public static void setXlogLoginValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.login = value;
+		}
+	}
+	public static void setXlogDescValue(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.desc = value;
+		}
+	}
+	public static void setXlogText1Value(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.text1 = value;
+		}
+	}
+	public static void setXlogText2Value(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.text2 = value;
+		}
+	}
+	public static void setXlogText3Value(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.text3 = value;
+		}
+	}
+	public static void setXlogText4Value(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.text4 = value;
+		}
+	}
+	public static void setXlogText5Value(long txid, String value) {
+		TraceContext ctx = TraceContextManager.getContextByTxid(txid);
+		if (ctx != null) {
+			ctx.text5 = value;
+		}
+	}
+
+
+
+
+	private static TraceContext getCtxByAnyCtx(Object anyCtx) {
+		if (anyCtx instanceof LocalContext) {
+			LocalContext localContext = (LocalContext) anyCtx;
+			return localContext.context;
+
+		} else if (anyCtx instanceof TraceContext) {
+			return (TraceContext) anyCtx;
+		}
+		return null;
 	}
 }

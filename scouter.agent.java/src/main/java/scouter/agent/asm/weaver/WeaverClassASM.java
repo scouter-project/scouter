@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class WeaverClassASM implements IASM, Opcodes {
 
-	public static Set<String> weaveMethodNames = new HashSet<>();
+	public static Set<String> weaveMethodNames = new HashSet<String>();
 
 	@Override
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
@@ -44,7 +44,7 @@ public class WeaverClassASM implements IASM, Opcodes {
 			return cv;
 		}
 
-		if ("scouterx/weaver/ScouterTraceSupport$ScouterTraceSupport0".equalsIgnoreCase(className)) {
+		if ("scouterx/weaver/Scouter$Weaving".equalsIgnoreCase(className)) {
 			TraceSupportWeave.touch();
 			Method[] weaveMethods = TraceSupportWeave.class.getDeclaredMethods();
 			for (int i = 0; i < weaveMethods.length; i++) {

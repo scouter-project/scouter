@@ -75,25 +75,49 @@ public class AgentHeartBeat {
 			File dir = new File(conf.counter_object_registry_path);
 			File file = new File(dir, seqNoForKube + ".scouterkubeseq");
 			if (dir.canWrite()) {
+				deleteAllHostNameFileWithIgnore(dir, seqNoForKube);
 				FileUtil.save(file, conf.obj_name.getBytes());
 			}
 
 		} else {
 			File dir = new File(conf.counter_object_registry_path);
-			if (dir == null)
-				return;
+			deleteAllHostNameFileWithIgnore(dir, -1);
+		}
+	}
 
-			File[] files = dir.listFiles();
-			for (int i = 0; i < files.length; i++) {
-				if (files[i].isDirectory())
-					continue;
-				String name = files[i].getName();
-				if (!name.endsWith(".scouterkubeseq")) {
-					continue;
-				}
-				if (files[i].canWrite()) {
-					files[i].delete();
-				}
+	private void deleteAllHostNameFileWithIgnore(File dir, long ignoreSeq) {
+		if (dir == null)
+			return;
+
+		File[] files = dir.listFiles();
+		for (int i = 0; i < files.length; i++) {
+			if (files[i].isDirectory())
+				continue;
+			String name = files[i].getName();
+			if (!name.endsWith(".scouterkubeseq")) {
+				continue;
+			}
+
+			int kubeSeq = cintErrorMinusOne(name.substring(0, name.lastIndexOf(".")));
+			if (kubeSeq < 0)
+				continue;
+			if (kubeSeq == ignoreSeq) {
+				continue;
+			}
+			if (files[i].canWrite()) {
+				files[i].delete();
+			}
+		}
+	}
+
+	public static int cintErrorMinusOne(String value) {
+		if (value == null) {
+			return -1;
+		} else {
+			try {
+				return Integer.parseInt(value);
+			} catch (Exception e) {
+				return -1;
 			}
 		}
 	}

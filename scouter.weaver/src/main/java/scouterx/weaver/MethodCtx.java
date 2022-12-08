@@ -20,9 +20,15 @@ package scouterx.weaver;
  * Created by Gun Lee(gunlee01@gmail.com) on 2021/10/22
  */
 public class MethodCtx {
+	protected static MethodCtx EMPTY = new MethodCtx(null);
+
 	protected Object lctx;
 
 	public MethodCtx(Object o) {
 		this.lctx = o;
+	}
+
+	public boolean isEmpty() {
+		return lctx == null;
 	}
 }

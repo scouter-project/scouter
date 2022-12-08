@@ -91,7 +91,7 @@ public class JDBCPreparedStatementASM implements IASM, Opcodes {
 		noField.add("jdbc/FakePreparedStatement2");
         noField.add("org/mariadb/jdbc/MariaDbClientPreparedStatement");
         noField.add("org/mariadb/jdbc/MariaDbServerPreparedStatement");
-		target.add("com/mysql/cj/jdbc/ServerPreparedStatement");
+        noField.add("com/mysql/cj/jdbc/ServerPreparedStatement");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {

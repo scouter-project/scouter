@@ -195,8 +195,10 @@ public class TraceContext {
 	public Throwable asyncThrowable;
 
     public boolean alreadySetControllerName = false;
+    public boolean forceNotSamplingDrop = false;
+	public boolean skipMetering = false;
 
-    private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
+	private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
 
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {

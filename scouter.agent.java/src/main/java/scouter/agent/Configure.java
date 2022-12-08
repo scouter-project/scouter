@@ -323,6 +323,15 @@ public class Configure extends Thread {
     @ConfigDesc("")
     public int autodump_stuck_check_interval_ms = 10000;
 
+    @ConfigDesc("ends sxlog profile when it exceeds profile_force_end_stuck_millis.")
+    public boolean profile_force_end_stuck_service = true;
+    @ConfigDesc("alert when forcibly ends xlog profile.")
+    public boolean profile_force_end_stuck_alert = true;
+    @ConfigDesc("stuck service millis for forcibly ends xlog profile")
+    public int profile_force_end_stuck_millis = 300000;
+    @ConfigDesc("ignore metering when forcibly ends xlog profile.")
+    public boolean profile_force_end_stuck_ignore_metering = false;
+
     //Auto dump options on exceeded process cpu
     @ConfigDesc("Enable the function to generate dump file when this process cpu is over than the set threshold")
     public boolean autodump_cpu_exceeded_enabled = false;
@@ -973,6 +982,10 @@ public class Configure extends Thread {
 
         this.autodump_stuck_thread_ms = getInt("autodump_stuck_thread_ms", 0);
         this.autodump_stuck_check_interval_ms = getInt("autodump_stuck_check_interval_ms", 10000);
+
+        this.profile_force_end_stuck_service = getBoolean("profile_force_end_stuck_service", false);
+        this.profile_force_end_stuck_alert = getBoolean("profile_force_end_stuck_alert", true);
+        this.profile_force_end_stuck_millis = getInt("profile_force_end_stuck_millis", 300000);
 
         this.autodump_cpu_exceeded_enabled = getBoolean("autodump_cpu_exceeded_enabled", false);
         this.autodump_cpu_exceeded_threshold_pct = getInt("autodump_cpu_exceeded_threshold_pct", 90);
@@ -1627,8 +1640,8 @@ public class Configure extends Thread {
     }
 
     private boolean isKube() {
-        Properties properties = System.getProperties();
-        return !StringUtil.isEmpty(properties.getProperty("KUBERNETES_SERVICE_HOST"));
+        Map<String, String> env = System.getenv();
+        return !StringUtil.isEmpty(env.get("KUBERNETES_SERVICE_HOST"));
     }
 
     private String readHostNameFromHostAgent() {

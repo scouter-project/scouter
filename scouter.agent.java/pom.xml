@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.16.0</version> <!--scouter-->
+        <version>2.18.0-SNAPSHOT</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -24,7 +24,7 @@
                 <dependency>
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
-                    <version>3.24.1-GA</version>
+                    <version>3.29.0-GA</version>
                 </dependency>
             </dependencies>
             <build>

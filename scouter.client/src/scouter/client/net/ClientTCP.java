@@ -20,6 +20,7 @@ package scouter.client.net;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.Socket;
 
 import scouter.client.server.Server;
@@ -31,18 +32,24 @@ import scouter.util.FileUtil;
 
 
 public class ClientTCP{
+
 	Socket socket;
 	DataInputX in;
 	DataOutputX out;
 
-	public void open(int serverId) {
+	public void open(int serverId, boolean socksLogin) {
 		close();
 		Server server = ServerManager.getInstance().getServer(serverId);
 		if (server == null) {
 			return;
 		}
 		try {
-			socket = new Socket();
+			if (socksLogin) {
+				InetSocketAddress proxyAddr = new InetSocketAddress(server.getSocksIp(), server.getSocksPort() );
+				socket = new Socket(new Proxy(Proxy.Type.SOCKS, proxyAddr));
+			}else {
+				socket = new Socket();
+			}
 			///
 			socket.setKeepAlive(true); 
 			socket.setTcpNoDelay(true);
@@ -58,8 +65,11 @@ public class ClientTCP{
 			out.writeInt(NetCafe.TCP_CLIENT);
 			out.flush();
 			//*************//
-			if (server.isConnected() == false) {
-				System.out.println("Success to connect " + server.getIp() + ":" + server.getPort());
+			if (!server.isConnected()) {
+				System.out.println(
+						String.format("Success to connect %s:%d (%s)",
+								server.getIp(), server.getPort(),
+								server.isSocksLogin()?server.getSocksIp()+":"+server.getSocksPort() : "direct"));
 			}
 			server.setConnected(true);
 		} catch (Throwable t) {
@@ -80,7 +90,7 @@ public class ClientTCP{
 	}
 
 	public boolean isSessionOk() {
-		return socket != null && socket.isClosed() == false;
+		return socket != null && !socket.isClosed();
 	}
 
 	public void close() {

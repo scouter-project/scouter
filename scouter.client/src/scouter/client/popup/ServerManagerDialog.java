@@ -137,11 +137,12 @@ public class ServerManagerDialog implements ServerAddressAddition, ILoginDialog 
 				TableItem items[] = table.getSelection();
 				if (items != null && items.length > 0) {
 					String addr = (String) items[0].getData();
+					String socksAddr = ServerPrefUtil.getStoredSocksServer(addr);
 					if (items[0].getForeground().getRGB().equals(ColorUtil.getInstance().getColor(SWT.COLOR_RED).getRGB())) {
-						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_ADD_SERVER, addr);
+						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_ADD_SERVER, addr, socksAddr);
 						loginDialog.open();
 					} else {
-						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_EDIT_SERVER, addr);
+						LoginDialog2 loginDialog  = new LoginDialog2(dialog, ServerManagerDialog.this, LoginDialog2.TYPE_EDIT_SERVER, addr, socksAddr);
 						loginDialog.open();
 					}
 				}

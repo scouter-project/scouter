@@ -20,9 +20,42 @@ package scouterx.weaver;
  * Created by Gun Lee(gunlee01@gmail.com) on 2021/10/22
  */
 public class TransferCtx {
-	protected Object lctx;
 
-	public TransferCtx(Object o) {
-		this.lctx = o;
+	protected static TransferCtx EMPTY = new TransferCtx(null, ScouterTxid.EMPTY);
+
+	protected Object ctx; //Scouter's TraceContext or LocalContext
+	protected ScouterTxid stxid;
+
+	public TransferCtx(Object o, ScouterTxid stxid) {
+		this.ctx = o;
+		this.stxid = stxid;
+	}
+
+	public ScouterTxid getScouterTxid() {
+		if (stxid == null) {
+			return ScouterTxid.EMPTY;
+		}
+		return stxid;
+	}
+
+	public boolean isEmpty() {
+		return ctx == null;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		TransferCtx that = (TransferCtx) o;
+
+		return stxid != null ? stxid.equals(that.stxid) : that.stxid == null;
+	}
+
+	@Override
+	public int hashCode() {
+		int result = ctx != null ? ctx.hashCode() : 0;
+		result = 31 * result + (stxid != null ? stxid.hashCode() : 0);
+		return result;
 	}
 }

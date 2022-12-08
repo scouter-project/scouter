@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.16.0</version> <!--scouter-->
+        <version>2.18.0-SNAPSHOT</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-agent-host</artifactId>
@@ -25,16 +25,11 @@
             <artifactId>scouter-common</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <!-- provided -->
         <dependency>
-            <groupId>scouter.dependency</groupId>
-            <artifactId>sigar</artifactId>
-            <version>0.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/lib/sigar.jar</systemPath>
+            <groupId>com.github.oshi</groupId>
+            <artifactId>oshi-core</artifactId>
+            <version>6.3.1</version>
         </dependency>
-
     </dependencies>
 
     <build>
@@ -50,9 +45,9 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <compilerVersion>1.6</compilerVersion>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <compilerVersion>1.8</compilerVersion>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
             <plugin>

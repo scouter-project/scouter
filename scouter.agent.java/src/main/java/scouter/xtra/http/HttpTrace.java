@@ -304,7 +304,7 @@ public class HttpTrace implements IHttpTrace {
                     }
                 }
 
-                if (b3ModeValid) {
+                if (b3ModeValid && conf.trace_propagete_b3_header) {
                     ctx.gxid = HexCodec.lowerHexToUnsignedLong(b3TraceId);
                     ctx.txid = HexCodec.lowerHexToUnsignedLong(request.getHeader(B3Constant.B3_HEADER_SPANID));
                     String caller = request.getHeader(B3Constant.B3_HEADER_PARENTSPANID);

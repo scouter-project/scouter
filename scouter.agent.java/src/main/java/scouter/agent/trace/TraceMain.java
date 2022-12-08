@@ -665,8 +665,11 @@ public class TraceMain {
             pack.b3Mode = ctx.b3Mode;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
@@ -764,19 +767,36 @@ public class TraceMain {
         }
     }
 
+    public static Object startServiceWithCustomTxid(String name, String className, String methodName, String methodDesc, Object _this,
+                                                    Object[] arg, byte xType, String customTxid) {
+
+        TraceContext ctx = TraceContextManager.getContextByCustomTxid(customTxid);
+        if (ctx != null) {
+            return null;
+        }
+        return startService0(name, className, methodName, methodDesc, _this, arg, xType, customTxid);
+    }
+
     public static Object startService(String name, String className, String methodName, String methodDesc, Object _this,
                                       Object[] arg, byte xType) {
+
+        TraceContext ctx = TraceContextManager.getContext(true);
+        if (ctx != null) {
+            return null;
+        }
+        return startService0(name, className, methodName, methodDesc, _this, arg, xType,  null);
+    }
+
+    public static Object startService0(String name, String className, String methodName, String methodDesc, Object _this,
+                                      Object[] arg, byte xType, String customTxid) {
         try {
-            TraceContext ctx = TraceContextManager.getContext(true);
-            if (ctx != null) {
-                return null;
-            }
             if (TraceContextManager.startForceDiscard()) {
                 return null;
             }
 
             Configure conf = Configure.getInstance();
-            ctx = new TraceContext(false);
+            TraceContext ctx = new TraceContext(false);
+
             String service_name = AgentCommonConstant.normalizeHashCode(name);
             ctx.thread = Thread.currentThread();
             ctx.serviceHash = HashUtil.hash(service_name);
@@ -787,6 +807,9 @@ public class TraceMain {
             ctx.threadId = ctx.thread.getId();
 
             TraceContextManager.start(ctx);
+            if (customTxid != null) {
+                TraceContextManager.linkCustomTxid(customTxid, ctx.txid);
+            }
 
             ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
             ctx.profile_thread_cputime = conf.profile_thread_cputime_enabled;
@@ -881,6 +904,8 @@ public class TraceMain {
 
             DataProxy.sendServiceName(ctx.serviceHash, ctx.serviceName);
             pack.service = ctx.serviceHash;
+            pack.userAgent = ctx.userAgent;
+            pack.referer = ctx.referer;
             pack.threadNameHash = DataProxy.sendHashedMessage(ctx.threadName);
             pack.xType = ctx.xType;
 
@@ -916,8 +941,10 @@ public class TraceMain {
             pack.text5 = ctx.text5;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
@@ -1202,6 +1229,9 @@ public class TraceMain {
     }
 
     private static XLogDiscard findXLogDiscard(TraceContext ctx, Configure conf, XLogPack pack) {
+        if (ctx.forceNotSamplingDrop) {
+            return XLogDiscard.NONE;
+        }
         XLogDiscard discardMode = pack.error != 0 ? XLogDiscard.NONE : XLogSampler.getInstance().evaluateXLogDiscard(pack.elapsed, ctx.serviceName);
         //check xlog discard pattern
         if (XLogSampler.getInstance().isDiscardServicePattern(ctx.serviceName)) {
