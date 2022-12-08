@@ -11,7 +11,7 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>2.5.0</tycho-version>
+		<tycho-version>2.7.0</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
@@ -51,6 +51,11 @@
 							<os>macosx</os>
 							<ws>cocoa</ws>
 							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>aarch64</arch>
 						</environment>
 					</environments>
 				</configuration>
