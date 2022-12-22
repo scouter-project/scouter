@@ -56,7 +56,6 @@ public class MongoModifyASM implements IASM, Opcodes {
 
 		@Override
 		public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-			MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
 			int newAccess = access;
 			if ((access & Opcodes.ACC_PUBLIC) == 0) {
 				newAccess = access | Opcodes.ACC_PUBLIC;
