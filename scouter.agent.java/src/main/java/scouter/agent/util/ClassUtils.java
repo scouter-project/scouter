@@ -12,10 +12,10 @@ public class ClassUtils {
             return null;
         }
 
-        final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<>();
+        final LinkedHashSet<Class<?>> interfacesFound = new LinkedHashSet<Class<?>>();
         getAllInterfaces(cls, interfacesFound);
 
-        return new ArrayList<>(interfacesFound);
+        return new ArrayList<Class<?>>(interfacesFound);
     }
 
     private static void getAllInterfaces(Class<?> cls, final HashSet<Class<?>> interfacesFound) {

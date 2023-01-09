@@ -197,7 +197,7 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.put("javax/naming/InitialContext".hashCode(), "javax/naming/InitialContext");
     }
 
-    private Configure conf = Configure.getInstance();
+    private final Configure conf = Configure.getInstance();
     private Logger.FileLog bciOut;
 
     public byte[] transform(final ClassLoader loader, String className, final Class classBeingRedefined,
@@ -288,8 +288,8 @@ public class AgentTransformer implements ClassFileTransformer {
         System.arraycopy(interfaces, 0, classes, 0, interfaces.length);
         classes[classes.length-1] = superName;
 
-        for (int i = 0; i < classes.length; i++) {
-            if (isMapImpl(classes[i], loader)) {
+        for (String aClass : classes) {
+            if (isMapImpl(aClass, loader)) {
                 return true;
             }
         }
