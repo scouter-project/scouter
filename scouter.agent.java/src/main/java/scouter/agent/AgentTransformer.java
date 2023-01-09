@@ -186,7 +186,7 @@ public class AgentTransformer implements ClassFileTransformer {
 
     // //////////////////////////////////////////////////////////////
     // boot class이지만 Hooking되어야하는 클래스를 등록한다.
-    private static HashMap asynchook = new HashMap();
+    private static final HashMap<Integer, String> asynchook = new HashMap<Integer, String>();
 
     static {
         asynchook.put("sun/net/www/protocol/http/HttpURLConnection".hashCode(), "sun/net/www/protocol/http/HttpURLConnection");
@@ -218,7 +218,7 @@ public class AgentTransformer implements ClassFileTransformer {
                     return null;
                 }
                 if (loader == null) {
-                    if (conf._hook_boot_prefix == null || conf._hook_boot_prefix.length() == 0 || false == className.startsWith(conf._hook_boot_prefix)) {
+                    if (conf._hook_boot_prefix == null || conf._hook_boot_prefix.length() == 0 || !className.startsWith(conf._hook_boot_prefix)) {
                         return null;
                     }
                 }
