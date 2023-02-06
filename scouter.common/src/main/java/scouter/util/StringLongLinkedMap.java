@@ -27,11 +27,11 @@ import java.util.NoSuchElementException;
 public class StringLongLinkedMap  {
 	private static final int DEFAULT_CAPACITY = 101;
 	private static final float DEFAULT_LOAD_FACTOR = 0.75f;
-	private StringLongLinkedEntry table[];
+	private StringLongLinkedEntry[] table;
 	private StringLongLinkedEntry header;
 	private int count;
 	private int threshold;
-	private float loadFactor;
+	private final float loadFactor;
 	public StringLongLinkedMap(int initCapacity, float loadFactor) {
 		if (initCapacity < 0)
 			throw new RuntimeException("Capacity Error: " + initCapacity);
@@ -74,7 +74,7 @@ public class StringLongLinkedMap  {
 		return new Enumer(TYPE.ENTRIES);
 	}
 	public synchronized boolean containsValue(long value) {
-		StringLongLinkedEntry tab[] = table;
+		StringLongLinkedEntry[] tab = table;
 		int i = tab.length; while(i-->0){
 			for (StringLongLinkedEntry e = tab[i]; e != null; e = e.next) {
 				if (e.value == value) {
@@ -143,7 +143,7 @@ public class StringLongLinkedMap  {
 		this.max = max;
 		return this;
 	}
-	private static enum MODE {
+	private enum MODE {
 		FORCE_FIRST, FORCE_LAST, FIRST, LAST
 	};
 	public long put(String key, long value) {
@@ -159,7 +159,7 @@ public class StringLongLinkedMap  {
 		if(key==null)
 			return NONE;
 		
-		StringLongLinkedEntry tab[] = table;
+		StringLongLinkedEntry[] tab = table;
 		int index = hash(key) % tab.length;
 		for (StringLongLinkedEntry e = tab[index]; e != null; e = e.next) {
 			if (CompareUtil.equals(e.key,key)) {

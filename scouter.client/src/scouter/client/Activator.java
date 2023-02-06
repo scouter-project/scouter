@@ -23,7 +23,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.PropertyResourceBundle;
-import java.util.Set;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IConfigurationElement;
