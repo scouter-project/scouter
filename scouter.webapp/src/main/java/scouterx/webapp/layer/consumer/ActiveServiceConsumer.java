@@ -103,7 +103,7 @@ public class ActiveServiceConsumer {
         }
     }
 
-    public ThreadContents controlThread(int objHash, String threadId, String action, Server server) {
+    public ThreadContents controlThread(int objHash, long threadId, String action, Server server) {
         MapPack paramPack = new MapPack();
         paramPack.put("objHash", objHash);
         paramPack.put("id", threadId);

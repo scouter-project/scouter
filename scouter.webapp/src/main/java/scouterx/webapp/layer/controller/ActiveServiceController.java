@@ -135,7 +135,7 @@ public class ActiveServiceController {
     @Consumes(MediaType.APPLICATION_JSON)
     public CommonResultView<ThreadContents> InterruptedRealTimeActiveServiceByObjHash(
             @PathParam("objHash") @Valid @NotNull final int objHash,
-            @PathParam("threadId") @Valid @NotNull final String threadId,
+            @PathParam("threadId") @Valid @NotNull final long threadId,
             @QueryParam("action") @Valid @NotNull final String action,
             @QueryParam("serverId") final int serverId) {
 
