@@ -27,18 +27,22 @@ public class ThreadContents {
                 CastUtil.cString(value);
                 continue;
             }
-            String text = null;
 
             if (value instanceof TextValue) {
-                text = CastUtil.cString(value);
+                String text = CastUtil.cString(value);
                 threadContents.keyValueDataList.add(new KeyValueData(key,text));
             } else {
                 if (value instanceof DecimalValue) {
-                    text = FormatUtil.print(value, "#,##0");
-                } else if (value instanceof DoubleValue || value instanceof FloatValue) {
-                    text = FormatUtil.print(value, "#,##0.0##");
+                    Long longValue = new Long( ((DecimalValue) value).value);
+                    threadContents.keyValueDataList.add(new KeyValueData(key,longValue));
+                } else if (value instanceof DoubleValue) {
+                    Double doubleValue = new Double( ((DoubleValue)value).value );
+                    threadContents.keyValueDataList.add(new KeyValueData(key,doubleValue));
+                } else if( value instanceof FloatValue) {
+                    Float floatValue = new Float( ((FloatValue)value).value );
+                    threadContents.keyValueDataList.add(new KeyValueData(key,floatValue));
                 }
-                threadContents.keyValueDataList.add(new KeyValueData(key,text));
+
             }
             if (key.startsWith("Service")) {
                 serviceThread = true;
