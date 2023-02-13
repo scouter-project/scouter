@@ -20,6 +20,7 @@ package scouterx.webapp.layer.service;
 
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.model.ActiveThread;
+import scouterx.webapp.model.ThreadContents;
 import scouterx.webapp.model.scouter.SActiveService;
 import scouterx.webapp.model.scouter.SActiveServiceStepCount;
 import scouterx.webapp.layer.consumer.ActiveServiceConsumer;
@@ -50,5 +51,8 @@ public class ActiveServiceService {
 
     public ActiveThread retrieveActiveThread(final int objHash, final long threadId, final long txid, final Server server) {
         return activeServiceConsumer.retrieveActiveThread(objHash, threadId, txid, server);
+    }
+    public ThreadContents controlThread(final int objHash, String threadId, String action, final Server server){
+        return activeServiceConsumer.controlThread(objHash,threadId,action,server);
     }
 }
