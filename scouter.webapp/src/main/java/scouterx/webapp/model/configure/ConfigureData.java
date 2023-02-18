@@ -15,16 +15,20 @@ import java.util.Map;
 @Getter
 public class ConfigureData {
 
+
     String contents;
     final List<ConfObject> configStateList;
     final Map<String, String> descMap;
     final Map<String, ValueType> valueTypeMap;
     final Map<String, ValueTypeDesc> valueTypeDescMap;
+    int status;
 
     public ConfigureData(){
         this.configStateList = new ArrayList<>();
         this.descMap  = new LinkedHashMap<>();
         this.valueTypeMap  = new LinkedHashMap<>();
         this.valueTypeDescMap  = new LinkedHashMap<>();
+        this.status =0;
+        this.contents = "";
     }
 }

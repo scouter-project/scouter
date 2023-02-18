@@ -13,11 +13,60 @@ import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.model.configure.ConfObject;
 import scouterx.webapp.model.configure.ConfigureData;
+import scouterx.webapp.request.SetConfigRequest;
 
 import java.util.*;
 
 @Slf4j
 public class ConfigureConsumer {
+    final int STATUS_SUCCESS_CODE = 200;
+    final int STATUS_FAIL_CODE = 404;
+
+
+    //- save
+    public ConfigureData saveServerConfig(SetConfigRequest configRequest, Server server) {
+        ConfigureData configureData = new ConfigureData();
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server.getId())) {
+            MapPack param = new MapPack();
+            param.put("setConfig", configRequest.getValues().replaceAll("\\\\", "\\\\\\\\"));
+            MapPack out = (MapPack) tcpProxy.getSingle(RequestCmd.SET_CONFIGURE_SERVER, param);
+            if(Objects.nonNull(out)){
+                String config = out.getText("result");
+                if ("true".equalsIgnoreCase(config)) {
+                    loadConfigList(configureData,tcpProxy,RequestCmd.LIST_CONFIGURE_SERVER, null);
+                    configureData.setStatus(STATUS_SUCCESS_CODE);
+                }else{
+                    // fail
+                    configureData.setStatus(STATUS_FAIL_CODE);
+                }
+            }
+        }
+        return configureData;
+    }
+    public ConfigureData saveObjectConfig(SetConfigRequest configRequest, int objHash, Server server) {
+        ConfigureData configureData = new ConfigureData();
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server.getId())) {
+            MapPack param = new MapPack();
+            param.put("setConfig", configRequest.getValues().replaceAll("\\\\", "\\\\\\\\"));
+            param.put("objHash", objHash);
+            MapPack out = (MapPack) tcpProxy.getSingle(RequestCmd.SET_CONFIGURE_WAS, param);
+            if(Objects.nonNull(out)){
+                String config = out.getText("result");
+                if ("true".equalsIgnoreCase(config)) {
+                    MapPack param2 = new MapPack();
+                    param2.put("objHash",objHash);
+                    loadConfigList(configureData,tcpProxy,RequestCmd.LIST_CONFIGURE_WAS, param2);
+                    configureData.setStatus(STATUS_SUCCESS_CODE);
+                }else{
+                    // fail
+                    configureData.setStatus(STATUS_FAIL_CODE);
+                }
+            }
+        }
+        return configureData;
+    }
+
+    //- retrieve
     public ConfigureData retrieveObjectConfig(int objHash, Server server) {
         ConfigureData configureData = new ConfigureData();
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server.getId())) {
@@ -28,22 +77,26 @@ public class ConfigureConsumer {
             loadConfigDesc(configureData,tcpProxy,param);
             loadConfigValueType(configureData,tcpProxy,param);
             loadConfigValueTypeDesc(configureData,tcpProxy,param);
+            configureData.setStatus(STATUS_SUCCESS_CODE);
         }
         return configureData;
     }
     public ConfigureData retrieveServerConfig(Server server,boolean isServer) {
 
-        ConfigureData configureData = new ConfigureData(); 
+        ConfigureData configureData = new ConfigureData();
+
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server.getId())) {
             this.loadConfig(configureData,tcpProxy,RequestCmd.GET_CONFIGURE_SERVER, null,isServer);
             loadConfigList(configureData,tcpProxy,RequestCmd.LIST_CONFIGURE_SERVER, null);
             loadConfigDesc(configureData,tcpProxy,new MapPack());
             loadConfigValueType(configureData,tcpProxy,new MapPack());
             loadConfigValueTypeDesc(configureData,tcpProxy,new MapPack());
+            configureData.setStatus(STATUS_SUCCESS_CODE);
         }
 
         return configureData;
     }
+    // -- loading process methods
     private void loadConfig(ConfigureData configureData,TcpProxy tcpProxy,final String requestCmd, final MapPack param,boolean isServer) {
         MapPack pack = (MapPack)tcpProxy.getSingle(requestCmd,param);
         if(Objects.nonNull(pack)){
@@ -136,6 +189,7 @@ public class ConfigureConsumer {
         }
         return resultBuilder.toString();
     }
+
 
 
 }
