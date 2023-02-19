@@ -1,9 +1,9 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 
 ##########################
 # download ant from :
 #   https://ant.apache.org
-export JAVA_HOME=/home/kranian/program/jdk1.8.0_301
+
 MVN="`which mvn`"
 if [ ! -z "${MAVEN_HOME}" ]; then
 	echo MAVEN_HOME: ${MAVEN_HOME}
