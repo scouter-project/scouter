@@ -25,6 +25,7 @@ import scouter.net.RequestCmd;
 import scouterx.webapp.framework.client.net.TcpProxy;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.model.ActiveThread;
+import scouterx.webapp.model.ThreadContents;
 import scouterx.webapp.model.scouter.SActiveService;
 import scouterx.webapp.model.scouter.SActiveServiceStepCount;
 
@@ -102,4 +103,16 @@ public class ActiveServiceConsumer {
         }
     }
 
+    public ThreadContents controlThread(int objHash, long threadId, String action, Server server) {
+        MapPack paramPack = new MapPack();
+        paramPack.put("objHash", objHash);
+        paramPack.put("id", threadId);
+        paramPack.put("action", action);
+
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            MapPack resultPack = (MapPack) tcpProxy.getSingle(RequestCmd.OBJECT_THREAD_CONTROL, paramPack);
+            return ThreadContents.of(resultPack);
+
+        }
+    }
 }
