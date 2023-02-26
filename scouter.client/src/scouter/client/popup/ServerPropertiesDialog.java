@@ -74,6 +74,10 @@ public class ServerPropertiesDialog {
 		propertyList.add(new PropertyData("name", server.getName()));
 		propertyList.add(new PropertyData("ip", server.getIp()));
 		propertyList.add(new PropertyData("port", ""+server.getPort()));
+		if ( server.getSocksAddr() != null ) {
+			propertyList.add(new PropertyData("socks5 ip", ""+server.getSocksIp()));
+			propertyList.add(new PropertyData("socks5 port", ""+server.getSocksPort()));
+		}
 		propertyList.add(new PropertyData("version", ""+server.getVersion()));
 		propertyList.add(new PropertyData("user id", server.getUserId()));
 		propertyList.add(new PropertyData("group", server.getGroup()));
