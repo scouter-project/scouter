@@ -349,7 +349,7 @@ public class TraceMain {
         Stat stat = new Stat(ctx, req, res);
         stat.isStaticContents = ctx.isStaticContents;
 
-        if (stat.isStaticContents == false) {
+        if (!stat.isStaticContents) {
             if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
                 PluginHttpServiceTrace.start(ctx, req, res, http0, isReactive);
             }

@@ -20,7 +20,7 @@ import scouter.util.StringKeyLinkedMap;
 import scouter.util.ThreadUtil;
 public class BackJobs extends Thread {
 	private static BackJobs instance = null;
-	public final static synchronized BackJobs getInstance() {
+	public static synchronized BackJobs getInstance() {
 		if (instance == null) {
 			instance = new BackJobs();
 			instance.setDaemon(true);

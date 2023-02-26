@@ -104,6 +104,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		clipboard.dispose();
 	}
 
+	@Override
 	public void createPartControl(final Composite parent) {
 		display = Display.getCurrent();
 		shell = new Shell(display);
@@ -176,6 +177,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 		thread.start();
 	}
 	
+	@Override
 	public void setFocus() {
 		super.setFocus();
 		String statusMessage = "setInput(objType:"+objType+", serverId:"+serverId+ ", twdata size(): " + twdata.size() +")";
@@ -185,6 +187,7 @@ public class XLogRealTimeView extends XLogViewCommon implements Refreshable {
 	
 	AgentModelThread agentThread = AgentModelThread.getInstance();
 
+	@Override
 	public void refresh() {
 		setDate(DateUtil.yyyymmdd(TimeUtil.getCurrentTime(serverId)));
 		TcpProxy tcp = TcpProxy.getTcpProxy(serverId);
