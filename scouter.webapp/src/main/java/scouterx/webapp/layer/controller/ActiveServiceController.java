@@ -25,6 +25,7 @@ import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
 import scouterx.webapp.layer.service.ActiveServiceService;
 import scouterx.webapp.model.ActiveThread;
+import scouterx.webapp.model.ThreadContents;
 import scouterx.webapp.model.scouter.SActiveService;
 import scouterx.webapp.model.scouter.SActiveServiceStepCount;
 import scouterx.webapp.view.CommonResultView;
@@ -119,6 +120,29 @@ public class ActiveServiceController {
 
         return CommonResultView.success(activeServiceList);
     }
+
+    /**
+     * set active service interrupt of given objHash
+     *
+     * @param objHash
+     * @param threadId
+     * @param action   resume | suspend | stop | interrupt
+     * @param serverId optional if web instance just connected one collector server.
+     * @return
+     */
+    @GET
+    @Path("/control/thread/{threadId}/ofObject/{objHash}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public CommonResultView<ThreadContents> InterruptedRealTimeActiveServiceByObjHash(
+            @PathParam("objHash") @Valid @NotNull final int objHash,
+            @PathParam("threadId") @Valid @NotNull final long threadId,
+            @QueryParam("action") @Valid @NotNull final String action,
+            @QueryParam("serverId") final int serverId) {
+
+        ThreadContents threadContents= activeServiceService.controlThread(objHash,threadId,action,ServerManager.getInstance().getServerIfNullDefault(serverId));
+        return CommonResultView.success(threadContents);
+    }
+
 
     /**
      * get thread detail of the object's threadId
