@@ -74,6 +74,7 @@ import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
+import scouter.agent.asm.redis.RedissonReadWriteASM;
 import scouter.agent.asm.test.MongoModifyASM;
 import scouter.agent.asm.test.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
@@ -166,6 +167,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RedisCacheKeyASM());
         temp.add(new JedisProtocolASM());
         temp.add(new LettuceASM());
+        temp.add(new RedissonReadWriteASM());
         temp.add(new KafkaProducerASM());
         temp.add(new RabbitPublisherASM());
 
