@@ -24,7 +24,7 @@
                 <dependency>
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
-                    <version>3.29.0-GA</version>
+                    <version>3.29.2-GA</version>
                 </dependency>
             </dependencies>
             <build>
@@ -32,7 +32,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.1</version>
+                        <version>3.8.1</version>
                         <configuration>
                             <compilerVersion>1.8</compilerVersion>
                             <source>1.8</source>
@@ -51,7 +51,7 @@
                                     <target>
                                         <jar destfile="${project.build.directory}/${scouter.http.jar}">
                                             <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/http/*.class" />
+                                                <include name="scouter/xtra/http/**/*.class" />
                                             </fileset>
                                         </jar>
                                         <jar destfile="${project.build.directory}/${scouter.jdbc.jar}">
@@ -208,7 +208,7 @@
                 <dependency>
                     <groupId>org.javassist</groupId>
                     <artifactId>javassist</artifactId>
-                    <version>3.21.0-GA</version>
+                    <version>3.29.2-GA</version>
                 </dependency>
             </dependencies>
             <build>
@@ -384,12 +384,12 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.2</version>
+            <version>9.4</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>9.2</version>
+            <version>9.4</version>
         </dependency>
         <!-- local lib -->
         <dependency>
@@ -415,6 +415,13 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <version>5.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.13</version>
@@ -436,6 +443,12 @@
             <groupId>io.reactivex</groupId>
             <artifactId>rxnetty</artifactId>
             <version>0.4.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.2.8.RELEASE</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -469,12 +482,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-            <version>5.2.8.RELEASE</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>0.10.1.0</version>
@@ -499,6 +506,19 @@
             <version>5.0.2.RELEASE</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>3.17.7</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-data-27</artifactId>
+            <version>3.17.7</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- test -->
         <dependency>
             <groupId>junit</groupId>
@@ -546,7 +566,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <phase>package</phase>

@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class LettuceTracer implements ILettuceTrace {
 
-    private static final int MAX_LENGTH = 20 ;
+    private static final int MAX_LENGTH = 30 ;
 
     @Override
     public void startRedis(TraceContext ctx, Object channelObj) {
