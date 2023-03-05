@@ -40,9 +40,11 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.proxy.IKafkaTracer;
 import scouter.agent.proxy.ILettuceTrace;
 import scouter.agent.proxy.IReactiveSupport;
+import scouter.agent.proxy.IRedissonTrace;
 import scouter.agent.proxy.KafkaTraceFactory;
 import scouter.agent.proxy.LettuceTraceFactory;
 import scouter.agent.proxy.ReactiveSupportFactory;
+import scouter.agent.proxy.RedissonTraceFactory;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.wrapper.async.WrTask;
 import scouter.agent.wrapper.async.WrTaskCallable;
@@ -347,7 +349,7 @@ public class TraceMain {
         Stat stat = new Stat(ctx, req, res);
         stat.isStaticContents = ctx.isStaticContents;
 
-        if (stat.isStaticContents == false) {
+        if (!stat.isStaticContents) {
             if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
                 PluginHttpServiceTrace.start(ctx, req, res, http0, isReactive);
             }
@@ -2022,25 +2024,53 @@ public class TraceMain {
     }
 
     static ILettuceTrace lettuceTracer;
+    static IRedissonTrace redissonTrace;
+
+    public static Object startRedissonCommand(Object redissonConn, byte[] key, Object redisCommand) {
+        if (TraceContextManager.isForceDiscarded()) {
+            return null;
+        }
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+        if (redissonTrace == null) {
+            redissonTrace = RedissonTraceFactory.create(redissonConn.getClass().getClassLoader());
+        }
+
+        String command = redissonTrace.getCommand(redisCommand);
+        if (command == null) return null;
+
+        redissonTrace.startRedis(ctx, redissonConn);
+        String args = redissonTrace.parseArgs(key);
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("command", command);
+        step.putTempMessage("args", args);
+        ctx.profile.push(step);
+
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endRedissonCommand(Object localContext, Throwable thr) {
+        endLettuceCommand(localContext, thr);
+    }
 
     public static Object startLettuceCommand(Object channel, Object redisCommand) {
         if (TraceContextManager.isForceDiscarded()) {
             return null;
         }
-
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
             return null;
         }
-
         if(redisCommand instanceof Collection) {
             return null;
         }
-
         if (lettuceTracer == null) {
             lettuceTracer = LettuceTraceFactory.create(channel.getClass().getClassLoader());
         }
-
         String command = lettuceTracer.getCommand(redisCommand);
         if (command == null) return null;
 
@@ -2054,7 +2084,6 @@ public class TraceMain {
         ctx.profile.push(step);
 
         return new LocalContext(ctx, step);
-
     }
 
     public static void endLettuceCommand(Object localContext, Throwable thr) {

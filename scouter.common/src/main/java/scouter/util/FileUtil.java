@@ -176,6 +176,7 @@ public class FileUtil {
 			in = new FileInputStream(file);
 			return readAll(in);
 		} catch (Exception e) {
+			// ignore
 		} finally {
 			close(in);
 		}
