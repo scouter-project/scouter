@@ -67,10 +67,9 @@ public class AgentThread {
 		String sql = ctx.sqltext;
 		if (sql != null) {
 			p.put("SQL", sql);
-
-		}
-		if(ctx.sqlActiveArgs != null){
-			p.put("SQLActiveBindVar",ctx.sqlActiveArgs.getDelimiterList());
+			if(ctx.currentSqlStep != null){
+				p.put("SQLActiveBindVar",ctx.currentSqlStep.param);
+			}
 		}
 
 		String subcall = ctx.apicall_name;

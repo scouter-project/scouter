@@ -186,6 +186,7 @@ public class TraceSQL0 implements ITraceSQL {
 		step.xtype =(byte)(SqlXType.PREPARED | methodType);
 		ctx.profile.push(step);
 		ctx.sqltext = sql;
+		ctx.currentSqlStep = step;
 		return new LocalContext(ctx, step);
 	}
 
