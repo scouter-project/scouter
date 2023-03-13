@@ -22,8 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Boot {
 
@@ -56,12 +55,13 @@ public class Boot {
 	}
 
 	private static URL[] getURLs(String path) throws IOException {
-		TreeMap<String, File> jars = new TreeMap<String, File>();
-		File[] files = new File(path).listFiles();
-		for (int i = 0; files != null && i < files.length; i++) {
-			if (files[i].getName().startsWith("."))
+		//= sub 디렉토리 까지 읽도록 설정 추가
+		List<File>  files = new TargetDirectoryRead().read(new File(path));
+		Map<String, File> jars = new TreeMap<String, File>();
+		for (File file : files) {
+			if (file.getName().startsWith("."))
 				continue;
-			jars.put(files[i].getName(), files[i]);
+			jars.put(file.getName(), file);
 		}
 
 		URL[] urls = new URL[jars.size()];
@@ -71,4 +71,22 @@ public class Boot {
 		}
 		return urls;
 	}
+	static class TargetDirectoryRead {
+		private List<File> filePathList = new ArrayList<>();
+
+		public List<File> read(File file) {
+			if (file.isFile() ) {
+				filePathList.add(file);
+			} else if (file.isDirectory()) {
+				File[] listOfFiles = file.listFiles();
+				if (listOfFiles != null) {
+					Arrays.stream(listOfFiles).forEach(v -> read(v));
+				} else {
+					System.out.println("[ACCESS DENIED]");
+				}
+			}
+			return filePathList;
+		}
+	}
+
 }

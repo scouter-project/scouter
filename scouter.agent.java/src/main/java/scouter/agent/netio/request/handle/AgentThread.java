@@ -33,10 +33,7 @@ import scouter.lang.value.DecimalValue;
 import scouter.lang.value.ListValue;
 import scouter.lang.value.NullValue;
 import scouter.lang.value.TextValue;
-import scouter.util.CastUtil;
-import scouter.util.Hexa32;
-import scouter.util.SysJMX;
-import scouter.util.ThreadUtil;
+import scouter.util.*;
 
 import java.io.IOException;
 import java.util.Enumeration;
@@ -70,7 +67,11 @@ public class AgentThread {
 		String sql = ctx.sqltext;
 		if (sql != null) {
 			p.put("SQL", sql);
+			if(ctx.currentSqlStep != null){
+				p.put("SQLActiveBindVar",ctx.currentSqlStep.param);
+			}
 		}
+
 		String subcall = ctx.apicall_name;
 		if (subcall != null) {
 			p.put("Subcall", subcall);

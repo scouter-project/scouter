@@ -18,6 +18,7 @@
 package scouter.agent.trace;
 
 import scouter.agent.Configure;
+import scouter.util.StringUtil;
 
 public class SqlParameter {
 	private int MAX_SIZE = Configure.getInstance()._trace_sql_parameter_max_count;
@@ -69,7 +70,16 @@ public class SqlParameter {
 		}
 		return buf.toString();
 	}
-
+	public String getDelimiterList(){
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < count; i++) {
+			if (buf.length() > 0) {
+				buf.append("§");
+			}
+			buf.append(StringUtil.nullToEmpty(entry[i]));
+		}
+		return buf.toString();
+	}
 	public String toString(String prev) {
 		StringBuffer buf = new StringBuffer();
 		if (prev != null) {

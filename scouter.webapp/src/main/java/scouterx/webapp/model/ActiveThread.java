@@ -32,6 +32,7 @@ public class ActiveThread {
 	long elapsed;
 	String serviceName;
 	String note;
+
 	String mode;
 
 	long threadId;
@@ -51,6 +52,8 @@ public class ActiveThread {
 
 	String stackTrace;
 
+	String sqlActiveBindVar;
+
 	public static ActiveThread of(MapPack pack) {
 		ActiveThread activeThread = new ActiveThread();
 		activeThread.txidName = pack.getText("Service Txid");
@@ -58,6 +61,8 @@ public class ActiveThread {
 		activeThread.serviceName = pack.getText("Service Name");
 
 		String sql = pack.getText("SQL");
+		String sqlBindVar = pack.getText("SQLActiveBindVar");
+
 		String subcall = pack.getText("Subcall");
 
 		if (StringUtils.isNotEmpty(sql)) {
@@ -69,7 +74,9 @@ public class ActiveThread {
 		} else {
 			activeThread.mode = ActiveServiceMode.NONE.name();
 		}
-
+		if(StringUtils.isNotEmpty(sqlBindVar)){
+			activeThread.sqlActiveBindVar= sqlBindVar;
+		}
 		activeThread.threadId = pack.getLong("Thread Id");
 		activeThread.threadName = pack.getText("Thread Name");
 		activeThread.threadStatus = pack.getText("State");
