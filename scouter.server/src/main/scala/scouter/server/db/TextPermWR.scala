@@ -76,6 +76,7 @@ object TextPermWR {
     val ok = queue.put(new Data(divHash, hash, text))
     if (ok == false) {
       Logger.println("S138", 10, "queue exceeded!!");
+      queue.clear();
     }
   }
 

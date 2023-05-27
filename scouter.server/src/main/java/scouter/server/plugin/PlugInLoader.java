@@ -17,19 +17,39 @@
  */
 package scouter.server.plugin;
 
-import javassist.*;
-import scouter.lang.pack.*;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
+import scouter.lang.pack.AlertPack;
+import scouter.lang.pack.ObjectPack;
+import scouter.lang.pack.PerfCounterPack;
+import scouter.lang.pack.SummaryPack;
+import scouter.lang.pack.XLogPack;
+import scouter.lang.pack.XLogProfilePack;
 import scouter.server.Configure;
 import scouter.server.Logger;
-import scouter.util.*;
+import scouter.util.BitUtil;
+import scouter.util.CastUtil;
+import scouter.util.FileUtil;
+import scouter.util.HashUtil;
+import scouter.util.Hexa32;
+import scouter.util.LongSet;
+import scouter.util.StringUtil;
+import scouter.util.ThreadUtil;
 
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class PlugInLoader extends Thread {
 	private static PlugInLoader instance;
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<>());
 	public synchronized static PlugInLoader getInstance() {
 		if (instance == null) {
 			instance = new PlugInLoader();
@@ -134,7 +154,11 @@ public class PlugInLoader extends Thread {
 				URL[] urls = u.getURLs();
 				for(int i = 0; urls!=null && i<urls.length ; i++){
 					try {
-						cp.appendClassPath(urls[i].getFile());
+						if (!registeredJarOnCp.contains(urls[i].getFile())) {
+							registeredJarOnCp.add(urls[i].getFile());
+							cp.appendClassPath(urls[i].getFile());
+							Logger.trace("[TR001] javassist CP classpath added: " + urls[i].getFile());
+						}
 					} catch (NotFoundException e) {
 						Logger.println("S229", "[Error]" + e.getMessage());
 					}

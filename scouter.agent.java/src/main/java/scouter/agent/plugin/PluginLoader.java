@@ -17,7 +17,12 @@
  */
 package scouter.agent.plugin;
 
-import javassist.*;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.trace.HookArgs;
@@ -32,9 +37,13 @@ import scouter.util.ThreadUtil;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
-import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 public class PluginLoader extends Thread {
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<>());
 	private static PluginLoader instance;
 	public synchronized static PluginLoader getInstance() {
 		if (instance == null) {
@@ -57,6 +66,9 @@ public class PluginLoader extends Thread {
 		}
 	}
 	private void reloadIfModified(File root) {
+		if (!Configure.getInstance().plugin_enabled) {
+			return;
+		}
 		File script = new File(root, "service.plug");
 		if (!script.canRead()) {
 			PluginAppServiceTrace.plugIn = null;
@@ -155,9 +167,8 @@ public class PluginLoader extends Thread {
 				throw new CannotCompileException("no method body: " + METHOD_REJECT);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createHttpService";
+			appendClasspath(cp, jar, logName);
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method_start = null;
@@ -219,6 +230,15 @@ public class PluginLoader extends Thread {
 		}
 		return null;
 	}
+
+	private static synchronized void appendClasspath(ClassPool cp, String jar, String logName) throws NotFoundException {
+		if (jar != null && !registeredJarOnCp.contains(jar)) {
+			registeredJarOnCp.add(jar);
+			cp.appendClassPath(jar);
+			Logger.trace("[TR001:" + logName + "] javassist CP classpath added: " + jar);
+		}
+	}
+
 	private HashMap<String, StringBuffer> loadFileText(File script) {
 		StringBuffer sb = new StringBuffer();
 		HashMap<String, StringBuffer> result = new HashMap<String, StringBuffer>();
@@ -266,9 +286,8 @@ public class PluginLoader extends Thread {
 				throw new CannotCompileException("no method body: " + END);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createAppService";
+			appendClasspath(cp, jar, logName);
 			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
@@ -355,9 +374,8 @@ public class PluginLoader extends Thread {
 			StringBuffer THIS_BODY = bodyTable.get("this");
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createICaptureTrace";
+			appendClasspath(cp, jar, logName);
 			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
@@ -458,9 +476,8 @@ public class PluginLoader extends Thread {
 			StringBuffer URL_BODY = bodyTable.get("url");
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createIJdbcPool";
+			appendClasspath(cp, jar, logName);
 			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
@@ -520,9 +537,8 @@ public class PluginLoader extends Thread {
 				throw new CannotCompileException("no method body: " + CALL);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createIHttpCall";
+			appendClasspath(cp, jar, logName);
 			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
@@ -581,9 +597,8 @@ public class PluginLoader extends Thread {
                 throw new CannotCompileException("no method body: " + METHOD_COUNTER);
             ClassPool cp = ClassPool.getDefault();
             String jar = FileUtil.getJarFileName(PluginLoader.class);
-            if (jar != null) {
-                cp.appendClassPath(jar);
-            }
+	        String logName = "createCounter";
+	        appendClasspath(cp, jar, logName);
             CtClass cc = cp.get(superName);
             CtClass impl = null;
             CtMethod method_counter = null;

@@ -280,10 +280,16 @@ public class CounterManager {
 	}
 
 	public boolean addObjectTypeIfNotExist(ObjectPack objectPack) {
+		if (Configure.getInstance().log_udp_some_object.equals(objectPack.objType)) {
+			System.out.println("DEBUG objType: " + objectPack.objType);
+		}
 		if (engine.getObjectType(objectPack.objType) != null) {
 			return false;
 		}
 		String detected = objectPack.tags.getText(TAG_OBJ_DETECTED_TYPE);
+		if (Configure.getInstance().log_udp_some_object.equals(objectPack.objType)) {
+			System.out.println("DEBUG objType: " + objectPack.objType + ", detected: " + detected);
+		}
 		ObjectType detectedType = engine.getObjectType(detected);
 		if (detectedType == null) {
 			return false;
@@ -299,12 +305,16 @@ public class CounterManager {
 	}
 
 	public synchronized boolean addObjectType(ObjectType objType) {
+		if (Configure.getInstance().log_udp_some_object.equals(objType.getName())) {
+			System.out.println("DEBUG objType: " + objType.getName() + ", will be added ");
+		}
 		Document doc = appendObjectType(objType, getCustomDocument());
 		if (doc != null) {
-			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
-			xmlCustomContent = FileUtil.readAll(customFile);
-			reloadEngine();
-			return true;
+			String result = XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
+			if (Configure.getInstance().log_udp_some_object.equals(objType.getName())) {
+				System.out.println("DEBUG objType: " + objType.getName() + ", new XML = " + result);
+			}
+			return saveAndReloadCountersSiteXml(result);
 		}
 		return false;
 	}

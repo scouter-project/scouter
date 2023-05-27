@@ -15,7 +15,7 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.asm.test;
+package scouter.agent.asm.modification;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -32,7 +32,7 @@ public class MongoModifyASM implements IASM, Opcodes {
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (conf.hook_mongodb_enabled == false) {
+		if (!conf.hook_mongodb_enabled) {
 			return cv;
 		}
 
@@ -47,20 +47,13 @@ public class MongoModifyASM implements IASM, Opcodes {
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			super.visit(version, newAccess, name, signature, superName, interfaces);
 		}
 
 		@Override
 		public MethodVisitor visitMethod(int access, String methodName, String desc, String signature, String[] exceptions) {
-			MethodVisitor mv = super.visitMethod(access, methodName, desc, signature, exceptions);
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			return super.visitMethod(newAccess, methodName, desc, signature, exceptions);
 		}
 

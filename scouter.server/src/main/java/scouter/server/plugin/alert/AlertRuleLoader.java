@@ -40,11 +40,16 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
 public class AlertRuleLoader extends Thread {
 	public static final String ALERT_FILE_SUFFIX = ".alert";
 	public static final String CONF_FILE_SUFFIX = ".conf";
 	private static AlertRuleLoader instance;
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<>());
 	public synchronized static AlertRuleLoader getInstance() {
 		if (instance == null) {
 			instance = new AlertRuleLoader();
@@ -224,7 +229,11 @@ public class AlertRuleLoader extends Thread {
 				for(int i = 0; urls!=null && i<urls.length ; i++){
 					//Logger.println("[Alert rule load classpath urls]" + urls[i].toString());
 					try {
-						cp.appendClassPath(urls[i].getFile());
+						if (!registeredJarOnCp.contains(urls[i].getFile())) {
+							registeredJarOnCp.add(urls[i].getFile());
+							cp.appendClassPath(urls[i].getFile());
+							Logger.trace("[TR001] javassist CP classpath added: " + urls[i].getFile());
+						}
 					} catch (NotFoundException e) {
 						Logger.println("S219", "[Error]" + e.getMessage());
 					}

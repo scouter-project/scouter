@@ -298,6 +298,8 @@ public class Configure extends Thread {
     @ConfigDesc("Dump directory")
     public File dump_dir = new File(agent_dir_path + "/dump");
     //public File mgr_agent_lib_dir = new File("./_scouter_");
+    @ConfigDesc("Script plugin enabled")
+    public boolean plugin_enabled = true;
 
     //Manager
     @ConfigDesc("")
@@ -968,6 +970,7 @@ public class Configure extends Thread {
 //		} catch (Exception e) {
 //		}
         this.plugin_dir = new File(getValue("plugin_dir", agent_dir_path + "/plugin"));
+        this.plugin_enabled = getBoolean("plugin_enabled", true);
 
         this.autodump_enabled = getBoolean("autodump_enabled", false);
         this.autodump_trigger_active_service_cnt = getInt("autodump_trigger_active_service_cnt", 10000);

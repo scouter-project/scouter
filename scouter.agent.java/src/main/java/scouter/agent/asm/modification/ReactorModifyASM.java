@@ -15,7 +15,7 @@
  *  limitations under the License. 
  */
 
-package scouter.agent.asm.test;
+package scouter.agent.asm.modification;
 
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
@@ -56,10 +56,7 @@ public class ReactorModifyASM implements IASM, Opcodes {
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			super.visit(version, newAccess, name, signature, superName, interfaces);
 		}
 
@@ -74,19 +71,13 @@ public class ReactorModifyASM implements IASM, Opcodes {
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			super.visit(version, newAccess, name, signature, superName, interfaces);
 		}
 
 		@Override
 		public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			return super.visitField(newAccess, name, descriptor, signature, value);
 		}
 
@@ -101,19 +92,13 @@ public class ReactorModifyASM implements IASM, Opcodes {
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			super.visit(version, newAccess, name, signature, superName, interfaces);
 		}
 
 		@Override
 		public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			return super.visitField(newAccess, name, descriptor, signature, value);
 		}
 
@@ -128,19 +113,13 @@ public class ReactorModifyASM implements IASM, Opcodes {
 
 		@Override
 		public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			super.visit(version, newAccess, name, signature, superName, interfaces);
 		}
 
 		@Override
 		public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-			int newAccess = access;
-			if ((access & Opcodes.ACC_PUBLIC) == 0) {
-				newAccess = access | Opcodes.ACC_PUBLIC;
-			}
+			int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
 			return super.visitField(newAccess, name, descriptor, signature, value);
 		}
 
