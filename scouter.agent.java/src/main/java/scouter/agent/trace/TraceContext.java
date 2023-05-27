@@ -179,6 +179,8 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+	public SqlStep currentSqlStep;
+
 	public ApiCallStep lastApiCallStep;
 	public ThreadCallPossibleStep lastThreadCallPossibleStep;
 	public int lastCalleeObjHash;
