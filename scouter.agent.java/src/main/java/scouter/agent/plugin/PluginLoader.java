@@ -43,7 +43,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PluginLoader extends Thread {
-	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<>());
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<String>());
 	private static PluginLoader instance;
 	public synchronized static PluginLoader getInstance() {
 		if (instance == null) {
