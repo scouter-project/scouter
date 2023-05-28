@@ -17,6 +17,7 @@
  */
 package scouter.server.plugin;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -30,6 +31,7 @@ import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogProfilePack;
 import scouter.server.Configure;
 import scouter.server.Logger;
+import scouter.server.plugin.impl.Neighbor;
 import scouter.util.BitUtil;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
@@ -165,7 +167,6 @@ public class PlugInLoader extends Thread {
 				}	
 			}
 			className = "scouter.server.plugin.impl." + className;
-			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method = null;
@@ -180,7 +181,7 @@ public class PlugInLoader extends Thread {
 			}
 			
 			method.setBody("{" + parameter + " $pack=$1;" + body + "\n}");
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c = toClass(impl);
 			IPlugIn plugin = (IPlugIn) c.newInstance();
 			plugin.__lastModified = file.lastModified();
 			Logger.println("PLUG-IN : " + superClass.getName() + " loaded #"
@@ -209,5 +210,16 @@ public class PlugInLoader extends Thread {
 		if (value.length() == 0)
 			return defValue;
 		return CastUtil.cint(value);
+	}
+
+	private Class<?> toClass(CtClass impl) throws CannotCompileException {
+		Class<?> c;
+		try {
+			c = impl.toClass(Neighbor.class); //for java9+ error on java8 (because no module on java8)
+		} catch (Throwable t) {
+			Logger.println("S1600", "error on toClass with javassist. try to fallback for java8 below. err:" + t.getMessage());
+			c= impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null); //for to java8
+		}
+		return c;
 	}
 }

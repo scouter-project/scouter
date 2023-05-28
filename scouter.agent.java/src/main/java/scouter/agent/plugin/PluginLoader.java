@@ -25,6 +25,7 @@ import javassist.CtNewMethod;
 import javassist.NotFoundException;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.plugin.impl.Neighbor;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceSQL;
@@ -153,7 +154,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractHttpService.class.getName();
-			String className = "scouter.agent.plugIn.impl.HttpServiceImpl";
+			String className = "scouter.agent.plugin.impl.HttpServiceImpl";
 			String METHOD_START = "start";
 			String METHOD_END = "end";
 			String METHOD_REJECT = "reject";
@@ -219,8 +220,9 @@ public class PluginLoader extends Thread {
 					new StringBuilder().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("\n}").toString());
 			method_reject.setBody(
 					new StringBuilder().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("\n}").toString());
-			Class<?> c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-			//Class<?> c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
+			Class<?> c;
+			c = toClass(impl);
+
 			AbstractHttpService plugin = (AbstractHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " " + script.getName() + " loaded #"
@@ -232,14 +234,6 @@ public class PluginLoader extends Thread {
 			Logger.println("A161", e.getMessage(), e);
 		}
 		return null;
-	}
-
-	private static synchronized void appendClasspath(ClassPool cp, String jar, String logName) throws NotFoundException {
-		if (jar != null && !registeredJarOnCp.contains(jar)) {
-			registeredJarOnCp.add(jar);
-			cp.appendClassPath(jar);
-			Logger.trace("[TR001:" + logName + "] javassist CP classpath added: " + jar);
-		}
 	}
 
 	private HashMap<String, StringBuffer> loadFileText(File script) {
@@ -265,7 +259,9 @@ public class PluginLoader extends Thread {
 		}
 		return result;
 	}
+
 	private long IServiceTraceCompile;
+
 	private AbstractAppService createAppService(File script) {
 		if (IServiceTraceCompile == script.lastModified())
 			return null;
@@ -380,7 +376,6 @@ public class PluginLoader extends Thread {
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
 			String logName = "createICaptureTrace";
 			appendClasspath(cp, jar, logName);
-			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method_args;
@@ -448,9 +443,8 @@ public class PluginLoader extends Thread {
 			sb.append(THIS_BODY);
 			sb.append("\n}");
 			method_this.setBody(sb.toString());
-			//c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-			//c = impl.toClass(scouter.agent.plugin.impl.Neighbor.class);
-			c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
+			Class<?> c;
+			c = toClass(impl);
 			AbstractCapture plugin = (AbstractCapture) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " " + script.getName() + " loaded #"
@@ -483,7 +477,6 @@ public class PluginLoader extends Thread {
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
 			String logName = "createIJdbcPool";
 			appendClasspath(cp, jar, logName);
-			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method = null;
@@ -510,9 +503,8 @@ public class PluginLoader extends Thread {
 			sb.append(URL_BODY);
 			sb.append("\n}");
 			method.setBody(sb.toString());
-			//c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-			c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
-			//c = impl.toClass(Wrapper.class);
+			Class<?> c;
+			c = toClass(impl);
 			AbstractJdbcPool plugin = (AbstractJdbcPool) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " " + script.getName() + " loaded #"
@@ -545,7 +537,6 @@ public class PluginLoader extends Thread {
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
 			String logName = "createIHttpCall";
 			appendClasspath(cp, jar, logName);
-			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			StringBuffer sb;
@@ -571,9 +562,8 @@ public class PluginLoader extends Thread {
 			sb.append(CALL_BODY);
 			sb.append("\n}");
 			method.setBody(sb.toString());
-			//c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-			c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
-			//c = impl.toClass(Wrapper.class);
+			Class<?> c;
+			c = toClass(impl);
 			AbstractHttpCall plugin = (AbstractHttpCall) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " " + script.getName() + " loaded #"
@@ -588,8 +578,8 @@ public class PluginLoader extends Thread {
 		}
 		return null;
 	}
-    private long ICounterCompile;
-    private AbstractCounter createCounter(File script) {
+	private long ICounterCompile;
+	private AbstractCounter createCounter(File script) {
         if (ICounterCompile == script.lastModified())
             return null;
         ICounterCompile = script.lastModified();
@@ -626,9 +616,8 @@ public class PluginLoader extends Thread {
             body.append(bodyTable.get(METHOD_COUNTER));
             body.append("\n}");
             method_counter.setBody(body.toString());
-//            Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
-	        Class c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
-            //Class c = impl.toClass(Wrapper.class);
+	        Class<?> c;
+	        c = toClass(impl);
             AbstractCounter plugin = (AbstractCounter) c.newInstance();
             plugin.lastModified = script.lastModified();
             Logger.println("PLUG-IN : " + AbstractCounter.class.getName() + " " + script.getName() + " loaded #"
@@ -643,5 +632,22 @@ public class PluginLoader extends Thread {
     }
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
+	}
+	private Class<?> toClass(CtClass impl) throws CannotCompileException {
+		Class<?> c;
+		try {
+			c = impl.toClass(Neighbor.class); //for java9+ error on java8 (because no module on java8)
+		} catch (Throwable t) {
+			Logger.println("A1600", "error on toClass with javassist. try to fallback for java8 below. err:" + t.getMessage());
+			c= impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null); //for to java8
+		}
+		return c;
+	}
+	private static synchronized void appendClasspath(ClassPool cp, String jar, String logName) throws NotFoundException {
+		if (jar != null && !registeredJarOnCp.contains(jar)) {
+			registeredJarOnCp.add(jar);
+			cp.appendClassPath(jar);
+			Logger.trace("[TR001:" + logName + "] javassist CP classpath added: " + jar);
+		}
 	}
 }

@@ -17,6 +17,7 @@
  */
 package scouter.server.plugin.alert;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -25,6 +26,7 @@ import javassist.NotFoundException;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.core.cache.AlertScriptLoadMessageCache;
+import scouter.server.plugin.impl.Neighbor;
 import scouter.util.BitUtil;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
@@ -240,7 +242,6 @@ public class AlertRuleLoader extends Thread {
 				}	
 			}
 			name = "scouter.server.alert.impl." + name;
-			Class c = null;
 			CtClass cc = cp.get(AlertRule.class.getName());
 			CtClass impl = null;
 			CtMethod method = null;
@@ -254,7 +255,7 @@ public class AlertRuleLoader extends Thread {
 				impl.addMethod(method);
 			}
 			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "\n}");
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c = toClass(impl);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.__lastModified = ruleFile.lastModified();
 			Logger.println("S215", "Alert rule detected : " + ruleFile.getName());
@@ -285,5 +286,16 @@ public class AlertRuleLoader extends Thread {
 		if (value.length() == 0)
 			return defValue;
 		return CastUtil.cint(value);
+	}
+
+	private Class<?> toClass(CtClass impl) throws CannotCompileException {
+		Class<?> c;
+		try {
+			c = impl.toClass(Neighbor.class); //for java9+ error on java8 (because no module on java8)
+		} catch (Throwable t) {
+			Logger.println("A1601", "error on toClass with javassist. try to fallback for java8 below. err:" + t.getMessage());
+			c= impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null); //for to java8
+		}
+		return c;
 	}
 }
