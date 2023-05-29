@@ -36,6 +36,9 @@ import scouter.lang.value.TextValue;
 import scouter.util.*;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -78,7 +81,35 @@ public class AgentThread {
 		}
 
 		if(threadId != 0L) {
-			p = ThreadUtil.appendThreadDetail(threadId, p);
+			ThreadMXBean tmb = ManagementFactory.getThreadMXBean();
+			ThreadInfo f = tmb.getThreadInfo(threadId, 500);
+			if (f == null) {
+				Thread t = ctx.thread;
+				if (t != null) {
+					p.put("Thread Id", new DecimalValue(t.getId()));
+					p.put("State", new TextValue(t.getState().name()));
+					String name = t.getName();
+					if (StringUtil.isEmpty(name)) {
+						name = t.toString();
+					}
+					p.put("Thread Name", new TextValue(name));
+					p.put("Stack Trace", new TextValue(ThreadUtil.getStackTrace(t.getStackTrace())));
+				}
+			} else {
+				p.put("Thread Id", new DecimalValue(f.getThreadId()));
+				p.put("Thread Cpu Time", new DecimalValue(tmb.getThreadCpuTime(threadId) / 1000000));
+				p.put("Thread User Time", new DecimalValue(tmb.getThreadUserTime(threadId) / 1000000));
+				p.put("Blocked Count", new DecimalValue(f.getBlockedCount()));
+				p.put("Blocked Time", new DecimalValue(f.getBlockedTime()));
+				p.put("Waited Count", new DecimalValue(f.getWaitedCount()));
+				p.put("Waited Time", new DecimalValue(f.getWaitedTime()));
+				p.put("Lock Owner Id", new DecimalValue(f.getLockOwnerId()));
+				p.put("Lock Name", new TextValue(f.getLockName()));
+				p.put("Lock Owner Name", new TextValue(f.getLockOwnerName()));
+				p.put("Thread Name", new TextValue(f.getThreadName()));
+				p.put("Stack Trace", new TextValue(ThreadUtil.getStackTrace(f.getStackTrace())));
+				p.put("State", new TextValue(f.getThreadState().toString()));
+			}
 
 		} else {
 			TraceContext deferredContext = TraceContextManager.getDeferredContext(txid);

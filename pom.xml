@@ -22,6 +22,7 @@
         <module>scouter.agent.host</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
+        <module>scouter.extra.java20</module>
     </modules>
 
     <properties>
@@ -176,7 +177,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.5.0</version>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

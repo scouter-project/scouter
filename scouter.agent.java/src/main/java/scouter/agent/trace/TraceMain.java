@@ -317,6 +317,7 @@ public class TraceMain {
         }
         ctx.thread = Thread.currentThread();
         ctx.threadId = ctx.thread.getId();
+
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
@@ -328,6 +329,9 @@ public class TraceMain {
         HashedMessageStep step = new HashedMessageStep();
         step.time = -1;
         ctx.threadName = ctx.thread.getName();
+        if (StringUtil.isEmpty(ctx.threadName)) {
+            ctx.threadName = ctx.thread.toString();
+        }
         step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
         ctx.profile.add(step);
 
@@ -805,7 +809,6 @@ public class TraceMain {
             ctx.serviceName = service_name;
             ctx.startTime = System.currentTimeMillis();
             ctx.txid = KeyGen.next();
-            ctx.thread = Thread.currentThread();
             ctx.threadId = ctx.thread.getId();
 
             TraceContextManager.start(ctx);
@@ -823,6 +826,9 @@ public class TraceMain {
             HashedMessageStep step = new HashedMessageStep();
             step.time = -1;
             ctx.threadName = ctx.thread.getName();
+            if (StringUtil.isEmpty(ctx.threadName)) {
+                ctx.threadName = ctx.thread.toString();
+            }
             step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
             ctx.profile.add(step);
 

@@ -297,6 +297,8 @@ public class Configure extends Thread {
     public File plugin_dir = new File(agent_dir_path + "/plugin");
     @ConfigDesc("Dump directory")
     public File dump_dir = new File(agent_dir_path + "/dump");
+    @ConfigDesc("Thread dump json format - only for virtual thread")
+    public boolean thread_dump_json_format = false;
     //public File mgr_agent_lib_dir = new File("./_scouter_");
     @ConfigDesc("Script plugin enabled")
     public boolean plugin_enabled = true;
@@ -960,6 +962,7 @@ public class Configure extends Thread {
         this.trace_service_name_get_key = getValue("trace_service_name_get_key");
         this.trace_service_name_post_key = getValue("trace_service_name_post_key");
         this.dump_dir = new File(getValue("dump_dir", agent_dir_path + "/dump"));
+        this.thread_dump_json_format = getBoolean("thread_dump_json_format", false);
         try {
             this.dump_dir.mkdirs();
         } catch (Exception e) {
