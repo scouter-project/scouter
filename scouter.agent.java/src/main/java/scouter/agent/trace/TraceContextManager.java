@@ -74,19 +74,23 @@ public class TraceContextManager {
 				}
 
 				if (conf.profile_force_end_stuck_service && tm > conf.profile_force_end_stuck_millis) {
-					TraceMain.Stat stat = new TraceMain.Stat(ctx);
+					if (conf.profile_force_end_stuck_ignore_metering) {
+						ctx.skipMetering = true;
+					}
 					Throwable th = new RuntimeException("Stuck service. finish xlog but actually may be processing.");
 					if (ctx.http != null) {
+						TraceMain.Stat stat = new TraceMain.Stat(ctx);
 						TraceMain.endHttpService(stat, th);
 					} else {
-						TraceMain.endService(stat, null, th);
+						LocalContext lctx = new LocalContext(ctx, null);
+						TraceMain.endService(lctx, null, th);
 					}
 					String msg = String.format("service: %s, elapsed: %d, start thread: %s, txid: %s", ctx.serviceName, tm,
 							ctx.threadName, ctx.txid);
 					if (conf.profile_force_end_stuck_alert) {
 						AlertProxy.sendAlert(AlertLevel.ERROR, "STUCK", msg);
 					} else {
-						AlertProxy.sendAlert(AlertLevel.WARN, "STUCK", msg);
+						//AlertProxy.sendAlert(AlertLevel.WARN, "STUCK", msg);
 					}
 				}
 

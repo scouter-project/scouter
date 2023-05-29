@@ -17,6 +17,7 @@
  */
 package scouter.server.plugin.alert;
 
+import javassist.CannotCompileException;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -25,6 +26,7 @@ import javassist.NotFoundException;
 import scouter.server.Configure;
 import scouter.server.Logger;
 import scouter.server.core.cache.AlertScriptLoadMessageCache;
+import scouter.server.plugin.impl.Neighbor;
 import scouter.util.BitUtil;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
@@ -40,11 +42,16 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
+
 public class AlertRuleLoader extends Thread {
 	public static final String ALERT_FILE_SUFFIX = ".alert";
 	public static final String CONF_FILE_SUFFIX = ".conf";
 	private static AlertRuleLoader instance;
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<>());
 	public synchronized static AlertRuleLoader getInstance() {
 		if (instance == null) {
 			instance = new AlertRuleLoader();
@@ -224,14 +231,17 @@ public class AlertRuleLoader extends Thread {
 				for(int i = 0; urls!=null && i<urls.length ; i++){
 					//Logger.println("[Alert rule load classpath urls]" + urls[i].toString());
 					try {
-						cp.appendClassPath(urls[i].getFile());
+						if (!registeredJarOnCp.contains(urls[i].getFile())) {
+							registeredJarOnCp.add(urls[i].getFile());
+							cp.appendClassPath(urls[i].getFile());
+							Logger.trace("[TR001] javassist CP classpath added: " + urls[i].getFile());
+						}
 					} catch (NotFoundException e) {
 						Logger.println("S219", "[Error]" + e.getMessage());
 					}
 				}	
 			}
 			name = "scouter.server.alert.impl." + name;
-			Class c = null;
 			CtClass cc = cp.get(AlertRule.class.getName());
 			CtClass impl = null;
 			CtMethod method = null;
@@ -245,7 +255,7 @@ public class AlertRuleLoader extends Thread {
 				impl.addMethod(method);
 			}
 			method.setBody("{" + RealCounter.class.getName() + " $counter=$1;" + body + "\n}");
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c = toClass(impl);
 			AlertRule rule = (AlertRule) c.newInstance();
 			rule.__lastModified = ruleFile.lastModified();
 			Logger.println("S215", "Alert rule detected : " + ruleFile.getName());
@@ -276,5 +286,16 @@ public class AlertRuleLoader extends Thread {
 		if (value.length() == 0)
 			return defValue;
 		return CastUtil.cint(value);
+	}
+
+	private Class<?> toClass(CtClass impl) throws CannotCompileException {
+		Class<?> c;
+		try {
+			c = impl.toClass(Neighbor.class); //for java9+ error on java8 (because no module on java8)
+		} catch (Throwable t) {
+			Logger.println("A1601", "error on toClass with javassist. try to fallback for java8 below. err:" + t.getMessage());
+			c= impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null); //for to java8
+		}
+		return c;
 	}
 }

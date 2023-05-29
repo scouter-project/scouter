@@ -41,7 +41,7 @@ public class MongoCommandProtocolASM implements IASM, Opcodes {
     }
 
     public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-        if (conf.hook_mongodb_enabled == false) {
+        if (!conf.hook_mongodb_enabled) {
             return cv;
         }
 
@@ -63,19 +63,13 @@ public class MongoCommandProtocolASM implements IASM, Opcodes {
 
         @Override
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-            int newAccess = access;
-            if ((access & Opcodes.ACC_PUBLIC) == 0) {
-                newAccess = access | Opcodes.ACC_PUBLIC;
-            }
+            int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
             super.visit(version, newAccess, name, signature, superName, interfaces);
         }
 
         @Override
         public FieldVisitor visitField(int access, String name, String descriptor, String signature, Object value) {
-            int newAccess = access;
-            if ((access & Opcodes.ACC_PUBLIC) == 0) {
-                newAccess = access | Opcodes.ACC_PUBLIC;
-            }
+            int newAccess = (access | ACC_PUBLIC | ACC_PRIVATE | ACC_PROTECTED) - ACC_PRIVATE - ACC_PROTECTED;
             if (name.equals("namespace") && descriptor.equals("Lcom/mongodb/MongoNamespace;")) {
                 namespace = true;
             } else if (name.equals("command") && descriptor.equals("Lorg/bson/BsonDocument;")) {

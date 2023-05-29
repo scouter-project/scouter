@@ -1,8 +1,8 @@
 /*
- *  Copyright 2015 the original author or authors. 
+ *  Copyright 2015 the original author or authors.
  *  @https://github.com/scouter-project/scouter
  *
- *  Licensed under the Apache License, Version 2.0 (the "License"); 
+ *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
@@ -12,17 +12,23 @@
  *  distributed under the License is distributed on an "AS IS" BASIS,
  *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  *  See the License for the specific language governing permissions and
- *  limitations under the License. 
+ *  limitations under the License.
  *
  */
 package scouter.agent.plugin;
 
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtMethod;
+import javassist.CtNewMethod;
+import javassist.NotFoundException;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
+import scouter.agent.plugin.impl.Neighbor;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.HookReturn;
 import scouter.agent.trace.TraceSQL;
-import javassist.*;
 import scouter.lang.pack.PerfCounterPack;
 import scouter.util.FileUtil;
 import scouter.util.Hexa32;
@@ -34,8 +40,13 @@ import java.io.File;
 import java.io.StringReader;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
 public class PluginLoader extends Thread {
+	private static final Set<String> registeredJarOnCp = Collections.synchronizedSet(new HashSet<String>());
 	private static PluginLoader instance;
 	public synchronized static PluginLoader getInstance() {
 		if (instance == null) {
@@ -58,8 +69,11 @@ public class PluginLoader extends Thread {
 		}
 	}
 	private void reloadIfModified(File root) {
+		if (!Configure.getInstance().plugin_enabled) {
+			return;
+		}
 		File script = new File(root, "service.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginAppServiceTrace.plugIn = null;
 		} else {
 			if (PluginAppServiceTrace.plugIn == null
@@ -68,7 +82,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "httpservice.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginHttpServiceTrace.plugIn = null;
 		} else {
 			if (PluginHttpServiceTrace.plugIn == null
@@ -77,7 +91,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "backthread.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginBackThreadTrace.plugIn = null;
 		} else {
 			if (PluginBackThreadTrace.plugIn == null
@@ -86,7 +100,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "capture.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginCaptureTrace.plugIn = null;
 		} else {
 			if (PluginCaptureTrace.plugIn == null || PluginCaptureTrace.plugIn.lastModified != script.lastModified()) {
@@ -94,7 +108,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "springControllerCapture.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginSpringControllerCaptureTrace.plugIn = null;
 		} else {
 			if (PluginSpringControllerCaptureTrace.plugIn == null || PluginSpringControllerCaptureTrace.plugIn.lastModified != script.lastModified()) {
@@ -102,7 +116,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "jdbcpool.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginJdbcPoolTrace.plugIn = null;
 		} else {
 			if (PluginJdbcPoolTrace.plugIn == null
@@ -114,7 +128,7 @@ public class PluginLoader extends Thread {
 			}
 		}
 		script = new File(root, "httpcall.plug");
-		if (script.canRead() == false) {
+		if (!script.canRead()) {
 			PluginHttpCallTrace.plugIn = null;
 		} else {
 			if (PluginHttpCallTrace.plugIn == null
@@ -123,7 +137,7 @@ public class PluginLoader extends Thread {
 			}
 		}
         script = new File(root, "counter.plug");
-        if (script.canRead() == false) {
+        if (!script.canRead()) {
             PluginCounter.plugIn = null;
         } else {
             if (PluginCounter.plugIn == null
@@ -140,7 +154,7 @@ public class PluginLoader extends Thread {
 		try {
 			HashMap<String, StringBuffer> bodyTable = loadFileText(script);
 			String superName = AbstractHttpService.class.getName();
-			String className = "scouter.agent.plugIn.impl.HttpServiceImpl";
+			String className = "scouter.agent.plugin.impl.HttpServiceImpl";
 			String METHOD_START = "start";
 			String METHOD_END = "end";
 			String METHOD_REJECT = "reject";
@@ -148,23 +162,22 @@ public class PluginLoader extends Thread {
 			String METHOD_P1 = WrContext.class.getName();
 			String METHOD_P2 = WrRequest.class.getName();
 			String METHOD_P3 = WrResponse.class.getName();
-			if (bodyTable.containsKey(METHOD_START) == false)
+			if (!bodyTable.containsKey(METHOD_START))
 				throw new CannotCompileException("no method body: " + METHOD_START);
-			if (bodyTable.containsKey(METHOD_END) == false)
+			if (!bodyTable.containsKey(METHOD_END))
 				throw new CannotCompileException("no method body: " + METHOD_END);
-			if (bodyTable.containsKey(METHOD_REJECT) == false)
+			if (!bodyTable.containsKey(METHOD_REJECT))
 				throw new CannotCompileException("no method body: " + METHOD_REJECT);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createHttpService";
+			appendClasspath(cp, jar, logName);
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method_start = null;
 			CtMethod method_end = null;
 			CtMethod method_reject = null;
-			StringBuffer sb = null;
+			StringBuilder sb = null;
 			try {
 				impl = cp.get(className);
 				impl.defrost();
@@ -176,38 +189,40 @@ public class PluginLoader extends Thread {
 				method_reject = impl.getMethod(METHOD_REJECT, "(" + SIGNATURE + ")Z");
 			} catch (NotFoundException e) {
 				impl = cp.makeClass(className, cc);
-				StringBuffer sb1 = new StringBuffer();
+				StringBuilder sb1 = new StringBuilder();
 				sb1.append(METHOD_P1).append(" p1").append(",");
 				sb1.append(METHOD_P2).append(" p2").append(",");
 				sb1.append(METHOD_P3).append(" p3");
 				// START METHOD
-				sb = new StringBuffer();
+				sb = new StringBuilder();
 				sb.append("public void ").append(METHOD_START).append("(").append(sb1).append("){}");
 				method_start = CtNewMethod.make(sb.toString(), impl);
 				impl.addMethod(method_start);
 				// END METHOD
-				sb = new StringBuffer();
+				sb = new StringBuilder();
 				sb.append("public void ").append(METHOD_END).append("(").append(sb1).append("){}");
 				method_end = CtNewMethod.make(sb.toString(), impl);
 				impl.addMethod(method_end);
 				// REJECT METHOD
-				sb = new StringBuffer();
+				sb = new StringBuilder();
 				sb.append("public boolean ").append(METHOD_REJECT).append("(").append(sb1).append("){return false;}");
 				method_reject = CtNewMethod.make(sb.toString(), impl);
 				impl.addMethod(method_reject);
 			}
-			StringBuffer bodyPrefix = new StringBuffer();
+			StringBuilder bodyPrefix = new StringBuilder();
 			bodyPrefix.append("{");
 			bodyPrefix.append(METHOD_P1).append(" $ctx=$1;");
 			bodyPrefix.append(METHOD_P2).append(" $req=$2;");
 			bodyPrefix.append(METHOD_P3).append(" $res=$3;");
 			method_start.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("\n}").toString());
+					new StringBuilder().append(bodyPrefix).append(bodyTable.get(METHOD_START)).append("\n}").toString());
 			method_end.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("\n}").toString());
+					new StringBuilder().append(bodyPrefix).append(bodyTable.get(METHOD_END)).append("\n}").toString());
 			method_reject.setBody(
-					new StringBuffer().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("\n}").toString());
-			Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+					new StringBuilder().append(bodyPrefix).append(bodyTable.get(METHOD_REJECT)).append("\n}").toString());
+			Class<?> c;
+			c = toClass(impl);
+
 			AbstractHttpService plugin = (AbstractHttpService) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractHttpService.class.getName() + " " + script.getName() + " loaded #"
@@ -216,10 +231,11 @@ public class PluginLoader extends Thread {
 		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Throwable e) {
-			Logger.println("A161", e);
+			Logger.println("A161", e.getMessage(), e);
 		}
 		return null;
 	}
+
 	private HashMap<String, StringBuffer> loadFileText(File script) {
 		StringBuffer sb = new StringBuffer();
 		HashMap<String, StringBuffer> result = new HashMap<String, StringBuffer>();
@@ -237,12 +253,15 @@ public class PluginLoader extends Thread {
 					sb.append(line).append("\n");
 				}
 			}
+			r.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
+
 	private long IServiceTraceCompile;
+
 	private AbstractAppService createAppService(File script) {
 		if (IServiceTraceCompile == script.lastModified())
 			return null;
@@ -266,9 +285,8 @@ public class PluginLoader extends Thread {
 				throw new CannotCompileException("no method body: " + END);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
+			String logName = "createAppService";
+			appendClasspath(cp, jar, logName);
 			Class c = null;
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
@@ -313,7 +331,8 @@ public class PluginLoader extends Thread {
 			sb.append(END_BODY);
 			sb.append("\n}");
 			method_end.setBody(sb.toString());
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			c = impl.toClass(Wrapper.class.getClassLoader(), Wrapper.class.getProtectionDomain());
+			//c = impl.toClass(Wrapper.class);
 			AbstractAppService plugin = (AbstractAppService) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractAppService.class.getName() + " " + script.getName() + " loaded #"
@@ -355,10 +374,8 @@ public class PluginLoader extends Thread {
 			StringBuffer THIS_BODY = bodyTable.get("this");
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
-			Class c = null;
+			String logName = "createICaptureTrace";
+			appendClasspath(cp, jar, logName);
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method_args;
@@ -426,7 +443,8 @@ public class PluginLoader extends Thread {
 			sb.append(THIS_BODY);
 			sb.append("\n}");
 			method_this.setBody(sb.toString());
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c;
+			c = toClass(impl);
 			AbstractCapture plugin = (AbstractCapture) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractCapture.class.getName() + " " + script.getName() + " loaded #"
@@ -457,10 +475,8 @@ public class PluginLoader extends Thread {
 			StringBuffer URL_BODY = bodyTable.get("url");
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
-			Class c = null;
+			String logName = "createIJdbcPool";
+			appendClasspath(cp, jar, logName);
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			CtMethod method = null;
@@ -487,7 +503,8 @@ public class PluginLoader extends Thread {
 			sb.append(URL_BODY);
 			sb.append("\n}");
 			method.setBody(sb.toString());
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c;
+			c = toClass(impl);
 			AbstractJdbcPool plugin = (AbstractJdbcPool) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractJdbcPool.class.getName() + " " + script.getName() + " loaded #"
@@ -518,10 +535,8 @@ public class PluginLoader extends Thread {
 				throw new CannotCompileException("no method body: " + CALL);
 			ClassPool cp = ClassPool.getDefault();
 			String jar = FileUtil.getJarFileName(PluginLoader.class);
-			if (jar != null) {
-				cp.appendClassPath(jar);
-			}
-			Class c = null;
+			String logName = "createIHttpCall";
+			appendClasspath(cp, jar, logName);
 			CtClass cc = cp.get(superName);
 			CtClass impl = null;
 			StringBuffer sb;
@@ -547,7 +562,8 @@ public class PluginLoader extends Thread {
 			sb.append(CALL_BODY);
 			sb.append("\n}");
 			method.setBody(sb.toString());
-			c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+			Class<?> c;
+			c = toClass(impl);
 			AbstractHttpCall plugin = (AbstractHttpCall) c.newInstance();
 			plugin.lastModified = script.lastModified();
 			Logger.println("PLUG-IN : " + AbstractHttpCall.class.getName() + " " + script.getName() + " loaded #"
@@ -556,12 +572,14 @@ public class PluginLoader extends Thread {
 		} catch (CannotCompileException ee) {
 			Logger.println("PLUG-IN : " + ee.getMessage());
 		} catch (Exception e) {
+			//fixme
+			e.printStackTrace();
 			Logger.println("A907", e);
 		}
 		return null;
 	}
-    private long ICounterCompile;
-    private AbstractCounter createCounter(File script) {
+	private long ICounterCompile;
+	private AbstractCounter createCounter(File script) {
         if (ICounterCompile == script.lastModified())
             return null;
         ICounterCompile = script.lastModified();
@@ -576,9 +594,8 @@ public class PluginLoader extends Thread {
                 throw new CannotCompileException("no method body: " + METHOD_COUNTER);
             ClassPool cp = ClassPool.getDefault();
             String jar = FileUtil.getJarFileName(PluginLoader.class);
-            if (jar != null) {
-                cp.appendClassPath(jar);
-            }
+	        String logName = "createCounter";
+	        appendClasspath(cp, jar, logName);
             CtClass cc = cp.get(superName);
             CtClass impl = null;
             CtMethod method_counter = null;
@@ -599,7 +616,8 @@ public class PluginLoader extends Thread {
             body.append(bodyTable.get(METHOD_COUNTER));
             body.append("\n}");
             method_counter.setBody(body.toString());
-            Class c = impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null);
+	        Class<?> c;
+	        c = toClass(impl);
             AbstractCounter plugin = (AbstractCounter) c.newInstance();
             plugin.lastModified = script.lastModified();
             Logger.println("PLUG-IN : " + AbstractCounter.class.getName() + " " + script.getName() + " loaded #"
@@ -614,5 +632,22 @@ public class PluginLoader extends Thread {
     }
 	private String nativeName(Class class1) {
 		return "L" + class1.getName().replace('.', '/') + ";";
+	}
+	private Class<?> toClass(CtClass impl) throws CannotCompileException {
+		Class<?> c;
+		try {
+			c = impl.toClass(Neighbor.class); //for java9+ error on java8 (because no module on java8)
+		} catch (Throwable t) {
+			Logger.println("A1600", "error on toClass with javassist. try to fallback for java8 below. err:" + t.getMessage());
+			c= impl.toClass(new URLClassLoader(new URL[0], this.getClass().getClassLoader()), null); //for to java8
+		}
+		return c;
+	}
+	private static synchronized void appendClasspath(ClassPool cp, String jar, String logName) throws NotFoundException {
+		if (jar != null && !registeredJarOnCp.contains(jar)) {
+			registeredJarOnCp.add(jar);
+			cp.appendClassPath(jar);
+			Logger.trace("[TR001:" + logName + "] javassist CP classpath added: " + jar);
+		}
 	}
 }

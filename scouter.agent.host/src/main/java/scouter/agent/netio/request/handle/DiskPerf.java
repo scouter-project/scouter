@@ -1,37 +1,25 @@
 package scouter.agent.netio.request.handle;
 
-import org.hyperic.sigar.FileSystem;
-import org.hyperic.sigar.FileSystemMap;
-import org.hyperic.sigar.FileSystemUsage;
-import org.hyperic.sigar.NfsFileSystem;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
-import org.hyperic.sigar.SigarProxy;
-import org.hyperic.sigar.SigarProxyCache;
-
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.FileSystem;
+import oshi.software.os.OSFileStore;
+import oshi.software.os.OperatingSystem;
+import scouter.agent.Configure;
+import scouter.agent.Logger;
 import scouter.agent.netio.request.anotation.RequestHandler;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
 import scouter.net.RequestCmd;
-import scouter.util.FormatUtil;
+
+import java.util.List;
 
 public class DiskPerf {
-
-	public void output(FileSystem fs) throws SigarException {
-		//
-		// ArrayList items = new ArrayList();
-		//
-		// items.add(fs.getDevName());
-		// items.add(formatSize(total));
-		// items.add(formatSize(used));
-		// items.add(formatSize(avail));
-		// items.add(usePct);
-		// items.add(fs.getDirName());
-		// items.add(fs.getSysTypeName() + "/" + fs.getTypeName());
-
-	}
-
+	Configure conf = Configure.getInstance();
+	SystemInfo si = new SystemInfo();
+	OperatingSystem os = si.getOperatingSystem();
+	HardwareAbstractionLayer hal = si.getHardware();
 	@RequestHandler(RequestCmd.HOST_DISK_USAGE)
 	public Pack usage(Pack param) {
 		MapPack pack = new MapPack();
@@ -43,42 +31,41 @@ public class DiskPerf {
 		ListValue typeList = pack.newList("Type");
 		ListValue mountList = pack.newList("Mount");
 		try {
-			Sigar sigar = new Sigar();
-			SigarProxy proxy = SigarProxyCache.newInstance(sigar);
-			//FileSystemMap mounts = proxy.getFileSystemMap();
-			FileSystem[] fslist = proxy.getFileSystemList();
-			for (int i = 0; i < fslist.length; i++) {
+			FileSystem fsm = os.getFileSystem();
+			List<OSFileStore> fst = fsm.getFileStores();
+			for (int i = 0; i < fst.size(); i++) {
+				long used = 0, free = 0, total = 0;
+				float usage = 0;
 
-				long used, avail, total;
-				float pct;
-
-				FileSystem fs = fslist[i];
 				try {
-					FileSystemUsage usage;
-					if (fs instanceof NfsFileSystem) {
-						NfsFileSystem nfs = (NfsFileSystem) fs;
-						if (!nfs.ping()) {
-							continue;
-						}
+					String mount = fst.get(i).getMount();
+					try {
+						total = fst.get(i).getTotalSpace();
+						free = fst.get(i).getFreeSpace();
+						used = total - free;
+						usage = ((float) total - free) / total * 100.0f;
+					} catch (Exception e) {
+						Logger.println("A160", 300, "disk:" + mount + ", err:" + e.getMessage());
 					}
-					usage = sigar.getFileSystemUsage(fs.getDirName());
-					used = usage.getTotal() - usage.getFree();
-					avail = usage.getAvail();
-					total = usage.getTotal();
-					pct = (float) (usage.getUsePercent() * 100);
+
+					if (conf.disk_ignore_names.hasKey(mount))
+						continue;
+
+					if (conf.disk_ignore_size_gb < total / 1024 / 1024 / 1024)
+						continue;
 
 					totalList.add(total*1024);
 					usedList.add(used*1024);
-					freeList.add(avail*1024);
-					pctList.add(pct);
-					typeList.add(fs.getSysTypeName() + "/" + fs.getTypeName());
-					deviceList.add(fs.getDevName());
-					mountList.add(fs.getDirName());
-				} catch (SigarException e) {
-					used = avail = total = 0;
-					pct = 0;
-				}
+					freeList.add(free*1024);
+					pctList.add(usage);
+					typeList.add(fst.get(i).getType());
+					deviceList.add(fst.get(i).getVolume());
+					mountList.add(mount);
 
+				} catch (Exception e) {
+					used = used = total = 0;
+					usage = 0;
+				}
 			}
 
 		} catch (Exception e) {

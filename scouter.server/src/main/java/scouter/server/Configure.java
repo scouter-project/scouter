@@ -163,6 +163,8 @@ public class Configure extends Thread {
 	public boolean log_udp_alert = false;
 	@ConfigDesc("Logging incoming ObjectPack")
 	public boolean log_udp_object = false;
+	@ConfigDesc("Logging some ObjectPack")
+	public String log_udp_some_object = "";
 	@ConfigDesc("Logging incoming StatusPack")
 	public boolean log_udp_status = false;
 	@ConfigDesc("Logging incoming StackPack")
@@ -264,6 +266,8 @@ public class Configure extends Thread {
 	public String log_dir = "./logs";
 	@ConfigDesc("Path to plugin directory")
 	public String plugin_dir = "./plugin";
+	@ConfigDesc("Script plugin enabled")
+	public boolean plugin_enabled = true;
 	@ConfigDesc("Path to client related directory")
 	public String client_dir = "./client";
 	@ConfigDesc("temp dir")
@@ -713,6 +717,7 @@ public class Configure extends Thread {
 		this.db_dir = getValue("db_dir", "./database");
 		this.log_dir = getValue("log_dir", "./logs");
 		this.plugin_dir = getValue("plugin_dir", "./plugin");
+		this.plugin_enabled = getBoolean("plugin_enabled", true);
 		this.client_dir = getValue("client_dir", "./client");
 		this.temp_dir = getValue("temp_dir", "./tempdata");
 
@@ -745,6 +750,7 @@ public class Configure extends Thread {
 		this.log_udp_text = getBoolean("log_udp_text", false);
 		this.log_udp_alert = getBoolean("log_udp_alert", false);
 		this.log_udp_object = getBoolean("log_udp_object", false);
+		this.log_udp_some_object = getValue("log_udp_some_object", "");
 		this.log_udp_status = getBoolean("log_udp_status", false);
 		this.log_udp_stack = getBoolean("log_udp_stack", false);
 		this.log_udp_summary = getBoolean("log_udp_summary", false);

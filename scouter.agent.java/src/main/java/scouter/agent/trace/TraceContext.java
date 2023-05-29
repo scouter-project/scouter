@@ -179,6 +179,8 @@ public class TraceContext {
 	public String group;
 
 	public SqlStep lastSqlStep;
+	public SqlStep currentSqlStep;
+
 	public ApiCallStep lastApiCallStep;
 	public ThreadCallPossibleStep lastThreadCallPossibleStep;
 	public int lastCalleeObjHash;
@@ -196,8 +198,9 @@ public class TraceContext {
 
     public boolean alreadySetControllerName = false;
     public boolean forceNotSamplingDrop = false;
+	public boolean skipMetering = false;
 
-    private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
+	private Queue<ErrorEntity> errorQueue = new LinkedBlockingQueue<ErrorEntity>(10);
 
 	public ArrayList<String> plcGroupList = new ArrayList<String>();
 	public TraceContext createChild() {

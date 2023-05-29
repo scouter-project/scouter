@@ -40,9 +40,11 @@ import scouter.agent.proxy.IHttpTrace;
 import scouter.agent.proxy.IKafkaTracer;
 import scouter.agent.proxy.ILettuceTrace;
 import scouter.agent.proxy.IReactiveSupport;
+import scouter.agent.proxy.IRedissonTrace;
 import scouter.agent.proxy.KafkaTraceFactory;
 import scouter.agent.proxy.LettuceTraceFactory;
 import scouter.agent.proxy.ReactiveSupportFactory;
+import scouter.agent.proxy.RedissonTraceFactory;
 import scouter.agent.summary.ServiceSummary;
 import scouter.agent.wrapper.async.WrTask;
 import scouter.agent.wrapper.async.WrTaskCallable;
@@ -315,6 +317,7 @@ public class TraceMain {
         }
         ctx.thread = Thread.currentThread();
         ctx.threadId = ctx.thread.getId();
+
         ctx.txid = KeyGen.next();
         ctx.startTime = System.currentTimeMillis();
         ctx.bytes = SysJMX.getCurrentThreadAllocBytes(conf.profile_thread_memory_usage_enabled);
@@ -326,6 +329,9 @@ public class TraceMain {
         HashedMessageStep step = new HashedMessageStep();
         step.time = -1;
         ctx.threadName = ctx.thread.getName();
+        if (StringUtil.isEmpty(ctx.threadName)) {
+            ctx.threadName = ctx.thread.toString();
+        }
         step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
         ctx.profile.add(step);
 
@@ -347,7 +353,7 @@ public class TraceMain {
         Stat stat = new Stat(ctx, req, res);
         stat.isStaticContents = ctx.isStaticContents;
 
-        if (stat.isStaticContents == false) {
+        if (!stat.isStaticContents) {
             if (ctx.xType != XLogTypes.ASYNCSERVLET_DISPATCHED_SERVICE) {
                 PluginHttpServiceTrace.start(ctx, req, res, http0, isReactive);
             }
@@ -665,8 +671,11 @@ public class TraceMain {
             pack.b3Mode = ctx.b3Mode;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
@@ -800,7 +809,6 @@ public class TraceMain {
             ctx.serviceName = service_name;
             ctx.startTime = System.currentTimeMillis();
             ctx.txid = KeyGen.next();
-            ctx.thread = Thread.currentThread();
             ctx.threadId = ctx.thread.getId();
 
             TraceContextManager.start(ctx);
@@ -818,6 +826,9 @@ public class TraceMain {
             HashedMessageStep step = new HashedMessageStep();
             step.time = -1;
             ctx.threadName = ctx.thread.getName();
+            if (StringUtil.isEmpty(ctx.threadName)) {
+                ctx.threadName = ctx.thread.toString();
+            }
             step.hash = DataProxy.sendHashedMessage("[driving thread] " + ctx.threadName);
             ctx.profile.add(step);
 
@@ -938,8 +949,10 @@ public class TraceMain {
             pack.text5 = ctx.text5;
 
             delayedServiceManager.checkDelayedService(pack, ctx.serviceName);
-            metering(pack);
-            meteringInteraction(ctx, pack);
+            if (!ctx.skipMetering) {
+                metering(pack);
+                meteringInteraction(ctx, pack);
+            }
 
             //send all child xlogs, and check it again on the collector server. (follows parent's discard type)
             if ((discardMode != XLogDiscard.DISCARD_ALL && discardMode != XLogDiscard.DISCARD_ALL_FORCE)
@@ -2017,25 +2030,53 @@ public class TraceMain {
     }
 
     static ILettuceTrace lettuceTracer;
+    static IRedissonTrace redissonTrace;
+
+    public static Object startRedissonCommand(Object redissonConn, byte[] key, Object redisCommand) {
+        if (TraceContextManager.isForceDiscarded()) {
+            return null;
+        }
+        TraceContext ctx = TraceContextManager.getContext();
+        if (ctx == null) {
+            return null;
+        }
+        if (redissonTrace == null) {
+            redissonTrace = RedissonTraceFactory.create(redissonConn.getClass().getClassLoader());
+        }
+
+        String command = redissonTrace.getCommand(redisCommand);
+        if (command == null) return null;
+
+        redissonTrace.startRedis(ctx, redissonConn);
+        String args = redissonTrace.parseArgs(key);
+
+        ParameterizedMessageStep step = new ParameterizedMessageStep();
+        step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+        step.putTempMessage("command", command);
+        step.putTempMessage("args", args);
+        ctx.profile.push(step);
+
+        return new LocalContext(ctx, step);
+    }
+
+    public static void endRedissonCommand(Object localContext, Throwable thr) {
+        endLettuceCommand(localContext, thr);
+    }
 
     public static Object startLettuceCommand(Object channel, Object redisCommand) {
         if (TraceContextManager.isForceDiscarded()) {
             return null;
         }
-
         TraceContext ctx = TraceContextManager.getContext();
         if (ctx == null) {
             return null;
         }
-
         if(redisCommand instanceof Collection) {
             return null;
         }
-
         if (lettuceTracer == null) {
             lettuceTracer = LettuceTraceFactory.create(channel.getClass().getClassLoader());
         }
-
         String command = lettuceTracer.getCommand(redisCommand);
         if (command == null) return null;
 
@@ -2049,7 +2090,6 @@ public class TraceMain {
         ctx.profile.push(step);
 
         return new LocalContext(ctx, step);
-
     }
 
     public static void endLettuceCommand(Object localContext, Throwable thr) {

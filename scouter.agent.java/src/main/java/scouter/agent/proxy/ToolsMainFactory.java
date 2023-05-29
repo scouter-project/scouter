@@ -16,8 +16,10 @@
 
 package scouter.agent.proxy;
 
+import scouter.agent.Configure;
 import scouter.agent.JavaAgent;
 import scouter.agent.Logger;
+import scouter.agent.extra.java20.ThreadDumps;
 import scouter.agent.util.ModuleUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
@@ -26,6 +28,7 @@ import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.List;
 
 public class ToolsMainFactory {
@@ -95,8 +98,7 @@ public class ToolsMainFactory {
      * @throws Throwable
      */
     public static Pack threadDump(Pack param) throws Throwable {
-		
-		MapPack m = new MapPack();
+	    MapPack m = new MapPack();
 
         //Java 1.5 or IBM JDK
 		if (SystemUtil.IS_JAVA_1_5||SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
@@ -107,14 +109,16 @@ public class ToolsMainFactory {
 			}
 			return m;
 		}
+	    List<String> vthreadDump = getVthreadDump();
 
-		ClassLoader loader = LoaderManager.getToolsLoader();
+	    ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
 			List<String> out =  ThreadUtil.getThreadDumpList();
 			ListValue lv = m.newList("threadDump");
 			for (int i = 0; i < out.size(); i++) {
 				lv.add(out.get(i));
 			}
+			appendVthreadDumpToLv(vthreadDump, lv);
 			return m;
 		}
 		
@@ -127,11 +131,41 @@ public class ToolsMainFactory {
 			for (int i = 0; i < out.size(); i++) {
 				lv.add(out.get(i));
 			}
+			appendVthreadDumpToLv(vthreadDump, lv);
 		} catch (Exception e) {
 			m.put("error", e.getMessage());
 		}
 		return m;
 
+	}
+
+	private static boolean isSupportVThreadDump = true;
+	private static List<String> getVthreadDump() {
+		if (!isSupportVThreadDump) {
+			return Collections.emptyList();
+		}
+		try {
+			return ThreadDumps.threadDumpWithVirtualThread(Configure.getInstance().thread_dump_json_format);
+		} catch (Throwable t) {
+			isSupportVThreadDump = false;
+			if (!Configure.getInstance()._trace) {
+				Logger.println("DUMP001", "error on vthrad dump: " + t.getMessage());
+			} else {
+				Logger.println("DUMP001", "error on vthrad dump: " + t.getMessage(), t);
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private static void appendVthreadDumpToLv(List<String> vthreadDump, ListValue lv) {
+		if (vthreadDump != null && !vthreadDump.isEmpty()) {
+			lv.add("");
+			lv.add("[[[[[[[[ dump include virtual thread ]]]]]]]]");
+			lv.add("");
+			for (int i = 0; i < vthreadDump.size(); i++) {
+				lv.add(vthreadDump.get(i));
+			}
+		}
 	}
 
 	public static boolean activeStack = false;

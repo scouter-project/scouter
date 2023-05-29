@@ -26,6 +26,7 @@ import scouter.lang.conf.Internal;
 import scouter.lang.conf.ParamDesc;
 import scouter.lang.pack.ObjectPack;
 import scouter.lang.value.Value;
+import scouter.server.Logger;
 import scouter.server.core.AgentManager;
 import scouter.server.core.cache.CounterCache;
 import scouter.util.HashUtil;
@@ -123,12 +124,16 @@ public class RealCounter {
 		String[] hashes = getObjHashListString(objType).split(",");
 		List<Integer> hashesWithParents = new ArrayList<>();
 		for (String hash : hashes) {
-			int objHash = Integer.parseInt(hash);
-			hashesWithParents.add(objHash);
-			ObjectPack objectPack = AgentManager.getAgent(objHash);
-			String objName = objectPack.objName;
-			if (objName.lastIndexOf('/') > 0) {
-				hashesWithParents.add(HashUtil.hash(objName.substring(0, objName.lastIndexOf('/'))));
+			try {
+				int objHash = Integer.parseInt(hash);
+				hashesWithParents.add(objHash);
+				ObjectPack objectPack = AgentManager.getAgent(objHash);
+				String objName = objectPack.objName;
+				if (objName.lastIndexOf('/') > 0) {
+					hashesWithParents.add(HashUtil.hash(objName.substring(0, objName.lastIndexOf('/'))));
+				}
+			} catch (NumberFormatException e) {
+				Logger.println("GE101", 10, e.getMessage(), e);
 			}
 		}
 		return hashesWithParents.stream().map(String::valueOf).collect(Collectors.joining(","));

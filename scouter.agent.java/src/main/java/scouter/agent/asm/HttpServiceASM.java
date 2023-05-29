@@ -24,15 +24,18 @@ import scouter.agent.Logger;
 import scouter.agent.trace.TraceMain;
 
 import java.util.HashSet;
+import java.util.Set;
+
 public class HttpServiceASM implements IASM, Opcodes {
-	public HashSet<String> servlets = new HashSet<String>();
+	public Set<String> servlets = new HashSet<String>();
 	public HttpServiceASM() {
 		servlets.add("javax/servlet/http/HttpServlet");
-		servlets.add("weblogic/servlet/jsp/JspBase");	
+		servlets.add("jakarta/servlet/http/HttpServlet");
+		servlets.add("weblogic/servlet/jsp/JspBase");
 	}
 
 	public ClassVisitor transform(ClassVisitor cv, String className, ClassDesc classDesc) {
-		if (Configure.getInstance()._hook_serivce_enabled == false) {
+		if (!Configure.getInstance()._hook_serivce_enabled) {
 			return cv;
 		}
 		if (servlets.contains(className)) {
@@ -42,14 +45,19 @@ public class HttpServiceASM implements IASM, Opcodes {
 			if ("javax/servlet/Filter".equals(classDesc.interfaces[i])) {
 				return new HttpServiceCV(cv, className);
 			}
+
+			if ("jakarta/servlet/Filter".equals(classDesc.interfaces[i])) {
+				return new HttpServiceCV(cv, className);
+			}
 		}
 		return cv;
 	}
 }
 class HttpServiceCV extends ClassVisitor implements Opcodes {
-	private static String TARGET_SERVICE = "service";
-	private static String TARGET_DOFILTER = "doFilter";
-	private static String TARGET_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
+	private static final String TARGET_SERVICE = "service";
+	private static final String TARGET_DOFILTER = "doFilter";
+	private static final String TARGET_SIGNATURE = "(Ljavax/servlet/ServletRequest;Ljavax/servlet/ServletResponse;";
+	private static final String TARGET_SIGNATURE_JAKARTA = "(Ljakarta/servlet/ServletRequest;Ljakarta/servlet/ServletResponse;";
 	private String className;
 	public HttpServiceCV(ClassVisitor cv, String className) {
 		super(ASM9, cv);
@@ -61,7 +69,7 @@ class HttpServiceCV extends ClassVisitor implements Opcodes {
 		if (mv == null) {
 			return mv;
 		}
-		if (desc.startsWith(TARGET_SIGNATURE)) {
+		if (desc.startsWith(TARGET_SIGNATURE) || desc.startsWith(TARGET_SIGNATURE_JAKARTA)) {
 			if (TARGET_SERVICE.equals(name)) {
 				Logger.println("A103", "HTTP " + className);
 				return new HttpServiceMV(access, desc, mv, true);
