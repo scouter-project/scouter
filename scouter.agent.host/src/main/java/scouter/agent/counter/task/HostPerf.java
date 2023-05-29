@@ -21,7 +21,17 @@
 
 package scouter.agent.counter.task;
 
-import org.hyperic.sigar.*;
+import oshi.SystemInfo;
+import oshi.hardware.CentralProcessor;
+import oshi.hardware.GlobalMemory;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
+import oshi.hardware.VirtualMemory;
+import oshi.software.os.FileSystem;
+import oshi.software.os.InternetProtocolStats;
+import oshi.software.os.InternetProtocolStats.TcpState;
+import oshi.software.os.OSFileStore;
+import oshi.software.os.OperatingSystem;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
@@ -37,12 +47,15 @@ import scouter.lang.value.FloatValue;
 import scouter.util.FormatUtil;
 import scouter.util.LongEnumer;
 import scouter.util.LongKeyLinkedMap;
+import scouter.util.ThreadUtil;
+
+import java.util.List;
 
 public class HostPerf {
-	static int SLEEP_TIME = 2000;
-	static Sigar sigarImpl = new Sigar();
-	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
-	
+	SystemInfo si = new SystemInfo();
+	OperatingSystem os = si.getOperatingSystem();
+	HardwareAbstractionLayer hal = si.getHardware();
+
 	MeterResource cpuMeter = new MeterResource();
 	MeterResource sysCpuMeter = new MeterResource();
 	MeterResource userCpuMeter = new MeterResource();
@@ -59,52 +72,68 @@ public class HostPerf {
 		}
 	}
 
-	void domain(CounterBasket pw) throws SigarException {
+	void domain(CounterBasket pw) {
 
 		Configure conf = Configure.getInstance();
 
-		CpuPerc cpuPerc = sigar.getCpuPerc();
-		float cpu = (float) ((1.0D - cpuPerc.getIdle()) * 100);
-		cpuMeter.add(cpu);
-		float sysCpu = (float) cpuPerc.getSys() * 100;
-		sysCpuMeter.add(sysCpu);
-		float userCpu = (float) cpuPerc.getUser() * 100;
-		userCpuMeter.add(userCpu);
-		
-		cpu = (float) cpuMeter.getAvg(conf._cpu_value_avg_sec);
-		sysCpu = (float) sysCpuMeter.getAvg(conf._cpu_value_avg_sec);
-		userCpu = (float) userCpuMeter.getAvg(conf._cpu_value_avg_sec);
+		CentralProcessor processor = hal.getProcessor();
+		long[] oldTicks = processor.getSystemCpuLoadTicks();
+		ThreadUtil.sleep(500);
+		long[] ticks = processor.getSystemCpuLoadTicks();
 
-		alertCpu(cpu);
-		
-		Mem m = sigar.getMem();
-		alertMem(m);
+		long total = 0;
+		for (int i = 0; i < ticks.length; i++) {
+			total += ticks[i] - oldTicks[i];
+		}
 
-		long tmem = m.getTotal();
-		long fmem = m.getActualFree();
-		long umem = m.getActualUsed();
-		float memrate = (float) m.getUsedPercent();
+		long idle = ticks[CentralProcessor.TickType.IDLE.getIndex()] - oldTicks[CentralProcessor.TickType.IDLE.getIndex()];
+		long sys = ticks[CentralProcessor.TickType.SYSTEM.getIndex()] - oldTicks[CentralProcessor.TickType.SYSTEM.getIndex()];
+		long user = ticks[CentralProcessor.TickType.USER.getIndex()] - oldTicks[CentralProcessor.TickType.USER.getIndex()];
+		float cpuUsage = total > 0 ? (float) (total - idle) / total : 0f;
+		float sysUsage = total > 0 ? (float) sys / total : 0f;
+		float userUsage = total > 0 ? (float) user / total : 0f;
+		cpuUsage *= 100;
+		sysUsage *= 100;
+		userUsage *= 100;
 
-		Swap sw = sigar.getSwap();
-		long pagein = sw.getPageIn();
-		long pageout = sw.getPageOut();
-		long tswap = sw.getTotal();
-		long uswap = sw.getUsed();
-		float swaprate = (tswap == 0) ? 0 : uswap * 100.0f / tswap;
+		cpuMeter.add(cpuUsage);
+		sysCpuMeter.add(sysUsage);
+		userCpuMeter.add(userUsage);
+
+		cpuUsage = (float) cpuMeter.getAvg(conf._cpu_value_avg_sec);
+		sysUsage = (float) sysCpuMeter.getAvg(conf._cpu_value_avg_sec);
+		userUsage = (float) userCpuMeter.getAvg(conf._cpu_value_avg_sec);
+
+		alertCpu(cpuUsage);
+
+		GlobalMemory memory = hal.getMemory();
+		long mAvailable = memory.getAvailable();
+		long mTotal = memory.getTotal();
+		float mUsageRate = mTotal > 0 ? (float) (mTotal - mAvailable) / mTotal * 100 : 0f;
+
+		alertMem(mAvailable, mUsageRate);
+
+		memory.getPageSize();
+		VirtualMemory vm = memory.getVirtualMemory();
+		long swapPagesIn = vm.getSwapPagesIn();
+		long swapPagesOut = vm.getSwapPagesOut();
+		long swapTotal = vm.getSwapTotal();
+		long swapUsed = vm.getSwapUsed();
+		float swapRate = swapTotal > 0 ? swapUsed * 100.0f / swapTotal: 0f;
 
 		PerfCounterPack p = pw.getPack(conf.getObjName(), TimeTypeEnum.REALTIME);
-		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
-		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
-		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
-		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
-		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
-		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
-		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
-		p.put(CounterConstants.HOST_SWAP, new FloatValue(swaprate));
-		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
+		p.put(CounterConstants.HOST_CPU, new FloatValue(cpuUsage));
+		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysUsage));
+		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userUsage));
+		p.put(CounterConstants.HOST_MEM, new FloatValue(mUsageRate));
+		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(mTotal / 1024 / 1024));
+		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue((mTotal - mAvailable) / 1024 / 1024));
+		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(mAvailable / 1024 / 1024));
+		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(swapPagesIn));
+		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(swapPagesOut));
+		p.put(CounterConstants.HOST_SWAP, new FloatValue(swapRate));
+		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(swapTotal / 1024 / 1024));
+		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(swapUsed / 1024 / 1024));
 
 		p.put(CounterConstants.HOST_NET_IN, new DecimalValue(net_in));
 		p.put(CounterConstants.HOST_NET_OUT, new DecimalValue(net_out));
@@ -112,65 +141,52 @@ public class HostPerf {
 		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
 		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
-
-		p.put(CounterConstants.HOST_NET_RX_BYTES, new DecimalValue(HostNetDiskPerf.getRxTotalBytesPerSec()));
-		p.put(CounterConstants.HOST_NET_TX_BYTES, new DecimalValue(HostNetDiskPerf.getTxTotalBytesPerSec()));
-
-		p.put(CounterConstants.HOST_DISK_READ_BYTES, new DecimalValue(HostNetDiskPerf.getReadTotalBytesPerSec()));
-		p.put(CounterConstants.HOST_DISK_WRITE_BYTES, new DecimalValue(HostNetDiskPerf.getWriteTotalBytesPerSec()));
-
-//		System.out.println("rx:" + HostNetDiskPerf.getRxTotalBytesPerSec());
-//		System.out.println("tx:" + HostNetDiskPerf.getTxTotalBytesPerSec());
-//		System.out.println("read:" + HostNetDiskPerf.getReadTotalBytesPerSec());
-//		System.out.println("write:" + HostNetDiskPerf.getWriteTotalBytesPerSec());
 
 		p = pw.getPack(conf.getObjName(), TimeTypeEnum.FIVE_MIN);
-		p.put(CounterConstants.HOST_CPU, new FloatValue(cpu));
-		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysCpu));
-		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userCpu));
-		p.put(CounterConstants.HOST_MEM, new FloatValue(memrate));
-		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(tmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(umem / 1024 / 1024));
-		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(fmem / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(pagein));
-		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(pageout));
-		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(tswap / 1024 / 1024));
-		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(uswap / 1024 / 1024));
+		p.put(CounterConstants.HOST_CPU, new FloatValue(cpuUsage));
+		p.put(CounterConstants.HOST_SYSCPU, new FloatValue(sysUsage));
+		p.put(CounterConstants.HOST_USERCPU, new FloatValue(userUsage));
+		p.put(CounterConstants.HOST_MEM, new FloatValue(mUsageRate));
+		p.put(CounterConstants.HOST_MEM_TOTAL, new DecimalValue(mTotal / 1024 / 1024));
+		p.put(CounterConstants.HOST_MEM_USED, new DecimalValue(mTotal / 1024 / 1024));
+		p.put(CounterConstants.HOST_MEM_AVALIABLE, new DecimalValue(mAvailable / 1024 / 1024));
+		p.put(CounterConstants.HOST_SWAP_PAGE_IN, new DecimalValue(swapPagesIn));
+		p.put(CounterConstants.HOST_SWAP_PAGE_OUT, new DecimalValue(swapPagesOut));
+		p.put(CounterConstants.HOST_SWAP_TOTAL, new DecimalValue(swapTotal / 1024 / 1024));
+		p.put(CounterConstants.HOST_SWAP_USED, new DecimalValue(swapUsed / 1024 / 1024));
 
 		p.put(CounterConstants.HOST_NET_IN, new DecimalValue(net_in));
 		p.put(CounterConstants.HOST_NET_OUT, new DecimalValue(net_out));
-		p.put(CounterConstants.HOST_TCPSTAT_CLS, new DecimalValue(tcpstat_close));
+		p.put(CounterConstants.HOST_TCPSTAT_SS, new DecimalValue(tcpstat_ss));
+		p.put(CounterConstants.HOST_TCPSTAT_SR, new DecimalValue(tcpstat_sr));
+		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
 		p.put(CounterConstants.HOST_TCPSTAT_FIN, new DecimalValue(tcpstat_fin1 + tcpstat_fin2));
 		p.put(CounterConstants.HOST_TCPSTAT_TIM, new DecimalValue(tcpstat_time));
-		p.put(CounterConstants.HOST_TCPSTAT_EST, new DecimalValue(tcpstat_est));
+		p.put(CounterConstants.HOST_TCPSTAT_CLS, new DecimalValue(tcpstat_close));
 
-		SigarProxyCache.clear(sigar);
 	}
 
 	long mem_last_fatal;
 	long mem_last_warning;
-	private void alertMem(Mem m) {
+	private void alertMem(long available, float usage) {
 		Configure conf = Configure.getInstance();
 		if(conf.mem_alert_enabled==false)
 			return;
-		
-		long fmem = m.getActualFree();
-		float memrate = (float) m.getUsedPercent();
 
 		long now = System.currentTimeMillis();
 
-		if (memrate >= conf.mem_fatal_pct) {
+		if (usage >= conf.mem_fatal_pct) {
 			if (now >= mem_last_fatal + conf.mem_alert_interval_ms) {
-				HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_MEMORY_HIGH", "fatal mem usage free=" + prt(fmem)
-						+ " rate=" + memrate + "%", null);
+				HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_MEMORY_HIGH", "fatal mem usage free=" + prt(available)
+						+ " rate=" + usage + "%", null);
 				mem_last_fatal = now;
 			}
 			return;
 		}
-		if (memrate >= conf.mem_warning_pct) {
+		if (usage >= conf.mem_warning_pct) {
 			if (now >= mem_last_warning + conf.mem_alert_interval_ms) {
-				HostAgentDataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning mem usage free=" + prt(fmem)
-						+ " rate=" + memrate + "%", null);
+				HostAgentDataProxy.sendAlert(AlertLevel.WARN, "WARNING_MEMORY_HIGH", "warning mem usage free=" + prt(available)
+						+ " rate=" + usage + "%", null);
 				mem_last_warning = now;
 			}
 			return;
@@ -232,27 +248,86 @@ public class HostPerf {
 	long last_time = 0;
 	private int net_in;
 	private int net_out;
+	private int tcpstat_ss;
+	private int tcpstat_sr;
+	private int tcpstat_est;
 	private int tcpstat_close;
 	private int tcpstat_fin1;
 	private int tcpstat_fin2;
 	private int tcpstat_time;
-	private int tcpstat_est;
 
-	void netstat() throws SigarException {
+	void netstat() {
 		long now = System.currentTimeMillis();
 		if (now - last_time < 10000) {
 			return;
 		}
 		last_time = now;
 
-		NetStat net = sigar.getNetStat();
-		this.net_in = net.getAllInboundTotal();
-		this.net_out = net.getAllOutboundTotal();
-		this.tcpstat_close = net.getTcpCloseWait();
-		this.tcpstat_fin1 = net.getTcpFinWait1();
-		this.tcpstat_fin2 = net.getTcpFinWait2();
-		this.tcpstat_time = net.getTcpTimeWait();
-		this.tcpstat_est = net.getTcpEstablished();
+		InternetProtocolStats.TcpStats stat = os.getInternetProtocolStats().getTCPv4Stats();
+		stat.getConnectionsEstablished();
+
+		List<InternetProtocolStats.IPConnection> connections = os.getInternetProtocolStats().getConnections();
+
+		int tcpSs = 0;
+		int tcpSr = 0;
+		int tcpEsta = 0;
+		int tcpFin1 = 0;
+		int tcpFin2 = 0;
+		int tcpTimeWait = 0;
+		int tcpCloseWait = 0;
+
+		for (int i = 0; i < connections.size(); i++) {
+			TcpState state = connections.get(i).getState();
+			switch (state) {
+				case SYN_SENT:
+					tcpSs++;
+					break;
+				case SYN_RECV:
+					tcpSr++;
+					break;
+				case ESTABLISHED:
+					tcpEsta++;
+					break;
+				case FIN_WAIT_1:
+					tcpFin1++;
+					break;
+				case FIN_WAIT_2:
+					tcpFin2++;
+					break;
+				case TIME_WAIT:
+					tcpTimeWait++;
+					break;
+				case CLOSE_WAIT:
+					tcpCloseWait++;
+					break;
+				default:
+
+			}
+		}
+
+		List<NetworkIF> networkIFs = hal.getNetworkIFs();
+		long bytesReceived = 0;
+		long bytesSent = 0;
+		long packetReceived = 0;
+		long packetSent = 0;
+		for (int i = 0; i < networkIFs.size(); i++) {
+			bytesReceived += networkIFs.get(i).getBytesRecv();
+			bytesSent += networkIFs.get(i).getBytesSent();
+			packetReceived += networkIFs.get(i).getPacketsRecv();
+			packetSent += networkIFs.get(i).getPacketsSent();
+
+		}
+
+		this.net_in = (int) bytesReceived;
+		this.net_out = (int) bytesSent;
+		this.tcpstat_ss = tcpSs;
+		this.tcpstat_sr = tcpSr;
+		this.tcpstat_est = tcpEsta;
+		this.tcpstat_fin1 = tcpFin1;
+		this.tcpstat_fin2 = tcpFin2;
+		this.tcpstat_time = tcpTimeWait;
+		this.tcpstat_close = tcpCloseWait;
+
 	}
 
 	@Counter(interval = 3600000)
@@ -265,47 +340,47 @@ public class HostPerf {
 		StringBuffer warn = new StringBuffer();
 
 		try {
-			FileSystem[] fslist = sigar.getFileSystemList();
-			for (int i = 0; i < fslist.length; i++) {
+			FileSystem fsm = os.getFileSystem();
+			List<OSFileStore> fst = fsm.getFileStores();
 
-				FileSystem fs = fslist[i];
-				FileSystemUsage usage;
-				if (fs instanceof NfsFileSystem) {
-					NfsFileSystem nfs = (NfsFileSystem) fs;
-					if (!nfs.ping()) {
-						continue;
-					}
-				}
-				String dir = fs.getDirName();
-				if (conf.disk_ignore_names.hasKey(dir))
-					continue;
+			for (int i = 0; i < fst.size(); i++) {
+				String mount = fst.get(i).getMount();
 
+				long total = 0;
+				long free = 0;
+				float usage = 0;
 				try {
-					usage = sigar.getFileSystemUsage(dir);
-				} catch (SigarException e) {
-					continue;
+					total = fst.get(i).getTotalSpace();
+					free = fst.get(i).getFreeSpace();
+					usage = ((float) total - free) / total * 100.0f;
+				} catch (Exception e) {
+					Logger.println("A160", 300, "disk:" + mount + ", err:" + e.getMessage());
 				}
 
-				float pct = (float) (usage.getUsePercent() * 100);
-				if (pct >= conf.disk_fatal_pct && fatal.length() < 32756) {
-					long avail = usage.getAvail();
-					long total = usage.getTotal();
+				if (conf.disk_ignore_names.hasKey(mount))
+					continue;
+
+				if (conf.disk_ignore_size_gb < total / 1024 / 1024 / 1024)
+					continue;
+
+				if (usage >= conf.disk_fatal_pct && fatal.length() < 32756) {
 					if (fatal.length() > 0) {
 						fatal.append("\n");
 					}
-					fatal.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
-				} else if (pct >= conf.disk_warning_pct && warn.length() < 32756) {
-					long avail = usage.getAvail();
-					long total = usage.getTotal();
+					fatal.append(mount).append(" usage ").append((int) usage).append("% total=")
+							.append(FormatUtil.print(total / 1024.0 / 1024 / 1024, "#0.0#")).append("GB.. available=")
+							.append(prt(free));
+
+				} else if (usage >= conf.disk_warning_pct && warn.length() < 32756) {
 					if (warn.length() > 0) {
 						warn.append("\n");
 					}
-					warn.append(dir).append(" usage ").append((int) pct).append("% total=")
-							.append(FormatUtil.print(total / 1024.0 / 1024, "#0.0#")).append("GB.. available=").append(prt(avail * 1024));
+					warn.append(mount).append(" usage ").append((int) usage).append("% total=")
+							.append(FormatUtil.print(total / 1024.0 / 1024 / 1024, "#0.0#")).append("GB.. available=")
+							.append(prt(free));
 				}
-
 			}
+
 			if (fatal.length() > 0) {
 				HostAgentDataProxy.sendAlert(AlertLevel.FATAL, "FATAL_DISK_USAGE", fatal.toString(), null);
 			}

@@ -1,14 +1,9 @@
 package scouter.agent.counter.jmx;
 
-import scouter.agent.Logger;
-import scouter.agent.ObjTypeDetector;
-import scouter.util.StringIntMap;
-import scouter.util.SystemUtil;
-import scouter.util.ThreadUtil;
+import static scouter.lang.counters.CounterConstants.JBOSS;
+import static scouter.lang.counters.CounterConstants.WEBLOGIC;
+import static scouter.lang.counters.CounterConstants.WEBSPHERE;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -16,8 +11,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import static scouter.lang.counters.CounterConstants.*;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import scouter.agent.JavaAgent;
+import scouter.agent.Logger;
+import scouter.agent.ObjTypeDetector;
+import scouter.agent.util.ModuleUtil;
+import scouter.util.StringIntMap;
+import scouter.util.SystemUtil;
+import scouter.util.ThreadUtil;
 
 /**
  *  refer to glowroot (https://github.com/glowroot/glowroot)
@@ -47,6 +50,15 @@ public class LazyPlatformMBeanServer {
 
     public boolean checkInit() throws Exception {
         if (platformMBeanServer != null) return true;
+        if (JavaAgent.isJava9plus()) {
+            try {
+                ModuleUtil.grantAccess(JavaAgent.getInstrumentation(),
+                    LazyPlatformMBeanServer.class.getName(),
+                    "sun.management.ManagementFactoryHelper");
+            } catch (Throwable th) {
+                Logger.println("MBEAN-01", th.getMessage(), th);
+            }
+        }
         if (waitForContainerToCreatePlatformMBeanServer) {
             String platformMBeanServerFieldName = SystemUtil.IS_JAVA_IBM ? "platformServer" : "platformMBeanServer";
             Field platformMBeanServerField =

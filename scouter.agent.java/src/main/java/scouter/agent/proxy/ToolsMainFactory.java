@@ -16,6 +16,11 @@
 
 package scouter.agent.proxy;
 
+import scouter.agent.Configure;
+import scouter.agent.JavaAgent;
+import scouter.agent.Logger;
+import scouter.agent.extra.java20.ThreadDumps;
+import scouter.agent.util.ModuleUtil;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
@@ -23,10 +28,12 @@ import scouter.util.SystemUtil;
 import scouter.util.ThreadUtil;
 
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.List;
 
 public class ToolsMainFactory {
 	private static final String TOOLS_MAIN = "scouter.xtra.tools.ToolsMain";
+	private static boolean wasGrantedAccessToHSM = false;
 
 	public static MapPack heaphisto(Pack param) throws Throwable {
 		
@@ -50,6 +57,7 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			List<String> out = toolsMain.heaphisto(0, 100000, "all");
 			ListValue lv = m.newList("heaphisto");
 			for (int i = 0; i < out.size(); i++) {
@@ -76,6 +84,7 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			toolsMain.heaphisto(out);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -89,8 +98,7 @@ public class ToolsMainFactory {
      * @throws Throwable
      */
     public static Pack threadDump(Pack param) throws Throwable {
-		
-		MapPack m = new MapPack();
+	    MapPack m = new MapPack();
 
         //Java 1.5 or IBM JDK
 		if (SystemUtil.IS_JAVA_1_5||SystemUtil.JAVA_VENDOR.startsWith("IBM")) {
@@ -101,30 +109,63 @@ public class ToolsMainFactory {
 			}
 			return m;
 		}
+	    List<String> vthreadDump = getVthreadDump();
 
-		ClassLoader loader = LoaderManager.getToolsLoader();
+	    ClassLoader loader = LoaderManager.getToolsLoader();
 		if (loader == null) {
 			List<String> out =  ThreadUtil.getThreadDumpList();
 			ListValue lv = m.newList("threadDump");
 			for (int i = 0; i < out.size(); i++) {
 				lv.add(out.get(i));
 			}
+			appendVthreadDumpToLv(vthreadDump, lv);
 			return m;
 		}
 		
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			List<String> out = (List<String>) toolsMain.threadDump(0, 100000);
 			ListValue lv = m.newList("threadDump");
 			for (int i = 0; i < out.size(); i++) {
 				lv.add(out.get(i));
 			}
+			appendVthreadDumpToLv(vthreadDump, lv);
 		} catch (Exception e) {
 			m.put("error", e.getMessage());
 		}
 		return m;
 
+	}
+
+	private static boolean isSupportVThreadDump = true;
+	private static List<String> getVthreadDump() {
+		if (!isSupportVThreadDump) {
+			return Collections.emptyList();
+		}
+		try {
+			return ThreadDumps.threadDumpWithVirtualThread(Configure.getInstance().thread_dump_json_format);
+		} catch (Throwable t) {
+			isSupportVThreadDump = false;
+			if (!Configure.getInstance()._trace) {
+				Logger.println("DUMP001", "error on vthrad dump: " + t.getMessage());
+			} else {
+				Logger.println("DUMP001", "error on vthrad dump: " + t.getMessage(), t);
+			}
+		}
+		return Collections.emptyList();
+	}
+
+	private static void appendVthreadDumpToLv(List<String> vthreadDump, ListValue lv) {
+		if (vthreadDump != null && !vthreadDump.isEmpty()) {
+			lv.add("");
+			lv.add("[[[[[[[[ dump include virtual thread ]]]]]]]]");
+			lv.add("");
+			for (int i = 0; i < vthreadDump.size(); i++) {
+				lv.add(vthreadDump.get(i));
+			}
+		}
 	}
 
 	public static boolean activeStack = false;
@@ -143,9 +184,23 @@ public class ToolsMainFactory {
 		try {
 			Class c = Class.forName(TOOLS_MAIN, true, loader);
 			IToolsMain toolsMain = (IToolsMain) c.newInstance();
+			checkGrantAccess(loader);
 			toolsMain.threadDump(out);
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private static void checkGrantAccess(ClassLoader loader) {
+		if (JavaAgent.isJava9plus() && !wasGrantedAccessToHSM) {
+			try {
+				ModuleUtil.grantAccess(JavaAgent.getInstrumentation(), TOOLS_MAIN, loader,
+					"sun.tools.attach.HotSpotVirtualMachine", loader);
+			} catch (Throwable th) {
+				Logger.println("TOOLS-5", th.getMessage(), th);
+			} finally {
+				wasGrantedAccessToHSM = true;
+			}
 		}
 	}
 }

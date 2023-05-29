@@ -20,6 +20,8 @@ import lombok.Data;
 import scouter.lang.pack.MapPack;
 import scouter.lang.pack.Pack;
 import scouter.lang.value.ListValue;
+import scouter.util.DateUtil;
+import scouter.util.Hexa32;
 import scouter.util.StringUtil;
 import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.framework.client.model.AgentObject;
@@ -40,6 +42,10 @@ public class SActiveService {
 	String threadStatus;
 	long threadCpuTime;
 	String txidName;
+
+	String activeDate;
+	long txid;
+
 	long elapsed;
 	String serviceName;
 	String ipaddr;
@@ -95,7 +101,9 @@ public class SActiveService {
 					if (ipLv != null) {
 						activeService.ipaddr = ipLv.getString(i);
 					}
-
+					//- 액티브 추적용  TXID 변환 추가
+					activeService.txid = Hexa32.toLong32(activeService.txidName);
+					activeService.activeDate = DateUtil.yyyymmdd();
 					resultList.add(activeService);
 				}
 			}

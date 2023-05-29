@@ -74,8 +74,9 @@ import scouter.agent.asm.redis.JedisProtocolASM;
 import scouter.agent.asm.redis.LettuceASM;
 import scouter.agent.asm.redis.RedisCacheKeyASM;
 import scouter.agent.asm.redis.RedisKeyASM;
-import scouter.agent.asm.test.MongoModifyASM;
-import scouter.agent.asm.test.ReactorModifyASM;
+import scouter.agent.asm.redis.RedissonReadWriteASM;
+import scouter.agent.asm.modification.MongoModifyASM;
+import scouter.agent.asm.modification.ReactorModifyASM;
 import scouter.agent.asm.util.AsmUtil;
 import scouter.agent.asm.weaver.WeaverClassASM;
 import scouter.agent.util.AsyncRunner;
@@ -166,6 +167,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new RedisCacheKeyASM());
         temp.add(new JedisProtocolASM());
         temp.add(new LettuceASM());
+        temp.add(new RedissonReadWriteASM());
         temp.add(new KafkaProducerASM());
         temp.add(new RabbitPublisherASM());
 
@@ -186,7 +188,7 @@ public class AgentTransformer implements ClassFileTransformer {
 
     // //////////////////////////////////////////////////////////////
     // boot class이지만 Hooking되어야하는 클래스를 등록한다.
-    private static HashMap asynchook = new HashMap();
+    private static final HashMap<Integer, String> asynchook = new HashMap<Integer, String>();
 
     static {
         asynchook.put("sun/net/www/protocol/http/HttpURLConnection".hashCode(), "sun/net/www/protocol/http/HttpURLConnection");
@@ -197,7 +199,7 @@ public class AgentTransformer implements ClassFileTransformer {
         asynchook.put("javax/naming/InitialContext".hashCode(), "javax/naming/InitialContext");
     }
 
-    private Configure conf = Configure.getInstance();
+    private final Configure conf = Configure.getInstance();
     private Logger.FileLog bciOut;
 
     public byte[] transform(final ClassLoader loader, String className, final Class classBeingRedefined,
@@ -218,7 +220,7 @@ public class AgentTransformer implements ClassFileTransformer {
                     return null;
                 }
                 if (loader == null) {
-                    if (conf._hook_boot_prefix == null || conf._hook_boot_prefix.length() == 0 || false == className.startsWith(conf._hook_boot_prefix)) {
+                    if (conf._hook_boot_prefix == null || conf._hook_boot_prefix.length() == 0 || !className.startsWith(conf._hook_boot_prefix)) {
                         return null;
                     }
                 }
@@ -288,8 +290,8 @@ public class AgentTransformer implements ClassFileTransformer {
         System.arraycopy(interfaces, 0, classes, 0, interfaces.length);
         classes[classes.length-1] = superName;
 
-        for (int i = 0; i < classes.length; i++) {
-            if (isMapImpl(classes[i], loader)) {
+        for (String aClass : classes) {
+            if (isMapImpl(aClass, loader)) {
                 return true;
             }
         }

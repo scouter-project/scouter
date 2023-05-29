@@ -152,6 +152,7 @@ public class Configure extends Thread {
 	public boolean disk_alert_enabled = true;
 	public int disk_warning_pct = 70;
 	public int disk_fatal_pct = 90;
+	public int disk_ignore_size_gb = 9000;
 	public StringSet disk_ignore_names = new StringSet();
 
 	//Cpu
@@ -280,6 +281,7 @@ public class Configure extends Thread {
 
 		this.disk_alert_enabled = getBoolean("disk_alert_enabled", true);
 		this.disk_warning_pct = getInt("disk_warning_pct", 70);
+		this.disk_ignore_size_gb = getInt("disk_ignore_size_gb", 9000);
 		this.disk_fatal_pct = getInt("disk_fatal_pct", 90);
 		this.disk_ignore_names = getStringSet("disk_ignore_names", ",");
 

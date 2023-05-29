@@ -18,6 +18,7 @@
 - [method 상세 프로파일](./use-case/Method-Profiling_kr.md)
 - [Scouter 확장 - Plugin guide](./main/Plugin-Guide_kr.md)
 - [Web api 가이드](./tech/Web-API-Guide_kr.md)
+- [Scouter Weaver 가이드](./weaver/index_kr.md)
 - [Telegraf server feature](./main/Telegraf-Server_kr.md)
 - [사용자 정의 알람 설정 - Alert plugins guide](./main/Alert-Plugin-Guide_kr.md)
 - [단독 실행형 자바 배치 모니터링 에이전트](./main/Stand-alone-Java-Batch-Agent_kr.md)

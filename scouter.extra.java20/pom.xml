@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <parent>
+        <groupId>io.github.scouter-project</groupId>
+        <artifactId>scouter-parent</artifactId>
+        <version>2.20.0</version> <!--scouter-->
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>scouter-extra-java20</artifactId>
+    <packaging>jar</packaging>
+    <name>scouter.agent.extra.java20</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
+        <build.datetime>${maven.build.timestamp} GMT</build.datetime>
+        <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scouter.extra.java11.jarName>scouter.weaver</scouter.extra.java11.jarName>
+    </properties>
+
+    <dependencies>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <source>20</source>
+                    <target>20</target>
+                    <compilerVersion>20</compilerVersion>
+                    <fork>true</fork>
+                    <executable>${JAVA_20_HOME}/bin/javac</executable>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

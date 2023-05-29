@@ -18,12 +18,7 @@
 
 package scouterx.webapp.layer.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiImplicitParam;
-import io.swagger.annotations.ApiImplicitParams;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.*;
 import scouterx.webapp.framework.client.model.AgentModelThread;
 import scouterx.webapp.framework.client.server.Server;
 import scouterx.webapp.framework.client.server.ServerManager;
@@ -39,12 +34,7 @@ import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
@@ -86,16 +76,27 @@ public class ObjectController {
     }
 
     @GET
-    @ApiOperation(value = "/remove/inactive", notes = "remove inactive object.")
+    @ApiOperation(value = "/remove/inactive", notes = "remove inactive object. target all connected servers")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "OK - Json Data"),
             @ApiResponse(code = 500, message = "Server error")
     })
     @Path("/remove/inactive")
-    public CommonResultView removeInactive() {
-        AgentModelThread.removeInactive();
+    public CommonResultView removeInactiveByAll() {
+        AgentModelThread.removeInactiveByAll();
         return CommonResultView.success();
     }
+    @GET
+    @ApiOperation(value = "/remove/inactive/server", notes = "remove inactive object. target by serverId ")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "serverId", value = "server id", dataType = "int", paramType = "query")
+    })
+    @Path("/remove/inactive/server")
+    public CommonResultView removeInactiveByServerId(@QueryParam("serverId") int serverId) {
+        AgentModelThread.removeInactiveByServerId(serverId);
+        return CommonResultView.success();
+    }
+
 
     @GET
     @ApiOperation(value = "/threadList/{objHash}", notes = "get agent thread list that is monitored by scouter")

@@ -1,15 +1,9 @@
 package scouter.agent.counter.task;
 
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.hyperic.sigar.ProcCpu;
-import org.hyperic.sigar.Sigar;
-import org.hyperic.sigar.SigarException;
-import org.hyperic.sigar.SigarProxy;
-import org.hyperic.sigar.SigarProxyCache;
-
+import oshi.SystemInfo;
+import oshi.hardware.HardwareAbstractionLayer;
+import oshi.software.os.OSProcess;
+import oshi.software.os.OperatingSystem;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.counter.CounterBasket;
@@ -23,14 +17,15 @@ import scouter.lang.value.FloatValue;
 import scouter.util.CastUtil;
 import scouter.util.FileUtil;
 
-public class ProcPerf {
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
-	static int SLEEP_TIME = 2000;
-	static Sigar sigarImpl = new Sigar();
-	static SigarProxy sigar = SigarProxyCache.newInstance(sigarImpl, SLEEP_TIME);
-	
+public class ProcPerf {
+	SystemInfo si = new SystemInfo();
+	OperatingSystem os = si.getOperatingSystem();
+	HardwareAbstractionLayer hal = si.getHardware();
 	private static File regRoot = null;
-	
 	Map<String, MeterResource> meterMap = new HashMap<String, MeterResource>();
 
 	public static void ready() {
@@ -74,7 +69,7 @@ public class ProcPerf {
 			if (pids[i].isDirectory())
 				continue;
 			String name = pids[i].getName();
-			if (name.endsWith(".scouter") == false) {
+			if (!name.endsWith(".scouter")) {
 				continue;
 			}
 			int pid = CastUtil.cint(name.substring(0, name.lastIndexOf(".")));
@@ -94,8 +89,9 @@ public class ProcPerf {
 				meterMap.put(objname, meter);
 			}
 			try {
-				ProcCpu cpu = sigar.getProcCpu(pid);
-				double value = cpu.getPercent() * 100.0D/cpuCores;
+				OSProcess process = os.getProcess(pid);
+				double usage = process.getProcessCpuLoadBetweenTicks(null);
+				double value = usage/cpuCores;
 				meter.add(value);
 				float procCpu = (float) meter.getAvg(Configure.getInstance()._cpu_value_avg_sec);
 				PerfCounterPack p = pw.getPack(objname, TimeTypeEnum.REALTIME);
@@ -110,10 +106,6 @@ public class ProcPerf {
 	}
 
 	private int getCpuCore() {
-		try {
-			return sigar.getCpuList().length;
-		} catch (SigarException e) {
-			return 1;
-		}
+		return hal.getProcessor().getLogicalProcessorCount();
 	}
 }

@@ -21,6 +21,7 @@ package scouterx.webapp.model.enums;
  */
 public enum ActiveServiceMode {
 	NONE,
+
 	SQL,
 	SUBCALL,
 	;

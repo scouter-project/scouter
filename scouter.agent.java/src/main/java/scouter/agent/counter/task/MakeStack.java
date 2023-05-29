@@ -11,6 +11,7 @@ import scouter.agent.trace.TraceContextManager;
 import scouter.agent.trace.TraceMain;
 import scouter.lang.pack.StackPack;
 import scouter.lang.step.DumpStep;
+import scouter.util.StringUtil;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -119,27 +120,47 @@ public class MakeStack {
         }
 
         ThreadInfo tInfo = tmxBean.getThreadInfo(ctx.threadId, 50);
-        if (tInfo == null) return;
+        if (tInfo != null) {
+            StackTraceElement[] elements = tInfo.getStackTrace();
+            int length = elements.length;
+            int[] stacks = new int[length];
 
-        StackTraceElement[] elements = tInfo.getStackTrace();
-        int length = elements.length;
-        int[] stacks = new int[length];
+            for (int i = 0; i < length; i++) {
+                stacks[i] = DataProxy.sendStackElement(elements[i]);
+            }
+            DumpStep dumpStep = new DumpStep();
+            dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+            dumpStep.stacks = stacks;
+            dumpStep.threadId = ctx.threadId;
+            dumpStep.threadName = tInfo.getThreadName();
+            dumpStep.threadState = tInfo.getThreadState().toString();
+            dumpStep.lockOwnerId = tInfo.getLockOwnerId();
+            dumpStep.lockName = tInfo.getLockName();
+            dumpStep.lockOwnerName = tInfo.getLockOwnerName();
 
-        for (int i = 0; i < length; i++) {
-            stacks[i] = DataProxy.sendStackElement(elements[i]);
+            ctx.temporaryDumpSteps.offer(dumpStep);
+            ctx.hasDumpStack = true;
+        } else {
+            Thread t = ctx.thread;
+            if (t != null) {
+                StackTraceElement[] elements = t.getStackTrace();
+                int length = Math.min(elements.length, 50);
+                int[] stacks = new int[length];
+
+                for (int i = 0; i < length; i++) {
+                    stacks[i] = DataProxy.sendStackElement(elements[i]);
+                }
+                DumpStep dumpStep = new DumpStep();
+                dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+                dumpStep.stacks = stacks;
+                dumpStep.threadId = ctx.threadId;
+                dumpStep.threadName = StringUtil.isEmpty(t.getName()) ? t.toString() : t.getName();
+                dumpStep.threadState = t.getState().name();
+
+                ctx.temporaryDumpSteps.offer(dumpStep);
+                ctx.hasDumpStack = true;
+            }
         }
-        DumpStep dumpStep = new DumpStep();
-        dumpStep.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
-        dumpStep.stacks = stacks;
-        dumpStep.threadId = ctx.threadId;
-        dumpStep.threadName = tInfo.getThreadName();
-        dumpStep.threadState = tInfo.getThreadState().toString();
-        dumpStep.lockOwnerId = tInfo.getLockOwnerId();
-        dumpStep.lockName = tInfo.getLockName();
-        dumpStep.lockOwnerName = tInfo.getLockOwnerName();
-
-        ctx.temporaryDumpSteps.offer(dumpStep);
-        ctx.hasDumpStack = true;
     }
 
     private void reactiveStepDump(ThreadMXBean tmxBean, TraceContext ctx) {

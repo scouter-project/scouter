@@ -18,13 +18,16 @@ package scouter.agent.proxy;
 
 import scouter.agent.Logger;
 import scouter.agent.trace.TraceContext;
+import scouter.agent.util.ClassUtils;
 
 import java.lang.reflect.Method;
 import java.util.Enumeration;
+import java.util.List;
 
 public class HttpTraceFactory {
 	private static final String HTTP_TRACE = "scouter.xtra.http.HttpTrace";
 	private static final String HTTP_TRACE3 = "scouter.xtra.http.HttpTrace3";
+	private static final String HTTP_TRACE4 = "scouter.xtra.http.jakarta.JakartaHttpTrace";
 	private static final String HTTP_TRACE_WEBFLUX = "scouter.xtra.http.WebfluxHttpTrace";
 
 	public static final IHttpTrace dummy = new IHttpTrace() {
@@ -95,7 +98,7 @@ public class HttpTraceFactory {
 				return dummy;
 			}
 
-			Class c = null;
+			Class<?> c = null;
 
 			boolean reactive = true;
 			try {
@@ -107,15 +110,26 @@ public class HttpTraceFactory {
 			}
 
 			if (!reactive) {
-				boolean servlet3 = true;
+				boolean servlet = true;
+				boolean jakarta = false;
 				try {
 					Method m = oReq.getClass().getMethod("logout");
 				} catch (Exception e) {
-					servlet3 = false;
+					servlet = false;
 				}
 
-				if(servlet3) {
-					c = Class.forName(HTTP_TRACE3, true, loader);
+				if (servlet) {
+					if (implemented(oReq.getClass(), "jakarta")) {
+						jakarta = true;
+					}
+				}
+
+				if(servlet) {
+					if (jakarta) {
+						c = Class.forName(HTTP_TRACE4, true, loader);
+					}else {
+						c = Class.forName(HTTP_TRACE3, true, loader);
+					}
 				} else {
 					c = Class.forName(HTTP_TRACE, true, loader);
 				}
@@ -126,5 +140,15 @@ public class HttpTraceFactory {
 			Logger.println("A133", "fail to create", e);
 			return dummy;
 		}
+	}
+
+	static boolean implemented(Class<?> clazz, String interfaceNamePrefix) {
+		List<Class<?>> interfaces = ClassUtils.getAllInterfaces(clazz);
+		for(Class<?> interfaceClass : interfaces) {
+			if( interfaceClass.getPackage().getName().startsWith(interfaceNamePrefix)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

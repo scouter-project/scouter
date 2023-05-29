@@ -29,11 +29,25 @@ import scouter.lang.pack.ObjectPack;
 import scouter.server.util.XmlUtil;
 import scouter.util.FileUtil;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static scouter.lang.constants.ScouterConstants.TAG_OBJ_DETECTED_TYPE;
 
@@ -181,9 +195,21 @@ public class CounterManager {
 	}
 
 	private void saveCustomContent() {
-		XmlUtil.writeXmlFileWithIndent(unsafeDoc, customFile, 2);
-		xmlCustomContent = FileUtil.readAll(customFile);
-		reloadEngine();
+		String resultString = XmlUtil.writeXmlFileWithIndent(unsafeDoc, customFile, 2);
+		String normalizeCountersXml = null;
+		try {
+			normalizeCountersXml = normalizeCountersXml(resultString);
+		} catch (JAXBException e) {
+			e.printStackTrace();
+			normalizeCountersXml = resultString;
+		}
+		try {
+			FileUtil.saveText(new File(customFile.getCanonicalPath()), normalizeCountersXml);
+			xmlCustomContent = FileUtil.readAll(customFile);
+			reloadEngine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void initUnsafeDoc() {
@@ -254,10 +280,16 @@ public class CounterManager {
 	}
 
 	public boolean addObjectTypeIfNotExist(ObjectPack objectPack) {
+		if (Configure.getInstance().log_udp_some_object.equals(objectPack.objType)) {
+			System.out.println("DEBUG objType: " + objectPack.objType);
+		}
 		if (engine.getObjectType(objectPack.objType) != null) {
 			return false;
 		}
 		String detected = objectPack.tags.getText(TAG_OBJ_DETECTED_TYPE);
+		if (Configure.getInstance().log_udp_some_object.equals(objectPack.objType)) {
+			System.out.println("DEBUG objType: " + objectPack.objType + ", detected: " + detected);
+		}
 		ObjectType detectedType = engine.getObjectType(detected);
 		if (detectedType == null) {
 			return false;
@@ -273,12 +305,16 @@ public class CounterManager {
 	}
 
 	public synchronized boolean addObjectType(ObjectType objType) {
+		if (Configure.getInstance().log_udp_some_object.equals(objType.getName())) {
+			System.out.println("DEBUG objType: " + objType.getName() + ", will be added ");
+		}
 		Document doc = appendObjectType(objType, getCustomDocument());
 		if (doc != null) {
-			XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
-			xmlCustomContent = FileUtil.readAll(customFile);
-			reloadEngine();
-			return true;
+			String result = XmlUtil.writeXmlFileWithIndent(doc, customFile, 2);
+			if (Configure.getInstance().log_udp_some_object.equals(objType.getName())) {
+				System.out.println("DEBUG objType: " + objType.getName() + ", new XML = " + result);
+			}
+			return saveAndReloadCountersSiteXml(result);
 		}
 		return false;
 	}
@@ -468,7 +504,15 @@ public class CounterManager {
 
 	public boolean saveAndReloadCountersSiteXml(String contents) {
 		try {
-			if (FileUtil.saveText(new File(customFile.getCanonicalPath()), contents)) {
+			String normalizeCountersXml = null;
+			try {
+				normalizeCountersXml = normalizeCountersXml(contents);
+			} catch (JAXBException e) {
+				e.printStackTrace();
+				normalizeCountersXml = contents;
+			}
+
+			if (FileUtil.saveText(new File(customFile.getCanonicalPath()), normalizeCountersXml)) {
 				xmlCustomContent = FileUtil.readAll(new File(customFile.getCanonicalPath()));
 				return reloadEngine();
 			}
@@ -476,5 +520,122 @@ public class CounterManager {
 			e.printStackTrace();
 		}
 		return false;
+	}
+
+	public String normalizeCountersXml(String xmlString) throws JAXBException {
+
+		JAXBContext jaxbContext = JAXBContext.newInstance(Counters0.class);
+		Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
+		Counters0 counters = (Counters0) unmarshaller.unmarshal(new StringReader(xmlString));
+
+		if (counters.types == null) {
+			counters.types = new Types0(new ArrayList<>());
+		}
+		List<ObjectType0> objectTypes =
+				counters.types.objectType.stream()
+						.collect(Collectors.toMap(v -> v.name, v -> v, (x, y) -> y)).values().stream().collect(Collectors.toList());
+
+		if (counters.familys == null) {
+			counters.familys = new Familys0(new ArrayList<>());
+		}
+		List<Family0> families =
+				counters.familys.family.stream()
+						.filter(f -> !f.name.contains("zws-metric."))
+						.filter(f -> !f.name.contains("zps-metric."))
+						.collect(Collectors.toMap(v -> v.name, v -> v, (x, y) -> y)).values().stream().collect(Collectors.toList());
+
+		Counters0 newCounters = new Counters0(new Types0(objectTypes), new Familys0(families));
+
+		Marshaller mar= jaxbContext.createMarshaller();
+		mar.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		StringWriter stringWriter = new StringWriter();
+		mar.marshal(newCounters, stringWriter);
+
+		return stringWriter.toString();
+	}
+
+	@XmlRootElement(name = "Counters")
+	public static class Counters0 {
+		@XmlElement(name = "Types")
+		Types0 types;
+		@XmlElement(name = "Familys")
+		Familys0 familys;
+
+		public Counters0() {
+		}
+
+		public Counters0(Types0 types, Familys0 familys) {
+			this.types = types;
+			this.familys = familys;
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class Types0 {
+		@XmlElement(name = "ObjectType")
+		List<ObjectType0> objectType;
+
+		public Types0() {
+		}
+
+		public Types0(List<ObjectType0> objectType) {
+			this.objectType = objectType;
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	//@XmlType(propOrder = { "disp", "family", "icon", "name", "sub_object" })
+	public static class ObjectType0 {
+		@XmlAttribute
+		public String disp = "";
+		@XmlAttribute
+		public String family = "";
+		@XmlAttribute
+		public String icon = "";
+		@XmlAttribute
+		public String name = "";
+		@XmlAttribute(name = "sub-object")
+		public String sub_object = "";
+	}
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	public static class Familys0 {
+		@XmlElement(name = "Family")
+		public List<Family0> family;
+
+		public Familys0() {
+		}
+
+		public Familys0(List<Family0> family) {
+			this.family = family;
+		}
+	}
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	//@XmlType(propOrder = { "master", "name" })
+	public static class Family0 {
+		@XmlAttribute
+		public String master = "";
+		@XmlAttribute
+		public String name = "";
+		@XmlElement(name = "Counter")
+		public List<Counter0> counter;
+	}
+
+	@XmlAccessorType(XmlAccessType.FIELD)
+	//@XmlType(propOrder = { "all", "disp", "icon", "name", "total", "unit" })
+	public static class Counter0 {
+		@XmlAttribute
+		public String all = "true";
+		@XmlAttribute
+		public String disp = "";
+		@XmlAttribute
+		public String icon = "";
+		@XmlAttribute
+		public String name = "";
+		@XmlAttribute
+		public String total = "";
+		@XmlAttribute
+		public String unit = "";
 	}
 }

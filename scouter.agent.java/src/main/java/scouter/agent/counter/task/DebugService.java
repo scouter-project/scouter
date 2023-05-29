@@ -99,6 +99,7 @@ public class DebugService {
 				out.println("");
 				DumpUtil.printStack(out, ctx.thread.getId());
 				out.println("");
+				out.flush();
 			} catch (Exception e) {
 				Logger.println("A155", e.toString());
 				FileUtil.close(out);

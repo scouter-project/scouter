@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.17.1</version> <!--scouter-->
+        <version>2.20.0</version> <!--scouter-->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -80,7 +78,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.9.10.8</version>
+            <version>2.12.6.1</version>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -257,36 +255,36 @@
                         <phase>package</phase>
                         <configuration>
                             <target>
-                                <mkdir dir="${scouter.assembly.working.dir}" />
+                                <mkdir dir="${scouter.assembly.working.dir}"/>
                                 <copy todir="${scouter.assembly.working.dir}">
                                     <fileset dir="${project.basedir}/scripts">
-                                        <include name="**/*" />
+                                        <include name="**/*"/>
                                     </fileset>
                                 </copy>
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${scouter.webapp.jarName}.jar" overwrite="true" verbose="true" />
+                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${scouter.webapp.jarName}.jar" overwrite="true" verbose="true"/>
 
-                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove"/>
                                 <tar destfile="${project.build.directory}/${scouter.webapp.assembly.name}.tar">
                                     <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
-                                        <include name="**/*.sh" />
+                                        <include name="**/*.sh"/>
                                     </tarfileset>
                                     <tarfileset dir="${scouter.assembly.working.dir}">
-                                        <exclude name="**/*.sh" />
+                                        <exclude name="**/*.sh"/>
                                     </tarfileset>
                                     <tarfileset dir="${project.build.directory}">
-                                        <include name="${project.build.finalName}.jar" />
-                                        <include name="${scouter.webapp.jarName}.jar" />
-                                        <include name="lib/**/*" />
+                                        <include name="${project.build.finalName}.jar"/>
+                                        <include name="${scouter.webapp.jarName}.jar"/>
+                                        <include name="lib/**/*"/>
                                     </tarfileset>
                                     <tarfileset dir="${project.basedir}">
-                                        <include name="conf/**/*" />
-                                        <include name="extweb/**/*" />
+                                        <include name="conf/**/*"/>
+                                        <include name="extweb/**/*"/>
                                     </tarfileset>
                                 </tar>
 
                                 <!-- copy for preparing whole packaging -->
-                                <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
-                                <copy file="${project.build.directory}/${scouter.webapp.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
+                                <mkdir dir="${scouter.whole.packaging.prepare.dir}"/>
+                                <copy file="${project.build.directory}/${scouter.webapp.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}"/>
                             </target>
                         </configuration>
                         <goals>

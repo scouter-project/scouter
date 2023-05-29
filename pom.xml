@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.17.1</version> <!--scouter-->
+    <version>2.20.0</version> <!--scouter-->
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -22,6 +22,7 @@
         <module>scouter.agent.host</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
+        <module>scouter.extra.java20</module>
     </modules>
 
     <properties>
@@ -184,7 +185,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.5.0</version>
             </plugin>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>

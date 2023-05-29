@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.17.1</version> <!--scouter-->
+        <version>2.20.0</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-deploy</artifactId>
@@ -19,7 +19,7 @@
         <scouter.assembly.dir>${project.build.directory}/assembly-working</scouter.assembly.dir>
 
         <scouter.assembly.agent.java.dir>${scouter.assembly.dir}/scouter/agent.java</scouter.assembly.agent.java.dir>
-        <scouter.assembly.agent.java.legacy.dir>${scouter.assembly.dir}/scouter/agent.java_6_7</scouter.assembly.agent.java.legacy.dir>
+<!--        <scouter.assembly.agent.java.legacy.dir>${scouter.assembly.dir}/scouter/agent.java_6_7</scouter.assembly.agent.java.legacy.dir>-->
         <scouter.assembly.agent.host.dir>${scouter.assembly.dir}/scouter/agent.host</scouter.assembly.agent.host.dir>
         <scouter.assembly.agent.batch.dir>${scouter.assembly.dir}/scouter/agent.batch</scouter.assembly.agent.batch.dir>
         <scouter.assembly.server.dir>${scouter.assembly.dir}/scouter/server</scouter.assembly.server.dir>
@@ -75,9 +75,9 @@
                                 <mkdir dir="${scouter.assembly.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.host.assembly.name}.tar" dest="${scouter.assembly.agent.host.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.assembly.name}.tar" dest="${scouter.assembly.agent.java.dir}" />
-                                <copy todir="${scouter.assembly.agent.java.legacy.dir}">
-                                    <fileset dir="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.legacy.dir.name}" />
-                                </copy>
+<!--                                <copy todir="${scouter.assembly.agent.java.legacy.dir}">-->
+<!--                                    <fileset dir="${scouter.whole.packaging.prepare.dir}/${scouter.agent.java.legacy.dir.name}" />-->
+<!--                                </copy>-->
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.agent.batch.assembly.name}.tar" dest="${scouter.assembly.agent.batch.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.server.assembly.name}.tar" dest="${scouter.assembly.server.dir}" />
                                 <untar src="${scouter.whole.packaging.prepare.dir}/${scouter.webapp.assembly.name}.tar" dest="${scouter.assembly.webapp.dir}" />
@@ -89,11 +89,11 @@
                                     </fileset>
                                 </delete>
                                 <delete dir="${scouter.assembly.server.dir}/lib-min"/>
-                                <copy todir="${scouter.assembly.agent.java.legacy.dir}">
-                                    <fileset dir="${scouter.assembly.agent.java.dir}">
-                                        <exclude name="scouter*agent*.jar" />
-                                    </fileset>
-                                </copy>
+<!--                                <copy todir="${scouter.assembly.agent.java.legacy.dir}">-->
+<!--                                    <fileset dir="${scouter.assembly.agent.java.dir}">-->
+<!--                                        <exclude name="scouter*agent*.jar" />-->
+<!--                                    </fileset>-->
+<!--                                </copy>-->
                                 <tar destfile="${project.build.directory}/${scouter.product.name}.tar">
                                     <tarfileset dir="${scouter.assembly.dir}" mode="755">
                                         <include name="**/*.sh" />
