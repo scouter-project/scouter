@@ -61,7 +61,7 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
             }
             Mono<?> mono = (Mono<?>) mono0;
             traceContext.isReactiveTxidMarked = true;
-            return mono.subscriberContext(new Function<Context, Context>() {
+            return mono.contextWrite(new Function<Context, Context>() {
                 @Override
                 public Context apply(Context context) {
                     return context.put(TraceContext.class, traceContext);

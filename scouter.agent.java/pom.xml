@@ -332,7 +332,7 @@
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-            <version>3.3.8.RELEASE</version>
+            <version>3.4.35</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
