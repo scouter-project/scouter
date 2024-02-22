@@ -39,6 +39,11 @@ public class ReactiveSupportFactory {
 		public String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now) {
 			return null;
 		}
+
+		@Override
+		public boolean isReactor34() {
+			return false;
+		}
 	};
 
 	public static IReactiveSupport create(ClassLoader parent) {
