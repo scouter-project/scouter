@@ -90,12 +90,7 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
             };
 
             monoChain = (Mono<?>) subscriberContextMethod.invoke(mono, func);
-            return monoChain.subscriberContext(new Function<Context, Context>() {
-                @Override
-                public Context apply(Context context) {
-                    return context.put(TraceContext.class, traceContext);
-                }
-            }).doOnSuccess(new Consumer<Object>() {
+            return monoChain.doOnSuccess(new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
                     TraceMain.endHttpService(new TraceMain.Stat(traceContext), null);
