@@ -538,6 +538,9 @@ public class CounterManager {
 		if (counters.familys == null) {
 			counters.familys = new Familys0(new ArrayList<>());
 		}
+		if (counters.familys.family == null) {
+			counters.familys.family = new ArrayList<>();
+		}
 		List<Family0> families =
 				counters.familys.family.stream()
 						.filter(f -> !f.name.contains("zws-metric."))
