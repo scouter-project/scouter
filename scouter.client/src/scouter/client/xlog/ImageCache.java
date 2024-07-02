@@ -61,7 +61,7 @@ public class ImageCache {
 	}
 
 	private Image createXPImage(RGB rgb) {
-		return createXPImage5(rgb);
+		return createXPImage6(rgb);
 	}
 
 	private Image createXPImage4(RGB rgb) {
@@ -94,6 +94,21 @@ public class ImageCache {
 		gcc.drawPoint(4, 1);
 		gcc.drawPoint(0, 3);
 		gcc.drawPoint(3, 4);
+		gcc.dispose();
+		return xp;
+	}
+
+	private Image createXPImage6(RGB rgb) {
+		Image xp;
+		xp = new Image(null, 5, 5);
+		GC gcc = new GC(xp);
+		gcc.setBackground(new Color(null, rgb));
+		gcc.fillRectangle(0, 0, 5, 5);
+		gcc.setBackground(ColorUtil.getInstance().getColor("white"));
+		gcc.fillRectangle(1, 0, 1, 1);
+		gcc.fillRectangle(4, 1, 1, 1);
+		gcc.fillRectangle(0, 3, 1, 1);
+		gcc.fillRectangle(3, 4, 1, 1);
 		gcc.dispose();
 		return xp;
 	}
