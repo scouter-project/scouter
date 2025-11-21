@@ -4,7 +4,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.20.0</version> <!--scouter-->
+        <version>2.20.1</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-agent-java</artifactId>
@@ -239,7 +239,7 @@
     <dependencies>
         <dependency>
             <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-extra-java20</artifactId>
+            <artifactId>scouter-extra-java20dummy</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -250,12 +250,12 @@
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm</artifactId>
-            <version>9.5</version>
+            <version>9.8</version>
         </dependency>
         <dependency>
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
-            <version>9.5</version>
+            <version>9.8</version>
         </dependency>
         <!-- local lib -->
         <dependency>
