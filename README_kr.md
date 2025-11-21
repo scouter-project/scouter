@@ -81,6 +81,7 @@
     - **[scouter-plugin-server-slack](https://github.com/scouter-contrib/scouter-plugin-server-alert-slack)** : Scouter에서 발생하는 alert를 slack으로 전송하는 plugin
     - **[scouter-plugin-server-line](https://github.com/scouter-contrib/scouter-plugin-server-alert-line)** : Scouter에서 발생하는 alert를 line으로 전송하는 plugin
     - **[scouter-plugin-server-dingtalk](https://github.com/scouter-contrib/scouter-plugin-server-alert-dingtalk)** : Scouter에서 발생하는 alert를 dingtalk으로 전송하는 plugin
+    - **[scouter-plugin-server-teams](https://github.com/scouter-contrib/scouter-plugin-server-alert-teams)** : Scouter에서 발생하는 alert를 Microsoft Teams 로 전송하는 plugin
   
   - **Counter**
     - **[scouter-plugin-server-influxdb](https://github.com/scouter-contrib/scouter-plugin-server-influxdb)** : Scouter의 성능 counter 데이터를 시계열 DB인 influxDB로 연동하는 plugin 
