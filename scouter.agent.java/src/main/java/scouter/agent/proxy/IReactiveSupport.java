@@ -28,4 +28,6 @@ public interface IReactiveSupport {
 
 	String dumpScannable(TraceContext traceContext, TraceContext.TimedScannable timedScannable, long now);
 
+	boolean isReactor34();
+
 }

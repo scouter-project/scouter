@@ -45,6 +45,7 @@ import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.step.ParameterizedMessageStep;
 import scouter.util.StringUtil;
 
+import java.lang.reflect.Method;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -52,6 +53,25 @@ import java.util.function.Function;
 public class ReactiveSupportWithCoroutine implements IReactiveSupport {
 
     static Configure configure = Configure.getInstance();
+    private Method subscriberContextMethod;
+    private static Method isCheckpoint;
+    private static boolean isReactor34;
+
+    public ReactiveSupportWithCoroutine() {
+        isReactor34 = ReactiveSupportUtils.isSupportReactor34();
+        try {
+            if (isReactor34) {
+                subscriberContextMethod = Mono.class.getMethod("contextWrite", Function.class);
+                Class<?> assemblySnapshotClass = Class.forName("reactor.core.publisher.FluxOnAssembly$AssemblySnapshot");
+                isCheckpoint = assemblySnapshotClass.getDeclaredMethod("isCheckpoint");
+                isCheckpoint.setAccessible(true);
+            } else {
+                subscriberContextMethod = Mono.class.getMethod("subscriberContext", Function.class);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public Object subscriptOnContext(Object mono0, final TraceContext traceContext) {
@@ -61,12 +81,16 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
             }
             Mono<?> mono = (Mono<?>) mono0;
             traceContext.isReactiveTxidMarked = true;
-            return mono.subscriberContext(new Function<Context, Context>() {
+            Mono<?> monoChain;
+            Function<Context, Context> func = new Function<Context, Context>() {
                 @Override
                 public Context apply(Context context) {
                     return context.put(TraceContext.class, traceContext);
                 }
-            }).doOnSuccess(new Consumer<Object>() {
+            };
+
+            monoChain = (Mono<?>) subscriberContextMethod.invoke(mono, func);
+            return monoChain.doOnSuccess(new Consumer<Object>() {
                 @Override
                 public void accept(Object o) {
                     TraceMain.endHttpService(new TraceMain.Stat(traceContext), null);
@@ -161,6 +185,7 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
         private final String checkpointDesc;
         private final Integer depth;
         private Subscription orgSubs;
+        private boolean isReactor34;
 
         private enum ReactorCheckPointType {
             ON_SUBSCRIBE,
@@ -176,9 +201,10 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
             this.scannable = scannable;
             this.publisher = publisher;
             this.traceContext = traceContext;
+            this.isReactor34 = isReactor34;
 
             Tuple.StringLongPair checkpointPair = ScouterOptimizableOperatorProxy
-                    .nameOnCheckpoint(scannable, configure.profile_reactor_checkpoint_search_depth);
+                    .nameOnCheckpoint(scannable, configure.profile_reactor_checkpoint_search_depth, isReactor34, isCheckpoint);
             checkpointDesc = checkpointPair.aString;
 
             Integer parentDepth = context.getOrDefault(SubscribeDepth.class, 0);
@@ -334,5 +360,10 @@ public class ReactiveSupportWithCoroutine implements IReactiveSupport {
 
         ScouterOptimizableOperatorProxy.appendSources4Dump(scannable, builder, configure.profile_reactor_checkpoint_search_depth);
         return builder.toString();
+    }
+
+    @Override
+    public boolean isReactor34() {
+        return isReactor34;
     }
 }

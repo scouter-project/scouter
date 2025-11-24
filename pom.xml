@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.20.0</version> <!--scouter-->
+    <version>2.20.1</version> <!--scouter-->
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -23,6 +23,7 @@
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
         <module>scouter.extra.java20</module>
+        <module>scouter.extra.java20dummy</module>
     </modules>
 
     <properties>

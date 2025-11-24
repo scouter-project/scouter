@@ -93,7 +93,7 @@ class IndexKeyFile(_path: String, hashSize: Int = 1) extends IClose {
                 looping += 1;
             }
             if(looping > conf.log_index_traversal_warning_count) {
-                Logger.println("S152", 10, "[warn] Too many index deep searching. " + DataInputX.toLong(key, 0));
+                Logger.println("S152", 10, "[warn] Too many index deep searching. " + (if (key.length == 7) DataInputX.toLong(key, 0) else DataInputX.toInt(key, 0)));
             }
         } catch {
             case e: IOException =>

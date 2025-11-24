@@ -21,6 +21,8 @@ package reactor.core.publisher;
 import scouter.agent.Logger;
 import scouter.agent.util.Tuple;
 
+import java.lang.reflect.Method;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2020/08/08
  */
@@ -31,7 +33,8 @@ public class ScouterOptimizableOperatorProxy {
     public static boolean accessible = false;
     public static boolean first = true;
 
-    public static Tuple.StringLongPair nameOnCheckpoint(Object candidate, int maxScanDepth) {
+    public static Tuple.StringLongPair nameOnCheckpoint(Object candidate, int maxScanDepth, boolean isReactor34,
+                                                        Method isCheckpoint) {
         try {
             if (!accessible && first) {
                 try {
@@ -54,12 +57,14 @@ public class ScouterOptimizableOperatorProxy {
                 }
                 if (closeAssembly instanceof MonoOnAssembly) {
                     FluxOnAssembly.AssemblySnapshot snapshot = ((MonoOnAssembly) closeAssembly).stacktrace;
-                    if (snapshot != null && snapshot.checkpointed) {
+                    boolean cp = isReactor34 ? (Boolean) isCheckpoint.invoke(snapshot) : snapshot.checkpointed;
+                    if (snapshot != null && cp) {
                         return new Tuple.StringLongPair(snapshot.cached, snapshot.hashCode());
                     }
                 } else if (closeAssembly instanceof FluxOnAssembly) {
                     FluxOnAssembly.AssemblySnapshot snapshot = ((FluxOnAssembly) closeAssembly).snapshotStack;
-                    if (snapshot != null && snapshot.checkpointed) {
+                    boolean cp = isReactor34 ? (Boolean) isCheckpoint.invoke(snapshot) : snapshot.checkpointed;
+                    if (snapshot != null && cp) {
                         return new Tuple.StringLongPair(snapshot.cached, snapshot.hashCode());
                     }
                 }
