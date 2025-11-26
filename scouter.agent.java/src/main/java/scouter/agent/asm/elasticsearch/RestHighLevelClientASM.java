@@ -39,8 +39,9 @@ public class RestHighLevelClientASM implements IASM, Opcodes {
 		if (conf._hook_elasticsearch_enabled == false) {
 			return cv;
 		}
+		if ("org/elasticsearch/client/RestHighLevelClient".equals(className) ||
+				"org/opensearch/client/RestHighLevelClient".equals(className)) {
 
-		if ("org/elasticsearch/client/RestHighLevelClient".equals(className)) {
 			return new RestHighLevelClientCV(cv, className);
 		}
 		return cv;
