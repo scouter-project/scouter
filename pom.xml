@@ -42,7 +42,7 @@
         <jetty.version>9.4.6.v20170531</jetty.version>
         <jersey.version>2.27</jersey.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.13</logback.version>
     </properties>
 
     <repositories>
