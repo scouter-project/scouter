@@ -8,7 +8,7 @@
 
 ## 어플리케이션 성능 모니터링
 
-오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 모니터링 기능을 제공한다.
+오픈소스 APM인 Scouter는 JVM(WAS, Standalone application)을 사용하는 어플리케이션 및 OS 자원에 대한 모니터링 기능을 제공한다.
  - **APM** : Application performance montoring / application performance management
  - 모니터링 대상 (전용 agent)
    - Java Agent : Web application (on Tomcat, JBoss, Resin ...), Standalone java application
