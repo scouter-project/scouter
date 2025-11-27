@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
  */
 public class RuntimeUtil {
 
-	final static DecimalFormat memroyFormat = new DecimalFormat("#,##0.00 Mb");
+	final static DecimalFormat memoryFormat = new DecimalFormat("#,##0.00 Mb");
 
 	final static double MB_Numeral = 1024d * 1024d;
 
@@ -46,15 +46,15 @@ public class RuntimeUtil {
 	}
 
 	public static String getTotalMemoryStringInMb() {
-		return memroyFormat.format(getTotalMemoryInMb());
+		return memoryFormat.format(getTotalMemoryInMb());
 	}
 
 	public static String getFreeMemoryStringInMb() {
-		return memroyFormat.format(getFreeMemoryInMb());
+		return memoryFormat.format(getFreeMemoryInMb());
 	}
 
 	public static String getUsedMemoryStringInMb() {
-		return memroyFormat.format(getUsedMemoryInMb());
+		return memoryFormat.format(getUsedMemoryInMb());
 	}
 
 }
