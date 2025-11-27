@@ -18,7 +18,7 @@
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.webapp.jarName>scouter.webapp</scouter.webapp.jarName>
-        <swagger.version>1.5.16</swagger.version>
+        <swagger.version>1.6.14</swagger.version>
     </properties>
 
     <dependencies>
