@@ -6,7 +6,7 @@
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.20.1</version> <!--scouter-->
+        <version>2.21.0</version> <!--scouter-->
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -40,11 +40,11 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.6.1</version>
                 <configuration>
-                    <source>20</source>
-                    <target>20</target>
-                    <compilerVersion>20</compilerVersion>
+                    <source>21</source>
+                    <target>21</target>
+                    <compilerVersion>21</compilerVersion>
                     <fork>true</fork>
-                    <executable>${JAVA_20_HOME}/bin/javac</executable>
+                    <executable>${JAVA_21_HOME}/bin/javac</executable>
                 </configuration>
             </plugin>
             <plugin>

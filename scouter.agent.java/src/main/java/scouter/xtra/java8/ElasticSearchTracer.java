@@ -67,15 +67,15 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
             HttpEntityEnclosingRequestBase requestBase = (HttpEntityEnclosingRequestBase) httpRequestBase0;
             String url = requestBase.toString();
             if (cut) {
-                return StringUtil.limiting(url, 45);
+                return StringUtil.limiting(url, 100);
             }
             HttpEntity entity = requestBase.getEntity();
             if (entity == null) {
-                return StringUtil.limiting(url, 45);
+                return StringUtil.limiting(url, 100);
             }
             try {
                 if (err) {
-                    return StringUtil.limiting(url, 45);
+                    return StringUtil.limiting(url, 100);
                 }
                 Class<? extends HttpEntity> clazz = entity.getClass();
                 Field field = fieldMap.get(clazz);
@@ -85,7 +85,7 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
                 }
                 Object entityDesc = field.get(entity);
                 if (entityDesc == null) {
-                    return StringUtil.limiting(url, 45);
+                    return StringUtil.limiting(url, 100);
                 } else {
                     String append = entityDesc instanceof byte[] ? new String((byte[]) entityDesc)
                             : entityDesc.toString();
@@ -94,13 +94,13 @@ public class ElasticSearchTracer implements IElasticSearchTracer {
             } catch (Exception e) {
                 err = true;
                 Logger.println("G177p", "error, so skip it later.", e);
-                return StringUtil.limiting(url, 45);
+                return StringUtil.limiting(url, 100);
             }
 
         } else {
             String url = httpRequestBase0.toString();
             if (cut) {
-                return StringUtil.limiting(url, 45);
+                return StringUtil.limiting(url, 100);
             }
             return url;
         }
