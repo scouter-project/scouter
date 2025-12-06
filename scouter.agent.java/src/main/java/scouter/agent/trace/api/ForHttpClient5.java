@@ -19,7 +19,7 @@ package scouter.agent.trace.api;
 import scouter.agent.Configure;
 import scouter.agent.Logger;
 import scouter.agent.plugin.PluginHttpCallTrace;
-import scouter.agent.proxy.HttpClient43Factory;
+import scouter.agent.proxy.HttpClient5Factory;
 import scouter.agent.proxy.IHttpClient;
 import scouter.agent.trace.HookArgs;
 import scouter.agent.trace.TraceContext;
@@ -28,7 +28,8 @@ import scouter.lang.step.ApiCallStep;
 import scouter.util.Hexa32;
 import scouter.util.IntKeyLinkedMap;
 import scouter.util.KeyGen;
-public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
+
+public class ForHttpClient5 implements ApiCallTraceHelper.IHelper {
 
 	private static IntKeyLinkedMap<IHttpClient> httpclients = new IntKeyLinkedMap<IHttpClient>().setMax(5);
 	private static Configure conf = Configure.getInstance();
@@ -88,7 +89,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 		IHttpClient httpclient = httpclients.get(key);
 		if (httpclient == null) {
 			synchronized (this) {
-				httpclient = HttpClient43Factory.create(_this.getClass().getClassLoader());
+				httpclient = HttpClient5Factory.create(_this.getClass().getClassLoader());
 				httpclients.put(key, httpclient);
 			}
 		}
@@ -116,7 +117,7 @@ public class ForHttpClient43 implements ApiCallTraceHelper.IHelper {
 				}
 				PluginHttpCallTrace.call(ctx, req);
 			} catch (Exception e) {
-				Logger.println("A178-43", e);
+				Logger.println("A178-5", e);
 				ok = false;
 			}
 		}

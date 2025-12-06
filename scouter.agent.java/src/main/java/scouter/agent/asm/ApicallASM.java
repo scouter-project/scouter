@@ -57,6 +57,7 @@ public class ApicallASM implements IASM, Opcodes {
                 + "Lorg/apache/commons/httpclient/HttpMethod;"
                 + "Lorg/apache/commons/httpclient/HttpState;" + ")I");
         AsmUtil.add(reserved, "org/apache/http/impl/client/InternalHttpClient", "doExecute");
+        AsmUtil.add(reserved, "org/apache/hc/client5/http/impl/classic/InternalHttpClient", "doExecute");
         AsmUtil.add(reserved, "sun/net/www/http/HttpClient", "parseHTTP");
         AsmUtil.add(reserved, "org/apache/http/impl/client/AbstractHttpClient",//
                 "execute(Lorg/apache/http/HttpHost;"

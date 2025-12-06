@@ -33,6 +33,7 @@ public class ApiCallTraceHelper {
 
 	static Map<String, IHelper> handlers = new HashMap<String, IHelper>();
 	static ForHttpClient43 forHttpClient43 = new ForHttpClient43();
+
 	static ForSpringAsyncRestTemplate forSpringAsyncRestTemplate = new ForSpringAsyncRestTemplate();
 	static ForJavaNetHttpClient forJavaNetHttpClient = new ForJavaNetHttpClient();
 	static ForWebClient forWebClient = new ForWebClient();
@@ -51,6 +52,7 @@ public class ApiCallTraceHelper {
 		put("sun/net/www/http/HttpClient", new ForSunHttpClient());
 		put("org/apache/commons/httpclient/HttpClient", new ForHttpClient());
 		put("org/apache/http/impl/client/InternalHttpClient", forHttpClient43);
+		put("org/apache/hc/client5/http/impl/classic/InternalHttpClient", new ForHttpClient5());
 		put("org/apache/http/impl/client/AbstractHttpClient", new ForHttpClient40());
 		put("com/sap/mw/jco/JCO$Client", new ForJCOClient());
 		put("com/netflix/ribbon/transport/netty/http/LoadBalancingHttpClient", new ForRibbonLB());
