@@ -11,6 +11,7 @@
     <packaging>jar</packaging>
     <name>scouter.agent.java</name>
 
+
     <profiles>
         <profile>
             <id>java-8-plus</id>
@@ -19,12 +20,14 @@
             </activation>
             <properties>
                 <env>java8plus</env>
+                <java.version>1.8</java.version>
+                <scouter.agent.java.assembly.name.p>${scouter.agent.java.assembly.name}</scouter.agent.java.assembly.name.p>
             </properties>
             <dependencies>
                 <dependency>
-                    <groupId>org.javassist</groupId>
-                    <artifactId>javassist</artifactId>
-                    <version>3.29.2-GA</version>
+                    <groupId>io.github.scouter-project</groupId>
+                    <artifactId>scouter-extra-java20dummy</artifactId>
+                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
             <build>
@@ -34,177 +37,63 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.1</version>
                         <configuration>
-                            <compilerVersion>1.8</compilerVersion>
-                            <source>1.8</source>
-                            <target>1.8</target>
+                            <compilerVersion>${java.version}</compilerVersion>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
                             <fork>true</fork>
-                            <executable>${JAVA_20_HOME}/bin/javac</executable>
                         </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <configuration>
-                            <javadocExecutable>${JAVA_20_HOME}/bin/javadoc</javadocExecutable>
-                        </configuration>
                         <version>3.5.0</version>
+                        <configuration>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>java-21-plus</id>
+            <properties>
+                <env>java21plus</env>
+                <java.version>21</java.version>
+                <scouter.agent.java.assembly.name.p>${scouter.agent.java.assembly.name}.java21</scouter.agent.java.assembly.name.p>
+            </properties>
+            <dependencies>
+                <dependency>
+                    <groupId>io.github.scouter-project</groupId>
+                    <artifactId>scouter-extra-java20</artifactId>
+                    <version>${project.version}</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.8.1</version>
+                        <configuration>
+                            <compilerVersion>${java.version}</compilerVersion>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
+                            <fork>true</fork>
+                            <executable>${env.JAVA_21_HOME}/bin/javac</executable>
+                            <compilerArgs>
+                                <arg>--add-exports</arg>
+                                <arg>java.base/sun.net.www.http=ALL-UNNAMED</arg>
+                                <arg>--add-exports</arg>
+                                <arg>java.base/sun.net.www.protocol.http=ALL-UNNAMED</arg>
+                            </compilerArgs>
+                        </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>1.8</version>
-                        <executions>
-                            <execution>
-                                <id>make-ext-jar</id>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <jar destfile="${project.build.directory}/${scouter.http.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/http/**/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.jdbc.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/jdbc/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.httpclient.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/httpclient/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.tools.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/tools/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.kafka.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/kafka/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.redis.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/redis/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.reactive.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/reactive/*.class" />
-                                                <include name="reactor/**/*.class" />
-                                            </fileset>
-                                        </jar>
-                                        <jar destfile="${project.build.directory}/${scouter.java8.jar}">
-                                            <fileset dir="${project.build.outputDirectory}">
-                                                <include name="scouter/xtra/java8/*.class" />
-                                            </fileset>
-                                        </jar>
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>add-to-uber-jar</id>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <echo message="final.jar.name = ${final.jar.name}" />
-                                        <echo message="final.jar.name.xtra = ${final.jar.name.xtra}" />
-
-                                        <jar destfile="${final.jar.name.xtra}">
-                                            <fileset dir="${project.build.directory}">
-                                                <include name="${scouter.http.jar}" />
-                                                <include name="${scouter.jdbc.jar}" />
-                                                <include name="${scouter.httpclient.jar}" />
-                                                <include name="${scouter.tools.jar}" />
-                                                <include name="${scouter.kafka.jar}" />
-                                                <include name="${scouter.redis.jar}" />
-                                                <include name="${scouter.reactive.jar}" />
-                                                <include name="${scouter.java8.jar}" />
-                                            </fileset>
-                                            <zipfileset src="${final.jar.name}" />
-
-                                            <manifest>
-                                                <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Can-Redefine-Classes" value="true" />
-                                                <attribute name="Can-Retransform-Classes" value="true" />
-                                                <attribute name="Boot-Class-Path" value="${project.build.finalName}.jar" />
-                                            </manifest>
-                                        </jar>
-
-                                        <copy file="${final.jar.name}" tofile="${final.jar.name.shade}" overwrite="true" verbose="true" />
-                                        <copy file="${final.jar.name.xtra}" tofile="${final.jar.name}" overwrite="true" verbose="true" />
-                                        <delete file="${project.build.directory}/${scouter.http.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.jdbc.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.httpclient.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.tools.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.kafka.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.redis.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.reactive.jar}" />
-                                        <delete file="${project.build.directory}/${scouter.java8.jar}" />
-
-                                        <!-- for constant name file -->
-                                        <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
-                                            <zipfileset src="${final.jar.name}" />
-                                            <manifest>
-                                                <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Can-Redefine-Classes" value="true" />
-                                                <attribute name="Can-Retransform-Classes" value="true" />
-                                                <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
-                                            </manifest>
-                                        </jar>
-
-                                        <!-- for min file -->
-                                        <jar destfile="${project.build.directory}/${scouter.agent.min.file.name}">
-                                            <zipfileset src="${final.jar.name}"/>
-                                            <manifest>
-                                                <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
-                                                <attribute name="Can-Redefine-Classes" value="true" />
-                                                <attribute name="Can-Retransform-Classes" value="true" />
-                                                <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
-                                            </manifest>
-                                        </jar>
-
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>make-assembly</id>
-                                <phase>package</phase>
-                                <configuration>
-                                    <target>
-                                        <tar destfile="${project.build.directory}/${scouter.agent.java.assembly.name}.tar">
-                                            <tarfileset dir="${project.basedir}">
-                                                <include name="conf/**/*" />
-                                            </tarfileset>
-                                            <tarfileset dir="${project.basedir}">
-                                                <include name="plugin/**/*" />
-                                            </tarfileset>
-                                            <tarfileset dir="${project.build.directory}">
-                                                <include name="${project.build.finalName}.jar" />
-                                                <include name="${scouter.agent.file.name}" />
-                                                <include name="${scouter.agent.min.file.name}" />
-                                            </tarfileset>
-                                        </tar>
-                                        <!-- copy for preparing whole packaging -->
-                                        <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
-                                        <copy file="${project.build.directory}/${scouter.agent.java.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
-                                    </target>
-                                </configuration>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.5.0</version>
+                        <configuration>
+                            <javadocExecutable>${env.JAVA_21_HOME}/bin/javadoc</javadocExecutable>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
@@ -236,12 +125,248 @@
         <provided.tools.jar>${project.basedir}/lib/provided/tools.jar</provided.tools.jar>
     </properties>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Premain-Class>scouter.agent.JavaAgent</Premain-Class>
+                            <Agent-Class>scouter.agent.JavaAgent</Agent-Class>
+                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
+                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
+                            <Boot-Class-Path>${project.build.finalName}</Boot-Class-Path>
+                        </manifestEntries>
+                    </archive>
+                    <excludes>
+                        <exclude>scouter/xtra/**</exclude>
+                        <exclude>reactor/**</exclude>
+                        <exclude>com/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <compilerVersion>${java.version}</compilerVersion>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.5.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.5.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadeSourcesContent>true</shadeSourcesContent>
+                            <filters>
+                                <filter>
+                                    <artifact>io.github.scouter-project:scouter-common</artifact>
+                                    <excludes>
+                                        <exclude>scouter/v.properties</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                            <relocations>
+                                <relocation>
+                                    <pattern>javassist</pattern>
+                                    <shadedPattern>scouter.javassist</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>org.objectweb.asm</pattern>
+                                    <shadedPattern>scouter.org.objectweb.asm</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.8</version>
+                <executions>
+                    <execution>
+                        <id>make-ext-jar</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <jar destfile="${project.build.directory}/${scouter.http.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/http/**/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.jdbc.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/jdbc/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.httpclient.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/httpclient/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.tools.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/tools/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.kafka.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/kafka/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.redis.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/redis/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.reactive.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/reactive/*.class" />
+                                        <include name="reactor/**/*.class" />
+                                    </fileset>
+                                </jar>
+                                <jar destfile="${project.build.directory}/${scouter.java8.jar}">
+                                    <fileset dir="${project.build.outputDirectory}">
+                                        <include name="scouter/xtra/java8/*.class" />
+                                    </fileset>
+                                </jar>
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>add-to-uber-jar</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <echo message="final.jar.name = ${final.jar.name}" />
+                                <echo message="final.jar.name.xtra = ${final.jar.name.xtra}" />
+
+                                <jar destfile="${final.jar.name.xtra}">
+                                    <fileset dir="${project.build.directory}">
+                                        <include name="${scouter.http.jar}" />
+                                        <include name="${scouter.jdbc.jar}" />
+                                        <include name="${scouter.httpclient.jar}" />
+                                        <include name="${scouter.tools.jar}" />
+                                        <include name="${scouter.kafka.jar}" />
+                                        <include name="${scouter.redis.jar}" />
+                                        <include name="${scouter.reactive.jar}" />
+                                        <include name="${scouter.java8.jar}" />
+                                    </fileset>
+                                    <zipfileset src="${final.jar.name}" />
+
+                                    <manifest>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
+                                        <attribute name="Boot-Class-Path" value="${project.build.finalName}.jar" />
+                                    </manifest>
+                                </jar>
+
+                                <copy file="${final.jar.name}" tofile="${final.jar.name.shade}" overwrite="true" verbose="true" />
+                                <copy file="${final.jar.name.xtra}" tofile="${final.jar.name}" overwrite="true" verbose="true" />
+                                <delete file="${project.build.directory}/${scouter.http.jar}" />
+                                <delete file="${project.build.directory}/${scouter.jdbc.jar}" />
+                                <delete file="${project.build.directory}/${scouter.httpclient.jar}" />
+                                <delete file="${project.build.directory}/${scouter.tools.jar}" />
+                                <delete file="${project.build.directory}/${scouter.kafka.jar}" />
+                                <delete file="${project.build.directory}/${scouter.redis.jar}" />
+                                <delete file="${project.build.directory}/${scouter.reactive.jar}" />
+                                <delete file="${project.build.directory}/${scouter.java8.jar}" />
+
+                                <!-- for constant name file -->
+                                <jar destfile="${project.build.directory}/${scouter.agent.file.name}">
+                                    <zipfileset src="${final.jar.name}" />
+                                    <manifest>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
+                                        <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
+                                    </manifest>
+                                </jar>
+
+                                <!-- for min file -->
+                                <jar destfile="${project.build.directory}/${scouter.agent.min.file.name}">
+                                    <zipfileset src="${final.jar.name}"/>
+                                    <manifest>
+                                        <attribute name="Premain-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Agent-Class" value="scouter.agent.JavaAgent" />
+                                        <attribute name="Can-Redefine-Classes" value="true" />
+                                        <attribute name="Can-Retransform-Classes" value="true" />
+                                        <attribute name="Boot-Class-Path" value="${scouter.agent.file.name}" />
+                                    </manifest>
+                                </jar>
+
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>make-assembly</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <target>
+                                <tar destfile="${project.build.directory}/${scouter.agent.java.assembly.name.p}.tar">
+                                    <tarfileset dir="${project.basedir}">
+                                        <include name="conf/**/*" />
+                                    </tarfileset>
+                                    <tarfileset dir="${project.basedir}">
+                                        <include name="plugin/**/*" />
+                                    </tarfileset>
+                                    <tarfileset dir="${project.build.directory}">
+                                        <include name="${project.build.finalName}.jar" />
+                                        <include name="${scouter.agent.file.name}" />
+                                        <include name="${scouter.agent.min.file.name}" />
+                                    </tarfileset>
+                                </tar>
+                                <!-- copy for preparing whole packaging -->
+                                <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
+                                <copy file="${project.build.directory}/${scouter.agent.java.assembly.name.p}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
+                            </target>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
-        <dependency>
-            <groupId>io.github.scouter-project</groupId>
-            <artifactId>scouter-extra-java20dummy</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-common</artifactId>
@@ -257,6 +382,12 @@
             <artifactId>asm-commons</artifactId>
             <version>9.8</version>
         </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+            <version>3.29.2-GA</version>
+        </dependency>
+
         <!-- local lib -->
         <dependency>
             <groupId>jdk.tools</groupId>
@@ -298,6 +429,11 @@
             <artifactId>httpcore</artifactId>
             <version>4.3.3</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.core5</groupId>
+            <artifactId>httpcore5</artifactId>
+            <version>5.2.1</version>
         </dependency>
         <dependency>
             <groupId>com.netflix.ribbon</groupId>
@@ -400,72 +536,8 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.2</version>
-                <configuration>
-                    <archive>
-                        <manifestEntries>
-                            <Premain-Class>scouter.agent.JavaAgent</Premain-Class>
-                            <Agent-Class>scouter.agent.JavaAgent</Agent-Class>
-                            <Can-Redefine-Classes>true</Can-Redefine-Classes>
-                            <Can-Retransform-Classes>true</Can-Retransform-Classes>
-                            <Boot-Class-Path>${project.build.finalName}</Boot-Class-Path>
-                        </manifestEntries>
-                    </archive>
-                    <excludes>
-                        <exclude>scouter/xtra/**</exclude>
-                        <exclude>reactor/**</exclude>
-                        <exclude>com/**</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>3.4.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
-                        <configuration>
-                            <shadedArtifactAttached>false</shadedArtifactAttached>
-                            <createDependencyReducedPom>true</createDependencyReducedPom>
-                            <createSourcesJar>true</createSourcesJar>
-                            <shadeSourcesContent>true</shadeSourcesContent>
-                            <filters>
-                                <filter>
-                                    <artifact>io.github.scouter-project:scouter-common</artifact>
-                                    <excludes>
-                                        <exclude>scouter/v.properties</exclude>
-                                    </excludes>
-                                </filter>
-                            </filters>
-                            <relocations>
-                                <relocation>
-                                    <pattern>javassist</pattern>
-                                    <shadedPattern>scouter.javassist</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>scouter.org.objectweb.asm</shadedPattern>
-                                </relocation>
-                            </relocations>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+
+
+
+
 </project>
