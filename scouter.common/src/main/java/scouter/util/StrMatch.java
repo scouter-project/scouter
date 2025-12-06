@@ -144,7 +144,7 @@ public class StrMatch {
 	}
 
 	public static void main(String[] args) {
-		StrMatch sc = new StrMatch("**");
-		System.out.println(sc.pattern);
+		StrMatch sc = new StrMatch("zepeto.core.api.*Controller.*");
+		System.out.println(sc.include("zepeto.core.api.sub.UserController.Hello.do()"));
 	}
 }

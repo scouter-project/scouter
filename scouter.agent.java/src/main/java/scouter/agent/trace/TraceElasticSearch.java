@@ -34,11 +34,80 @@ import scouter.util.StringUtil;
  */
 public class TraceElasticSearch {
 
-    private static String ES_COMMAND_MSG = "[ElasticSearch] %s";
-    private static String ES_COMMAND_ERROR_MSG = "[ElasticSearch] %s\n[Exception:%s] %s";
+    private static String ES_COMMAND_MSG = "[ES] %s";
+    private static String ES_COMMAND_ERROR_MSG = "[ES] %s\n[Exception:%s] %s";
 
     static IElasticSearchTracer tracer;
     static Configure conf = Configure.getInstance();
+
+	public static Object startHighLevelRequest(Object req) {
+		TraceContext ctx = TraceContextManager.getContext();
+		if (ctx == null) {
+			return null;
+		}
+		if (tracer == null) {
+			tracer = ElasticSearchTraceFactory.create(req.getClass().getClassLoader());
+		}
+
+		try {
+			String esRequestDesc = tracer.getRequestDescription(ctx, req);
+
+			ParameterizedMessageStep step = new ParameterizedMessageStep();
+			step.start_time = (int) (System.currentTimeMillis() - ctx.startTime);
+			step.putTempMessage("desc", esRequestDesc);
+			ctx.profile.push(step);
+			return new LocalContext(ctx, step);
+
+		} catch (Throwable e) {
+			Logger.println("ES003", e.getMessage(), e);
+			return null;
+		}
+	}
+
+	public static void endHighLevelRequest(Object localContext, Throwable thr) {
+		if (localContext == null)
+			return;
+
+		LocalContext lctx = (LocalContext) localContext;
+		ParameterizedMessageStep step = (ParameterizedMessageStep) lctx.stepSingle;
+		if (step == null) return;
+
+		TraceContext tctx = lctx.context;
+		if (tctx == null) return;
+
+		int elapsed = (int) (System.currentTimeMillis() - tctx.startTime) - step.start_time;
+		step.setElapsed(elapsed);
+
+		String desc = step.getTempMessage("desc");
+		if (StringUtil.isEmpty(desc)) desc = "-";
+
+		if (thr == null) {
+			step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_MSG), desc);
+			step.setLevel(ParameterizedMessageLevel.INFO);
+
+		} else {
+			String msg = thr.toString();
+			step.setMessage(DataProxy.sendHashedMessage(ES_COMMAND_ERROR_MSG), desc, thr.getClass().getName(), msg);
+			step.setLevel(ParameterizedMessageLevel.ERROR);
+
+			if (tctx.error == 0 && conf.xlog_error_on_elasticsearch_exception_enabled) {
+				tctx.error = DataProxy.sendError(msg);
+			}
+		}
+		tctx.profile.pop(step);
+
+		//TODO
+//		if (conf.counter_interaction_enabled) {
+//			String node = tracer.getNode(tctx, hostOrNode);
+//			int nodeHash = DataProxy.sendObjName(node);
+//			MeterInteraction meterInteraction = MeterInteractionManager.getInstance().getElasticSearchCallMeter(conf.getObjHash(), nodeHash);
+//			if (meterInteraction != null) {
+//				meterInteraction.add(elapsed, throwable != null);
+//			}
+//		}
+
+	}
+
 
     public static void startRequest(Object httpRequestBase) {
         TraceContext ctx = TraceContextManager.getContext();

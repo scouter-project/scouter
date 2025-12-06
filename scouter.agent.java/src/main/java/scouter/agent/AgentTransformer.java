@@ -66,6 +66,7 @@ import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionASM;
 import scouter.agent.asm.asyncsupport.spring.SpringAsyncExecutionAspectSupportDoSubmitASM;
 import scouter.agent.asm.elasticsearch.HttpNioEntityASM;
 import scouter.agent.asm.elasticsearch.RestClientASM;
+import scouter.agent.asm.elasticsearch.RestHighLevelClientASM;
 import scouter.agent.asm.kafka.KafkaProducerASM;
 import scouter.agent.asm.mongodb.MongoCommandProtocolASM;
 import scouter.agent.asm.rabbit.RabbitPublisherASM;
@@ -130,6 +131,7 @@ public class AgentTransformer implements ClassFileTransformer {
         temp.add(new ApicallWebClientResponseASM());
         temp.add(new HttpNioEntityASM());
         temp.add(new RestClientASM());
+        temp.add(new RestHighLevelClientASM());
 
         temp.add(new RequestStartAsyncASM());
         temp.add(new AsyncContextDispatchASM());

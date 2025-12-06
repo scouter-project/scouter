@@ -4,7 +4,7 @@
 
     <groupId>io.github.scouter-project</groupId>
     <artifactId>scouter-parent</artifactId>
-    <version>2.20.0</version> <!--scouter-->
+    <version>2.21.0</version> <!--scouter-->
     <packaging>pom</packaging>
 
     <name>SCOUTER APM</name>
@@ -23,6 +23,7 @@
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
         <module>scouter.extra.java20</module>
+        <module>scouter.extra.java20dummy</module>
     </modules>
 
     <properties>
@@ -41,20 +42,20 @@
         <jetty.version>9.4.6.v20170531</jetty.version>
         <jersey.version>2.27</jersey.version>
         <slf4j.version>1.7.25</slf4j.version>
-        <logback.version>1.2.3</logback.version>
+        <logback.version>1.2.13</logback.version>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>local-maven-repo</id>
-            <url>file:///${project.basedir}/../local-maven-repo</url>
-        </repository>
-        <repository>
-            <id>redhat.com</id>
-            <name>redhat maven Repository</name>
-            <url>https://maven.repository.redhat.com/ga</url>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>local-maven-repo</id>-->
+<!--            <url>file:///${project.basedir}/../local-maven-repo</url>-->
+<!--        </repository>-->
+<!--        <repository>-->
+<!--            <id>redhat.com</id>-->
+<!--            <name>redhat maven Repository</name>-->
+<!--            <url>https://maven.repository.redhat.com/ga</url>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
     <licenses>
         <license>
@@ -91,20 +92,17 @@
         <tag>HEAD</tag>
     </scm>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
-
     <build>
         <pluginManagement>
             <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.12.1</version>
+                    <configuration>
+                        <skipTests>true</skipTests>
+                    </configuration>
+      	        </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
@@ -134,17 +132,6 @@
                     </executions>
                 </plugin>
                 <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.6.7</version>
-                    <extensions>true</extensions>
-                    <configuration>
-                        <serverId>ossrh</serverId>
-                        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                        <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                    </configuration>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
                     <version>1.5</version>
@@ -158,15 +145,6 @@
                         </execution>
                     </executions>
                 </plugin>
-                <!--<plugin>-->
-                    <!--<groupId>org.apache.maven.plugins</groupId>-->
-                    <!--<artifactId>maven-release-plugin</artifactId>-->
-                    <!--<version>2.5.3</version>-->
-                    <!--<configuration>-->
-                        <!--<mavenExecutorId>forked-path</mavenExecutorId>-->
-                        <!--<tagNameFormat>v@{project.version}</tagNameFormat>-->
-                    <!--</configuration>-->
-                <!--</plugin>-->
             </plugins>
         </pluginManagement>
         <plugins>
@@ -180,55 +158,19 @@
                 <version>3.5.0</version>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
             </plugin>
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-release-plugin</artifactId>-->
-                <!--<version>2.5.3</version>-->
-                <!--<configuration>-->
-                    <!--<autoVersionSubmodules>true</autoVersionSubmodules>-->
-                    <!--<useReleaseProfile>false</useReleaseProfile>-->
-                    <!--<releaseProfiles>release</releaseProfiles>-->
-                    <!--<goals>deploy</goals>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.9.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
-    <!--<profiles>-->
-        <!--<profile>-->
-            <!--<id>release-sign-artifacts</id>-->
-            <!--<activation>-->
-                <!--<property>-->
-                    <!--<name>performRelease</name>-->
-                    <!--<value>true</value>-->
-                <!--</property>-->
-            <!--</activation>-->
-            <!--<build>-->
-                <!--<plugins>-->
-                    <!--<plugin>-->
-                        <!--<groupId>org.apache.maven.plugins</groupId>-->
-                        <!--<artifactId>maven-gpg-plugin</artifactId>-->
-                        <!--<version>1.4</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<id>sign-artifacts</id>-->
-                                <!--<phase>verify</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>sign</goal>-->
-                                <!--</goals>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
-                <!--</plugins>-->
-            <!--</build>-->
-        <!--</profile>-->
-    <!--</profiles>-->
-
 </project>

@@ -50,10 +50,11 @@ public class TraceReactive {
 
     public static Object startMonoKtMono(Object coroutineContext) {
         TraceContext context = TraceContextManager.getContext(true);
-        if (context == null) {
+        if (context == null || TraceMain.reactiveSupport == null) {
             return coroutineContext;
         }
-        return TraceMain.reactiveSupport.monoCoroutineContextHook(coroutineContext, context);
+	    return TraceMain.reactiveSupport.monoCoroutineContextHook(coroutineContext, context);
+
     }
 
 

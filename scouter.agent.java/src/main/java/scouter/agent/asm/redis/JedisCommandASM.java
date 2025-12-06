@@ -18,17 +18,18 @@
 
 package scouter.agent.asm.redis;
 
-import scouter.agent.ClassDesc;
-import scouter.agent.Configure;
-import scouter.agent.asm.IASM;
-import scouter.agent.asm.util.AsmUtil;
-import scouter.agent.trace.TraceMain;
 import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
+import scouter.agent.ClassDesc;
+import scouter.agent.Configure;
+import scouter.agent.asm.IASM;
+import scouter.agent.asm.util.AsmUtil;
+import scouter.agent.trace.TraceMain;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,11 +59,20 @@ public class JedisCommandASM implements IASM, Opcodes {
 
 class JedisCommandCV extends ClassVisitor implements Opcodes {
     String className;
+	boolean hasClientField = false;
 
-    public JedisCommandCV(ClassVisitor cv, String className) {
+	public JedisCommandCV(ClassVisitor cv, String className) {
         super(ASM9, cv);
         this.className = className;
     }
+
+	@Override
+	public FieldVisitor visitField(int access, String name, String desc, String signature, Object value) {
+		if ("client".equals(name) && "Lredis/clients/jedis/Client;".equals(desc)) {
+			hasClientField = true; //TODO support other Jedis versions, Jdis 5.1.5 has redis.clients.jedis.Connection field
+		}
+		return super.visitField(access, name, desc, signature, value);
+	}
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
@@ -74,7 +84,7 @@ class JedisCommandCV extends ClassVisitor implements Opcodes {
             return mv;
         }
         if (AsmUtil.isPublic(access)) {
-            return new JedisCommandMV(className, access, name, desc, mv);
+            return new JedisCommandMV(className, access, name, desc, mv, hasClientField);
         }
 
         return mv;
@@ -85,39 +95,42 @@ class JedisCommandMV extends LocalVariablesSorter implements Opcodes {
     private static final String TRACEMAIN = TraceMain.class.getName().replace('.', '/');
     private static final String START_METHOD = "setTraceJedisHostPort";
     private static final String START_SIGNATURE = "(Ljava/lang/String;I)V";
+	private final boolean hasClientField;
 
-    private String className;
+	private String className;
     private String name;
     private String desc;
     private int statIdx;
     private Label startFinally = new Label();
 
-    public JedisCommandMV(String className, int access, String name, String desc, MethodVisitor mv) {
+    public JedisCommandMV(String className, int access, String name, String desc, MethodVisitor mv, boolean hasClientField) {
         super(ASM9, access, desc, mv);
         this.className = className;
         this.name = name;
         this.desc = desc;
+        this.hasClientField = hasClientField;
     }
 
     @Override
     public void visitCode() {
-        int hostIdx = newLocal(Type.getType("Ljava/lang/String;"));
-        int portIdx = newLocal(Type.INT_TYPE);
+		if (hasClientField) {
+			int hostIdx = newLocal(Type.getType("Ljava/lang/String;"));
+			int portIdx = newLocal(Type.INT_TYPE);
 
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, className, "client", "Lredis/clients/jedis/Client;");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "redis/clients/jedis/Client", "getHost", "()Ljava/lang/String;", false);
-        mv.visitVarInsn(ASTORE, hostIdx);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, className, "client", "Lredis/clients/jedis/Client;");
+			mv.visitMethodInsn(INVOKEVIRTUAL, "redis/clients/jedis/Client", "getHost", "()Ljava/lang/String;", false);
+			mv.visitVarInsn(ASTORE, hostIdx);
 
-        mv.visitVarInsn(ALOAD, 0);
-        mv.visitFieldInsn(GETFIELD, className, "client", "Lredis/clients/jedis/Client;");
-        mv.visitMethodInsn(INVOKEVIRTUAL, "redis/clients/jedis/Client", "getPort", "()I", false);
-        mv.visitVarInsn(ISTORE, portIdx);
+			mv.visitVarInsn(ALOAD, 0);
+			mv.visitFieldInsn(GETFIELD, className, "client", "Lredis/clients/jedis/Client;");
+			mv.visitMethodInsn(INVOKEVIRTUAL, "redis/clients/jedis/Client", "getPort", "()I", false);
+			mv.visitVarInsn(ISTORE, portIdx);
 
-        mv.visitVarInsn(ALOAD, hostIdx);
-        mv.visitVarInsn(ILOAD, portIdx);
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
-
-        mv.visitCode();
+			mv.visitVarInsn(ALOAD, hostIdx);
+			mv.visitVarInsn(ILOAD, portIdx);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC, TRACEMAIN, START_METHOD, START_SIGNATURE, false);
+		}
+	    mv.visitCode();
     }
 }
