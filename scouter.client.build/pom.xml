@@ -13,15 +13,15 @@
 		<module>../scouter.client.product</module>
 	</modules>
 	<properties>
-		<tycho-version>2.7.0</tycho-version>
+		<tycho-version>5.0.1</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 	<repositories>
-	        <repository>
-	        	<id>eclipse-simultaneous-2022-03</id>
-	        	<layout>p2</layout>
-        		<url>https://download.eclipse.org/releases/2022-03/</url>
-	        </repository>
+		<repository>
+			<id>eclipse-2025-12</id>
+			<layout>p2</layout>
+			<url>https://download.eclipse.org/releases/2025-12/</url>
+		</repository>
 	</repositories>
 
 	<build>
