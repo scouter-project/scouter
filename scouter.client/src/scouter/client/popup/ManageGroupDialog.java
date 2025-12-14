@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
 import scouter.client.Images;
 import scouter.client.group.GroupManager;
@@ -57,6 +58,7 @@ public class ManageGroupDialog {
 
 	Set<Integer> noSelectedSet = new HashSet<Integer>();
 	Set<Integer> selectedSet = new HashSet<Integer>();
+	Set<Integer> currentAllSet = new HashSet<Integer>();
 
 	public ManageGroupDialog(Display display, String groupName, String objType,
 			IManageGroup callback) {
@@ -78,33 +80,46 @@ public class ManageGroupDialog {
 		title.setFont(new Font(null, "Arial", 10, SWT.BOLD));
 		title.setImage(Images.getObjectIcon(objType, true, 0));
 		title.setText(groupName + "(" +  getDisplayObjtype(objType) + ")");
-		
+
+		Composite searchComp = new Composite(dialog, SWT.NONE);
+		searchComp.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+		searchComp.setLayout(new GridLayout(2, false));
+
+		CLabel searchLabel = new CLabel(searchComp, SWT.NONE);
+		searchLabel.setText("Search:");
+		final Text searchText = new Text(searchComp, SWT.BORDER);
+		searchText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		searchText.setMessage("Enter keyword to filter...");
+
+		new CLabel(dialog, SWT.NONE);
+		new CLabel(dialog, SWT.NONE);
+
 		final Table allObjects = new Table(dialog, SWT.BORDER | SWT.MULTI);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gr.widthHint = 250;
-		gr.heightHint = 300;
+		gr.widthHint = 375;
+		gr.heightHint = 450;
 		allObjects.setLayoutData(gr);
-		
+
 		Composite centerComp = new Composite(dialog, SWT.NONE);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gr.widthHint = 100;
+		gr.widthHint = 150;
 		centerComp.setLayoutData(gr);
 		centerComp.setLayout(new GridLayout(1, true));
-		
+
 		Button addBtn = new Button(centerComp, SWT.PUSH);
 		addBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		addBtn.setImage(Images.arrow_right);
 		addBtn.setText("Add");
-		
+
 		Button removeBtn = new Button(centerComp, SWT.PUSH);
 		removeBtn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, true));
 		removeBtn.setImage(Images.arrow_left);
 		removeBtn.setText("Remove");
-		
+
 		final Table selectedObjects = new Table(dialog, SWT.BORDER | SWT.MULTI);
 		gr = new GridData(SWT.FILL, SWT.FILL, true, true);
-		gr.widthHint = 250;
-		gr.heightHint = 300;
+		gr.widthHint = 375;
+		gr.heightHint = 450;
 		selectedObjects.setLayoutData(gr);
 		
 		addBtn.addListener(SWT.Selection, new Listener(){
@@ -115,14 +130,16 @@ public class ManageGroupDialog {
 				}
 				for (int i = 0; i < items.length; i++) {
 					TableItem item = items[i];
+					int objHash = (Integer) item.getData();
+					currentAllSet.remove(objHash);
 					TableItem newItem = new TableItem(selectedObjects, SWT.NONE);
 					newItem.setData(item.getData());
 					newItem.setText(item.getText());
 					newItem.setImage(item.getImage());
-					allObjects.remove(allObjects.indexOf(item));
 					item.dispose();
 				}
-				sortTable(allObjects);
+				String filter = searchText.getText();
+				refreshTable(allObjects, currentAllSet, filter);
 				sortTable(selectedObjects);
 			}
 		});
@@ -135,15 +152,12 @@ public class ManageGroupDialog {
 				}
 				for (int i = 0; i < items.length; i++) {
 					TableItem item = items[i];
-					TableItem newItem = new TableItem(allObjects, SWT.NONE);
-					newItem.setData(item.getData());
-					newItem.setText(item.getText());
-					newItem.setImage(item.getImage());
-					selectedObjects.remove(selectedObjects.indexOf(item));
+					int objHash = (Integer) item.getData();
+					currentAllSet.add(objHash);
 					item.dispose();
 				}
-				sortTable(allObjects);
-				sortTable(selectedObjects);
+				String filter = searchText.getText();
+				refreshTable(allObjects, currentAllSet, filter);
 			}
 		});
 		
@@ -175,10 +189,8 @@ public class ManageGroupDialog {
 						addedObjHashs.add(objHash);
 					}
 				}
-				TableItem[] noSelectedItems = allObjects.getItems();
 				List<Integer> removedObjHashs = new ArrayList<Integer>();
-				for (TableItem item : noSelectedItems) {
-					int objHash = (Integer) item.getData();
+				for (Integer objHash : currentAllSet) {
 					if (noSelectedSet.contains(objHash) == false) {
 						removedObjHashs.add(objHash);
 					}
@@ -200,22 +212,14 @@ public class ManageGroupDialog {
 						selectedSet.add(objHash);
 					} else {
 						noSelectedSet.add(objHash);
+						currentAllSet.add(objHash);
 					}
 				}
 			}
 		}
-		
-		for (Integer objHash : noSelectedSet) {
-			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
-			if (agent == null) {
-				continue;
-			}
-			TableItem item = new TableItem(allObjects, SWT.NONE);
-			item.setData(objHash);
-			item.setText(agent.getObjName() + "(" + ServerManager.getInstance().getServer(agent.getServerId()).getName() + ")");
-			item.setImage(agent.isAlive() ? Images.active : Images.dead);
-		}
-		
+
+		refreshTable(allObjects, currentAllSet, null);
+
 		for (Integer objHash : selectedSet) {
 			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
 			if (agent == null) {
@@ -226,9 +230,14 @@ public class ManageGroupDialog {
 			item.setText(agent.getObjName() + "(" + ServerManager.getInstance().getServer(agent.getServerId()).getName() + ")");
 			item.setImage(agent.isAlive() ? Images.active : Images.dead);
 		}
-		
-		sortTable(allObjects);
 		sortTable(selectedObjects);
+
+		searchText.addListener(SWT.Modify, new Listener(){
+			public void handleEvent(Event event) {
+				String filter = searchText.getText();
+				refreshTable(allObjects, currentAllSet, filter);
+			}
+		});
 		
 		dialog.pack();
 		dialog.open();
@@ -254,6 +263,24 @@ public class ManageGroupDialog {
 			ret[i] = list.get(i);
 		}
 		return ret;
+	}
+
+	private void refreshTable(Table table, Set<Integer> objHashSet, String filter) {
+		table.removeAll();
+		for (Integer objHash : objHashSet) {
+			AgentObject agent = AgentModelThread.getInstance().getAgentObject(objHash);
+			if (agent == null) {
+				continue;
+			}
+			String displayText = agent.getObjName() + "(" + ServerManager.getInstance().getServer(agent.getServerId()).getName() + ")";
+			if (filter == null || filter.isEmpty() || displayText.toLowerCase().contains(filter.toLowerCase())) {
+				TableItem item = new TableItem(table, SWT.NONE);
+				item.setData(objHash);
+				item.setText(displayText);
+				item.setImage(agent.isAlive() ? Images.active : Images.dead);
+			}
+		}
+		sortTable(table);
 	}
 
 	private void sortTable(Table table) {
