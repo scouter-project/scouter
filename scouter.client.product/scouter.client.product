@@ -56,6 +56,7 @@
 
    <features>
       <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.platform"/>
       <feature id="scouter.client.feature"/>
       <feature id="org.eclipse.emf.ecore"/>
       <feature id="org.eclipse.emf.common"/>
@@ -64,8 +65,8 @@
    </features>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
    </configurations>
 
    <preferencesInfo>
