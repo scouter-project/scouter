@@ -58,6 +58,42 @@
 					</execution>
 				</executions>
 			</plugin>
+			<!-- macOS 배포 패키지에 README와 실행 스크립트 복사 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>3.1.0</version>
+				<executions>
+					<execution>
+						<id>copy-macos-scripts</id>
+						<phase>package</phase>
+						<goals>
+							<goal>run</goal>
+						</goals>
+						<configuration>
+							<target>
+								<!-- macOS x86_64 -->
+								<copy file="${project.basedir}/readme/README-macOS.md"
+									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
+									  failonerror="false"/>
+								<copy file="${project.basedir}/scripts/run-scouter.command"
+									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
+									  failonerror="false"/>
+								<!-- macOS aarch64 (Apple Silicon) -->
+								<copy file="${project.basedir}/readme/README-macOS.md"
+									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
+									  failonerror="false"/>
+								<copy file="${project.basedir}/scripts/run-scouter.command"
+									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
+									  failonerror="false"/>
+								<!-- 실행 권한 부여 -->
+								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
+								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>

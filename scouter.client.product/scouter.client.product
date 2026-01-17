@@ -26,7 +26,7 @@
       <vmArgs>-Xms128m
 -Xmx1024m
 -XX:+UseG1GC
--Dosgi.requiredJavaVersion=11
+-Dosgi.requiredJavaVersion=17
       </vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
       </vmArgsMac>
@@ -56,6 +56,7 @@
 
    <features>
       <feature id="org.eclipse.rcp"/>
+      <feature id="org.eclipse.platform"/>
       <feature id="scouter.client.feature"/>
       <feature id="org.eclipse.emf.ecore"/>
       <feature id="org.eclipse.emf.common"/>
@@ -64,8 +65,8 @@
    </features>
 
    <configurations>
-      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
       <plugin id="org.apache.felix.scr" autoStart="true" startLevel="2" />
+      <plugin id="org.eclipse.core.runtime" autoStart="true" startLevel="2" />
    </configurations>
 
    <preferencesInfo>
