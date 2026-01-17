@@ -16,16 +16,14 @@
  */
 package scouter.xtra.httpclient;
 
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.classic.methods.HttpPut;
+import org.apache.hc.client5.http.classic.methods.HttpUriRequest;
 import org.apache.hc.core5.http.Header;
 import org.apache.hc.core5.http.HttpHost;
 import org.apache.hc.core5.http.HttpRequest;
 import org.apache.hc.core5.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpUriRequest;
 import scouter.agent.proxy.IHttpClient;
-
-import java.net.URISyntaxException;
 
 public class HttpClient5 implements IHttpClient {
 	public String getHost(Object o) {
@@ -75,22 +73,23 @@ public class HttpClient5 implements IHttpClient {
 	}
 
 	public String getURI(Object o) {
-		if (o instanceof HttpUriRequest) {
-			HttpUriRequest req = (HttpUriRequest) o;
-			return req.getURI().getPath();
-		} else if (o instanceof HttpGet) {
-			HttpGet req = (HttpGet) o;
-			return req.getURI().getPath();
-		} else if (o instanceof HttpPut) {
-			HttpPut req = (HttpPut) o;
-			return req.getURI().getPath();
-		} else if (o instanceof HttpRequest) {
-			HttpRequest req = (HttpRequest) o;
-			try {
+		try {
+			HttpUriRequest request;
+			if (o instanceof HttpUriRequest) {
+				HttpUriRequest req = (HttpUriRequest) o;
+				return req.getUri().getPath();
+			} else if (o instanceof HttpGet) {
+				HttpGet req = (HttpGet) o;
+				return req.getUri().getPath();
+			} else if (o instanceof HttpPut) {
+				HttpPut req = (HttpPut) o;
+				return req.getUri().getPath();
+			} else if (o instanceof HttpRequest) {
+				HttpRequest req = (HttpRequest) o;
 				return req.getUri().toString();
-			} catch (URISyntaxException e) {
-				return req.toString();
 			}
+		} catch (Exception e) {
+			return o.toString();
 		}
 		return o.toString();
 	}

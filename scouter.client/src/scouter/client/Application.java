@@ -86,6 +86,7 @@ public class Application implements IApplication {
 	}
 
 	private boolean openLoginDialog(Display display) {
+
 		LoginDialog2 dialog = new LoginDialog2(display.getActiveShell(), (serverAddr, serverId) -> {
 			Server server = ServerManager.getInstance().getServer(serverId);
 			ServerPrefUtil.storeDefaultServer(server.getIp()+":"+server.getPort());
@@ -93,6 +94,7 @@ public class Application implements IApplication {
 		}, LoginDialog2.TYPE_STARTUP, null, null);
 		return (dialog.open() == Window.OK);
 	}
+
 
 	private boolean loginAutomaticallyWhenAutoLoginEnabled() {
 		boolean autoLogined = false;
