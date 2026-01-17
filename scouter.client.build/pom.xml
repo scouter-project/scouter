@@ -111,6 +111,20 @@
 											<goal>build-qualifier-aggregator</goal>
 											<goal>validate-id</goal>
 											<goal>validate-version</goal>
+											<goal>package-plugin</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore/>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>org.eclipse.tycho</groupId>
+										<artifactId>tycho-bnd-plugin</artifactId>
+										<versionRange>[4.0.0,)</versionRange>
+										<goals>
+											<goal>process</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
