@@ -83,8 +83,24 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	private ScrolledComposite scroll;
 	int winXSize;
 	Rectangle area;
+
+	// Dark mode colors (cached on UI thread in createPartControl)
+	private Color dmBackground;
+	private Color dmForeground;
+	private Color dmSubText;
+	private Color dmBorder;
+	private Color dmGrid;
+
 	public void createPartControl(final Composite parent) {
-		parent.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		boolean dark = ColorUtil.isDarkMode();
+		if (dark) {
+			dmBackground = new Color(null, 30, 30, 35);
+			dmForeground = new Color(null, 200, 200, 210);
+			dmSubText = new Color(null, 140, 140, 150);
+			dmBorder = new Color(null, 100, 100, 120);
+			dmGrid = new Color(null, 55, 55, 70);
+		}
+		parent.setBackground(dark ? dmBackground : ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 		parent.setLayout(UIUtil.formLayout(0, 0));
 		GridLayout layout = new GridLayout(1, true);
@@ -167,8 +183,13 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	static Color red = ColorUtil.getInstance().getColor(SWT.COLOR_RED);
 	static Color dark_gary  = ColorUtil.getInstance().getColor(SWT.COLOR_GRAY);
 
+	private boolean isDark() { return dmBackground != null; }
+	private Color fg() { return isDark() ? dmForeground : black; }
+	private Color subText() { return isDark() ? dmSubText : dark_gary; }
+	private Color border() { return isDark() ? dmBorder : black; }
+
 	private Map<String, Image> objectNameImageMap = new HashMap<String, Image>();
-	
+
 	protected void buildBars() {
 		long now = TimeUtil.getCurrentTime();
 		if ((now - lastDrawTime) < REFRESH_INTERVAL || area == null) {
@@ -181,8 +202,12 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 		int height = area.height > 50 ? area.height : 50;
 		Image img = new Image(null, width, height);
 		GC gc = new GC(img);
-		
+
 		try {
+			if (isDark()) {
+				gc.setBackground(dmBackground);
+				gc.fillRectangle(0, 0, width, height);
+			}
 			lastDrawTime = now;
 			double maxValue = 0;
 			ArrayList<EqData> list = new ArrayList<EqData>();
@@ -211,14 +236,14 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 			}
 			
 			// draw horizontal line
-			gc.setForeground(XLogViewPainter.color_grid_narrow);
+			gc.setForeground(isDark() ? dmGrid : new Color(null, 220, 228, 255));
 			gc.setLineStyle(SWT.LINE_DOT);
 			for (int i = AXIS_PADDING + unitWidth; i <= width - unitWidth; i = i + unitWidth) {
 				gc.drawLine(i, 0, i, height);
 			}
-			
+
 			// draw axis line
-			gc.setForeground(black);
+			gc.setForeground(fg());
 			gc.setLineStyle(SWT.LINE_SOLID);
 			int verticalLineX = 6;
 			int verticalLineY = 6;
@@ -233,7 +258,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 			for (int i = 0; i < datas.length; i++) {
 				// draw objName
 				String objName = datas[i].displayName;
-				gc.setForeground(dark_gary);
+				gc.setForeground(subText());
 				gc.setFont(verdana10Italic);
 				int strWidth = gc.stringExtent(objName).x;			
 				while (groundWidth <= (strWidth+5)) {
@@ -252,7 +277,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 				gc.drawImage(objectNameImageMap.get(objName), x,  y);
 				
 				if (datas[i].isAlive == false) {
-					gc.setForeground(dark_gary);
+					gc.setForeground(subText());
 					gc.setLineWidth(2);
 					gc.drawLine(x + (gc.stringExtent(objName).y / 2), y - 1, x + (gc.stringExtent(objName).y / 2), y + gc.stringExtent(objName).x + 1);
 				}
@@ -318,7 +343,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 				// draw count text
 				if (datas[i].isAlive) {
 					gc.setFont(verdana10Bold);
-					gc.setForeground(black);
+					gc.setForeground(fg());
 					String v = Long.toString(total);
 					
 					String all = "(" +  Long.toString(asd.act3) + " / " + Long.toString(asd.act2) + " / " + Long.toString(asd.act1) + ")";
@@ -345,7 +370,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 						gc.drawString(v, xaxis, yaxis, true);
 						
 						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
+						gc.setForeground(fg());
 						v = " / ";
 						gc.drawString(v, xaxis, yaxis, true);
 						
@@ -355,7 +380,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 						gc.drawString(v, xaxis, yaxis, true);
 						
 						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
+						gc.setForeground(fg());
 						v = " / ";
 						gc.drawString(v, xaxis, yaxis, true);
 						
@@ -365,7 +390,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 						gc.drawString(v, xaxis, yaxis, true);
 						
 						xaxis += gc.stringExtent(v).x + 1;
-						gc.setForeground(black);
+						gc.setForeground(fg());
 						v = ")";
 						gc.drawString(v, xaxis, yaxis, true);
 					}
@@ -373,7 +398,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 			}
 			
 			// draw scale text
-			gc.setForeground(black);
+			gc.setForeground(fg());
 			gc.setFont(verdana7);
 			int max = (int) maxValue;
 			String v = Integer.toString(max);
@@ -396,7 +421,7 @@ public abstract class VerticalEQCommonView extends ViewPart implements RefreshTh
 	private void drawNemo(GC gc, Color background, int x, int y, int width, int height) {
 		gc.setBackground(background);
 		gc.fillRectangle(x, y, width, height);
-		gc.setForeground(black);
+		gc.setForeground(border());
 		gc.drawRectangle(x, y, width, height);
 	}
 

@@ -15,6 +15,7 @@ import java.util.List;
 import org.csstudio.swt.xygraph.Preferences;
 import org.csstudio.swt.xygraph.figures.Trace.TraceType;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
+import scouter.client.util.ColorUtil;
 import org.eclipse.draw2d.FigureUtilities;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.MouseEvent;
@@ -55,7 +56,7 @@ public class Legend extends RectangleFigure {
 			}
 		});
 		setBackgroundColor(xyGraph.getPlotArea().getBackgroundColor());
-		setForegroundColor(BLACK_COLOR);
+		setForegroundColor(ColorUtil.getChartForeground());
 		setOpaque(false);
 		setOutline(false); // Edited by scouter.project true -> false
 		addListenerToBoldline(); // Added by scouter.project
