@@ -53,13 +53,8 @@ import java.util.Date;
 import java.util.Enumeration;
 
 public class XLogViewPainter {
-	public static Color color_black = new Color(null, 0, 0, 0);
-	public static Color color_white = new Color(null, 255, 255, 255);
-	public static Color color_grid_narrow = new Color(null, 220, 228, 255);
-	public static Color color_grid_wide = new Color(null, 200, 208, 255);
 	public static Color color_blue = new Color(null, 0, 0, 255);
 	public static Color color_red = new Color(null, 255, 0, 0);
-	public static Color ignore_area = new Color(null, 234, 234, 234);
 	
 	public long xTimeRange = DateUtil.MILLIS_PER_MINUTE * 5;
 	public long originalRange = xTimeRange;
@@ -212,24 +207,24 @@ public class XLogViewPainter {
 		
 		paintedEndTime = time_end;
 
-		gc.setForeground(color_black);
+		gc.setForeground(ColorUtil.getChartForeground());
 		if (filter_hash != new XLogFilterStatus().hashCode()) {
-			gc.setBackground(ColorUtil.getInstance().getColor("azure"));
+			gc.setBackground(ColorUtil.getFilteredBackground());
 		} else {
-			gc.setBackground(color_white);
+			gc.setBackground(ColorUtil.getChartBackground());
 		}
 		gc.fillRectangle(0, 0, work_w, work_h);
 		
 		if (yAxisMode == XLogYAxisEnum.ELAPSED) {
 			int ignoreMs = PManager.getInstance().getInt(PreferenceConstants.P_XLOG_IGNORE_TIME);
 			if (yValueMin == 0 && ignoreMs > 0) {
-				gc.setBackground(ignore_area);
+				gc.setBackground(ColorUtil.getXLogIgnoreArea());
 				int chart_igreno_h = (int) ((ignoreMs / (yValueMax * 1000)) * chart_h);
 				if (chart_igreno_h > chart_h) {
 					chart_igreno_h = chart_h;
 				}
 				gc.fillRoundRectangle(chart_x, 30 + chart_h - chart_igreno_h, chart_w + 5, chart_igreno_h + 5, 1, 1);
-				gc.setBackground(color_white);
+				gc.setBackground(ColorUtil.getChartBackground());
 			}
 		}
 
@@ -241,12 +236,12 @@ public class XLogViewPainter {
 		for (double yValue = 0; yValue <= valueRange; yValue += yUnit) {
 			int y = (int) (chart_y + chart_h - chart_h * yValue / valueRange);
 
-			gc.setForeground(color_grid_narrow);
+			gc.setForeground(ColorUtil.getChartGridNarrow());
 			gc.drawLine(chart_x, y, (int) (chart_x + chart_w), y);
 
 			String s = FormatUtil.print(new Double(yValue + yValueMin), "#,##0.00");
-			gc.setForeground(color_black);
-			gc.drawString(s, chart_x - (15 + s.length() * 6), y - 5);
+			gc.setForeground(ColorUtil.getChartForeground());
+			gc.drawString(s, chart_x - (15 + s.length() * 6), y - 5, true);
 		}
 		
 		double xUnit = ChartUtil.getSplitTimeUnit(xTimeRange, chart_w);
@@ -260,19 +255,19 @@ public class XLogViewPainter {
 			boolean labelOn = (xi++ % 5 == labelOnNum);
 
 			if (labelOn) {
-				gc.setForeground(color_grid_wide);
+				gc.setForeground(ColorUtil.getChartGridWide());
 				gc.setLineStyle(SWT.LINE_SOLID);
 			} else {
-				gc.setForeground(color_grid_narrow);
+				gc.setForeground(ColorUtil.getChartGridNarrow());
 				gc.setLineStyle(SWT.LINE_DOT);
 			}
 			int x = (int) (chart_x + (chart_w * timeDelta / xTimeRange));
 			gc.drawLine(x, chart_y, x, chart_y + chart_h);
 
 			if (labelOn) {
-				gc.setForeground(color_black);
+				gc.setForeground(ColorUtil.getChartForeground());
 				String s = FormatUtil.print(new Date(time_start + (long) timeDelta), xLabelFormat);
-				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5);
+				gc.drawString(s, x - 25, chart_y + chart_h + 5 + 5, true);
 			}
 		}
 
@@ -295,20 +290,20 @@ public class XLogViewPainter {
 	
 	private void drawZoomMode(GC gc, int chart_x, int chart_y, int chart_w, long stime, long etime) {
 		String cntText = "Zoom Mode(" + DateUtil.format(stime, "HH:mm") + "~" + DateUtil.format(etime, "HH:mm") + ")";
-		gc.drawText(cntText, chart_x + chart_w - 140, chart_y - 20);
+		gc.drawText(cntText, chart_x + chart_w - 140, chart_y - 20, true);
 	}
 
 	private void drawTxCount(GC gc, int chart_x, int chart_w, int chart_y) {
 		gc.setFont(null);
 		String cntText = " Count : " + FormatUtil.print(new Long(count), "#,##0");
 		int strLen = gc.stringExtent(cntText).x;
-		gc.drawText(cntText, chart_x + chart_w - strLen - 10, chart_y - 20);
+		gc.drawText(cntText, chart_x + chart_w - strLen - 10, chart_y - 20, true);
 	}
-	
+
 	private void drawYaxisDescription(GC gc, int chart_x, int chart_y) {
 		gc.setFont(null);
 		String desc = " " + yAxisMode.getDesc();
-		gc.drawText(desc, chart_x, chart_y - 20);
+		gc.drawText(desc, chart_x, chart_y - 20, true);
 	}
 
 	private void drawChartBorder(GC gc, int chart_sx, int chart_sy, int chart_w, int chart_h) {
@@ -319,7 +314,7 @@ public class XLogViewPainter {
 
 		gc.setLineStyle(SWT.LINE_SOLID);
 		gc.setLineWidth(1);
-		gc.setForeground(color_black);
+		gc.setForeground(ColorUtil.getChartBorderColor());
 		gc.drawRoundRectangle(chart_sx, chart_sy, chart_w + 5, chart_h + 5, 1, 1);
 	}
 

@@ -89,7 +89,7 @@ public class ImageCache {
 		for (int i = 0; i < 5; i++) {
 			gcc.drawLine(i, 0, i, 4);
 		}
-		gcc.setForeground(ColorUtil.getInstance().getColor("white"));
+		gcc.setForeground(ColorUtil.getChartBackground());
 		gcc.drawPoint(1, 0);
 		gcc.drawPoint(4, 1);
 		gcc.drawPoint(0, 3);
@@ -134,5 +134,22 @@ public class ImageCache {
 		gcc.drawPoint(1, 1);
 		gcc.dispose();
 		return xp;
+	}
+
+	public synchronized void clearCache() {
+		for (Image img : xLogDotMap.values()) {
+			if (img != null && !img.isDisposed()) {
+				img.dispose();
+			}
+		}
+		xLogDotMap.clear();
+		if (errorXpDot != null && !errorXpDot.isDisposed()) {
+			errorXpDot.dispose();
+		}
+		errorXpDot = null;
+		if (errorXpDotLight != null && !errorXpDotLight.isDisposed()) {
+			errorXpDotLight.dispose();
+		}
+		errorXpDotLight = null;
 	}
 }

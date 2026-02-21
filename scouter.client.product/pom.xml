@@ -86,9 +86,14 @@
 								<copy file="${project.basedir}/scripts/run-scouter.command"
 									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
 									  failonerror="false"/>
+								<!-- Linux x86_64 -->
+								<copy file="${project.basedir}/scripts/run-scouter.sh"
+									  todir="${project.build.directory}/products/scouter.client.product/linux/gtk/x86_64/scouter.client"
+									  failonerror="false"/>
 								<!-- 실행 권한 부여 -->
 								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
 								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
+								<chmod file="${project.build.directory}/products/scouter.client.product/linux/gtk/x86_64/scouter.client/run-scouter.sh" perm="755" failonerror="false"/>
 							</target>
 						</configuration>
 					</execution>
