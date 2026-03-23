@@ -32,7 +32,7 @@ import scouter.server.core.AgentManager;
 import scouter.server.netio.AgentCall;
 import scouter.server.netio.service.anotation.ServiceHandler;
 import scouter.util.ThreadUtil;
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class ThreadList {
 
@@ -95,7 +95,7 @@ class ThreadList {
         return ;
       }
       val agentList = AgentManager.getLiveObjHashList(objType);
-      for (agent <- agentList) {
+      for (agent <- agentList.asScala) {
         val o = AgentManager.getAgent(agent);
         val p = AgentCall.call(o, RequestCmd.OBJECT_ACTIVE_SERVICE_LIST, param);
         if (p == null) {

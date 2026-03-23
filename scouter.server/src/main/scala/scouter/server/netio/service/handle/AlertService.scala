@@ -20,7 +20,7 @@ package scouter.server.netio.service.handle;
 
 import java.util.HashMap
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scouter.io.DataInputX
 import scouter.io.DataOutputX
 import scouter.lang.AlertLevel
@@ -168,7 +168,7 @@ class AlertService {
         SummaryRD.readByTime(SummaryEnum.ALERT, date, stime, etime, handler)
         
         val keySet = valueMap.keySet();
-        for (title <- keySet) {
+        for (title <- keySet.asScala) {
             dout.writeByte(TcpFlag.HasNEXT);
             dout.writePack(valueMap.get(title));
         }

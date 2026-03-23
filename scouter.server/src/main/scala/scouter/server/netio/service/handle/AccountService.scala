@@ -30,7 +30,7 @@ import scouter.net.RequestCmd
 import scouter.net.TcpFlag
 import scouter.server.account.AccountManager
 import scouter.server.netio.service.anotation.ServiceHandler
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class AccountService {
 
@@ -86,7 +86,7 @@ class AccountService {
   @ServiceHandler(RequestCmd.LIST_ACCOUNT)
   def listAccount(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val accountList = AccountManager.getAccountList();
-    accountList.toList.foreach { x =>
+    accountList.asScala.toList.foreach { x =>
       dout.writeByte(TcpFlag.HasNEXT);
       dout.writeValue(new BlobValue(x.toBytes()));
     }

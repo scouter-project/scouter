@@ -25,6 +25,8 @@ import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+
 /**
  * @author Gun Lee (gunlee01@gmail.com) on 2017. 8. 27.
  */
@@ -36,6 +38,11 @@ public class SUser {
     @NotNull
     String id;
     String password;
+
+    @JsonCreator
+    public SUser() {
+
+    }
 
     public SUser(String id) {
         this.id = id;

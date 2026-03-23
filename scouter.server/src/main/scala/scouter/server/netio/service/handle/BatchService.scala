@@ -38,7 +38,7 @@ import scouter.util.StringKeyLinkedMap.StringKeyLinkedEntry
 import scouter.server.util.EnumerScala
 import scouter.server.db.BatchDB
 import scouter.server.db.BatchZipDB
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class BatchService {
     @ServiceHandler(RequestCmd.BATCH_HISTORY_LIST)
@@ -107,7 +107,7 @@ class BatchService {
         return ;
       }
       val agentList = AgentManager.getLiveObjHashList(objType);
-      for (agent <- agentList) {
+      for (agent <- agentList.asScala) {
         val o = AgentManager.getAgent(agent);
         val p = AgentCall.call(o, RequestCmd.OBJECT_BATCH_ACTIVE_LIST, param);
         if (p == null) {
