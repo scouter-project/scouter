@@ -961,6 +961,9 @@
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
 
+    // Method set excluded from service hooking
+    public String hook_service_exclude_patterns = "";
+
     @ConfigDesc("hooking service name use a 1st string parameter or class & method name")
     public boolean hook_service_name_use_1st_string_enabled = true;
 
