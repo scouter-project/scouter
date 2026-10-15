@@ -7,6 +7,16 @@ This article explains non-hosted-by-WAS service. You should add entrypoint metho
 hook_service_patterns=com.mypkg.MyClass.myservice
 ```
 
+Use `hook_service_exclude_patterns` to exclude methods from service hooking. It uses the same format as the inclusion option and accepts comma-separated patterns. Class patterns and all methods (`*`) support wildcards; append a JVM descriptor to a method name to exclude a specific overload. Exclusions take precedence, default to an empty string, and also apply to service entrypoints registered by plugins.
+
+```properties
+hook_service_patterns=com.mypkg*.*
+hook_service_exclude_patterns=com.mypkg.HealthCheck.*,com.mypkg.MyClass.internalTask
+```
+
+Restart the application to apply the changes to classes that are already loaded.
+
+
 Configuration format is consisted with full package paths and service method name. Analysis may be needed to determine what the entry  point is.
 
 Here is live example,

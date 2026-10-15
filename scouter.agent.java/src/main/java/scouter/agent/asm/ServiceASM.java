@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class ServiceASM implements IASM, Opcodes {
 	private List<HookingSet> target = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service_patterns);
+	private List<HookingSet> excludeTarget = HookingSet.getHookingMethodSet(Configure.getInstance().hook_service_exclude_patterns);
 	private Map<String, HookingSet> reserved = new HashMap<String, HookingSet>();
 
 	public static class ServiceTargetRegister {
@@ -55,12 +56,12 @@ public class ServiceASM implements IASM, Opcodes {
 		}
         HookingSet mset = reserved.get(className);
         if (mset != null)
-            return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
+            return new ServiceCV(cv, mset, excludeTarget, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
 
 		for (int i = 0; i < target.size(); i++) {
 			mset = target.get(i);
 			if (mset.classMatch.include(className)) {
-				return new ServiceCV(cv, mset, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
+				return new ServiceCV(cv, mset, excludeTarget, className, mset.xType == 0 ? XLogTypes.APP_SERVICE : mset.xType);
 			}
 		}
 		return cv;
@@ -71,11 +72,13 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 
 	public String className;
 	private HookingSet mset;
+	private List<HookingSet> excludeTarget;
 	private byte xType;
 
-	public ServiceCV(ClassVisitor cv, HookingSet mset, String className,byte xType) {
+	public ServiceCV(ClassVisitor cv, HookingSet mset, List<HookingSet> excludeTarget, String className,byte xType) {
 		super(ASM9, cv);
 		this.mset = mset;
+		this.excludeTarget = excludeTarget;
 		this.className = className;
 		this.xType=xType;
 	}
@@ -104,6 +107,12 @@ class ServiceCV extends ClassVisitor implements Opcodes {
 		}
 		if (AsmUtil.isSpecial(name)) {
 			return mv;
+		}
+
+		for (HookingSet excludeSet : excludeTarget) {
+			if (excludeSet.classMatch.include(className) && excludeSet.isA(name, desc)) {
+				return mv;
+			}
 		}
 
 		String fullname = AsmUtil.makeMethodFullName(className, name, desc);
