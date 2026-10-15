@@ -134,44 +134,117 @@ public class CounterConsumer {
         return new ArrayList<>(counterViewMap.values());
     }
 
+    // private List<CounterView> retrieveCounterInDay(CounterRequest request, Server server, MapPack paramPack) {
+    //     List<CounterView> counterViewList = new ArrayList<>();
+        
+    //     try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+    //         tcpProxy.process(RequestCmd.COUNTER_PAST_TIME_ALL, paramPack, in -> {
+    //             MapPack mapPack = (MapPack) in.readPack();
+
+    //             if (mapPack != null) {
+    //                 int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
+    //                 ListValue timeList = mapPack.getList(ParamConstant.TIME);
+    //                 ListValue valueList = mapPack.getList(ParamConstant.VALUE);
+
+    //                 List<Double> valueToDoubleList = new ArrayList<>();
+    //                 for (int i = 0; i < timeList.size(); i++) {
+    //                     valueToDoubleList.add(valueList.getDouble(i));
+    //                 }
+
+    //                 AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
+    //                 String objType = agentObject.getObjType();
+
+    //                 CounterView counterView = CounterView.builder()
+    //                         .objHash(objHash)
+    //                         .objName(agentObject.getObjName())
+    //                         .name(request.getCounter())
+    //                         .displayName(server.getCounterEngine().getCounterDisplayName(objType, request.getCounter()))
+    //                         .unit(server.getCounterEngine().getCounterUnit(objType, request.getCounter()))
+    //                         .startTimeMillis(request.getStartTimeMillis())
+    //                         .endTimeMillis(request.getEndTimeMillis())
+    //                         .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
+    //                         .valueList(valueToDoubleList)
+    //                         .build();
+
+    //                 counterViewList.add(counterView);
+    //             }
+    //         });
+    //     }
+    //     return counterViewList;
+    // }
     private List<CounterView> retrieveCounterInDay(CounterRequest request, Server server, MapPack paramPack) {
         List<CounterView> counterViewList = new ArrayList<>();
+
+        Map<Integer, ObjectMeta> objectMetaMap = loadDailyObjectMetaMap(server, paramPack.getLong(ParamConstant.STIME));
+
         try(TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             tcpProxy.process(RequestCmd.COUNTER_PAST_TIME_ALL, paramPack, in -> {
                 MapPack mapPack = (MapPack) in.readPack();
 
-                if (mapPack != null) {
-                    int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
-                    ListValue timeList = mapPack.getList(ParamConstant.TIME);
-                    ListValue valueList = mapPack.getList(ParamConstant.VALUE);
-
-                    List<Double> valueToDoubleList = new ArrayList<>();
-                    for (int i = 0; i < timeList.size(); i++) {
-                        valueToDoubleList.add(valueList.getDouble(i));
-                    }
-
-                    AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
-                    String objType = agentObject.getObjType();
-
-                    CounterView counterView = CounterView.builder()
-                            .objHash(objHash)
-                            .objName(agentObject.getObjName())
-                            .name(request.getCounter())
-                            .displayName(server.getCounterEngine().getCounterDisplayName(objType, request.getCounter()))
-                            .unit(server.getCounterEngine().getCounterUnit(objType, request.getCounter()))
-                            .startTimeMillis(request.getStartTimeMillis())
-                            .endTimeMillis(request.getEndTimeMillis())
-                            .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
-                            .valueList(valueToDoubleList)
-                            .build();
-
-                    counterViewList.add(counterView);
+                if (mapPack == null) {
+                    return;
                 }
+
+                int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
+                ListValue timeList = mapPack.getList(ParamConstant.TIME);
+                ListValue valueList = mapPack.getList(ParamConstant.VALUE);
+
+                if (timeList == null || valueList == null) {
+                    return;
+                }
+
+                ObjectMeta meta = objectMetaMap.get(objHash);
+
+                if (meta == null) {
+                    AgentObject currentAgent = AgentModelThread.getInstance().getAgentObject(objHash);
+                    if (currentAgent != null) {
+                        meta = new ObjectMeta(
+                                objHash,
+                                currentAgent.getObjType(),
+                                currentAgent.getObjName()
+                        );
+                    }
+                }
+
+                String objType = meta == null ? null : meta.objType;
+                String objName = meta == null ? String.valueOf(objHash) : meta.objName;
+
+                String displayName = request.getCounter();
+                String unit = "";
+
+                if (objType != null) {
+                    displayName = server.getCounterEngine().getCounterDisplayName(objType, request.getCounter());
+                    unit = server.getCounterEngine().getCounterUnit(objType, request.getCounter());
+                }
+
+                int size = Math.min(timeList.size(), valueList.size());
+
+                List<Long> timeToLongList = new ArrayList<>();
+                List<Double> valueToDoubleList = new ArrayList<>();
+
+                for (int i = 0; i < size; i++) {
+                    timeToLongList.add(timeList.getLong(i));
+                    valueToDoubleList.add(valueList.getDouble(i));
+                }
+
+                CounterView counterView = CounterView.builder()
+                        .objHash(objHash)
+                        .objName(objName)
+                        .name(request.getCounter())
+                        .displayName(displayName)
+                        .unit(unit)
+                        .startTimeMillis(request.getStartTimeMillis())
+                        .endTimeMillis(request.getEndTimeMillis())
+                        .timeList(timeToLongList)
+                        .valueList(valueToDoubleList)
+                        .build();
+
+                counterViewList.add(counterView);
             });
         }
         return counterViewList;
     }
-
+    
     /**
      * get daily counter (precision : 5 min avg) values by objType
      *
@@ -192,6 +265,65 @@ public class CounterConsumer {
      * get daily counter (precision : 5 min avg) values by objType or hashes
      *
      */
+    // public List<AvgCounterView> retrieveAvgCounterByObjTypeOrHashes(CounterAvgRequest request) {
+    //     MapPack paramPack = new MapPack();
+    //     if (request instanceof CounterAvgRequestByType) {
+    //         paramPack.put(ParamConstant.OBJ_TYPE, ((CounterAvgRequestByType) request).getObjType());
+    //     } else if (request instanceof CounterAvgRequestByObjHashes) {
+    //         ListValue objHashLv = paramPack.newList(ParamConstant.OBJ_HASH);
+    //         for (Integer objHash : ((CounterAvgRequestByObjHashes) request).getObjHashes()) {
+    //             objHashLv.add(objHash);
+    //         }
+    //     }
+    //     paramPack.put(ParamConstant.SDATE, request.getStartYmd());
+    //     paramPack.put(ParamConstant.EDATE, request.getEndYmd());
+    //     paramPack.put(ParamConstant.COUNTER, request.getCounter());
+
+    //     Map<Integer, AvgCounterView> counterViewMap = new HashMap<>();
+    //     Server server = ServerManager.getInstance().getServerIfNullDefault(request.getServerId());
+
+    //     try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+    //         tcpProxy.process(RequestCmd.COUNTER_PAST_LONGDATE_ALL, paramPack, in -> {
+    //             MapPack mapPack = (MapPack) in.readPack();
+    //             if (mapPack != null) {
+    //                 int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
+    //                 ListValue timeList = mapPack.getList(ParamConstant.TIME);
+    //                 ListValue valueList = mapPack.getList(ParamConstant.VALUE);
+
+    //                 List<Double> valueToDoubleList = new ArrayList<>();
+    //                 for (int i = 0; i < timeList.size(); i++) {
+    //                     valueToDoubleList.add(valueList.getDouble(i));
+    //                 }
+
+    //                 AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
+    //                 String objType = agentObject.getObjType();
+
+    //                 AvgCounterView counterView = AvgCounterView.builder()
+    //                         .objHash(objHash)
+    //                         .objName(agentObject.getObjName())
+    //                         .name(request.getCounter())
+    //                         .displayName(server.getCounterEngine().getCounterDisplayName(objType, request.getCounter()))
+    //                         .unit(server.getCounterEngine().getCounterUnit(objType, request.getCounter()))
+    //                         .fromYmd(request.getStartYmd())
+    //                         .toYmd(request.getEndYmd())
+    //                         .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
+    //                         .valueList(valueToDoubleList)
+    //                         .build();
+
+    //                 AvgCounterView counterViewInMap = counterViewMap.get(counterView.getObjHash());
+
+    //                 if (counterViewInMap == null) {
+    //                     counterViewMap.put(counterView.getObjHash(), counterView);
+    //                 } else {
+    //                     counterViewInMap.getTimeList().addAll(counterView.getTimeList());
+    //                     counterViewInMap.getValueList().addAll(counterView.getValueList());
+    //                 }
+    //             }
+    //         });
+    //     }
+
+    //     return new ArrayList<>(counterViewMap.values());
+    // }
     public List<AvgCounterView> retrieveAvgCounterByObjTypeOrHashes(CounterAvgRequest request) {
         MapPack paramPack = new MapPack();
         if (request instanceof CounterAvgRequestByType) {
@@ -208,56 +340,84 @@ public class CounterConsumer {
 
         Map<Integer, AvgCounterView> counterViewMap = new HashMap<>();
         Server server = ServerManager.getInstance().getServerIfNullDefault(request.getServerId());
+        
+        Map<Integer, ObjectMeta> objectMetaMap = loadDailyObjectMetaMap(server, paramPack.getLong(ParamConstant.STIME));
 
         try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
             tcpProxy.process(RequestCmd.COUNTER_PAST_LONGDATE_ALL, paramPack, in -> {
                 MapPack mapPack = (MapPack) in.readPack();
-                if (mapPack != null) {
-                    int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
-                    ListValue timeList = mapPack.getList(ParamConstant.TIME);
-                    ListValue valueList = mapPack.getList(ParamConstant.VALUE);
 
-                    List<Double> valueToDoubleList = new ArrayList<>();
-                    for (int i = 0; i < timeList.size(); i++) {
-                        valueToDoubleList.add(valueList.getDouble(i));
+                if (mapPack == null) {
+                    return;
+                }
+
+                int objHash = mapPack.getInt(ParamConstant.OBJ_HASH);
+                ListValue timeList = mapPack.getList(ParamConstant.TIME);
+                ListValue valueList = mapPack.getList(ParamConstant.VALUE);
+
+                if (timeList == null || valueList == null) {
+                    return;
+                }
+
+                ObjectMeta meta = objectMetaMap.get(objHash);
+
+                if (meta == null) {
+                    AgentObject currentAgent = AgentModelThread.getInstance().getAgentObject(objHash);
+                    if (currentAgent != null) {
+                        meta = new ObjectMeta(
+                                objHash,
+                                currentAgent.getObjType(),
+                                currentAgent.getObjName()
+                        );
                     }
+                }
 
-                    AgentObject agentObject = AgentModelThread.getInstance().getAgentObject(objHash);
-                    String objType = agentObject.getObjType();
+                String objType = meta == null ? null : meta.objType;
+                String objName = meta == null ? String.valueOf(objHash) : meta.objName;
 
-                    AvgCounterView counterView = AvgCounterView.builder()
-                            .objHash(objHash)
-                            .objName(agentObject.getObjName())
-                            .name(request.getCounter())
-                            .displayName(server.getCounterEngine().getCounterDisplayName(objType, request.getCounter()))
-                            .unit(server.getCounterEngine().getCounterUnit(objType, request.getCounter()))
-                            .fromYmd(request.getStartYmd())
-                            .toYmd(request.getEndYmd())
-                            .timeList(Arrays.stream(timeList.toObjectArray()).map(Long.class::cast).collect(Collectors.toList()))
-                            .valueList(valueToDoubleList)
-                            .build();
+                String displayName = request.getCounter();
+                String unit = "";
 
-                    AvgCounterView counterViewInMap = counterViewMap.get(counterView.getObjHash());
+                if (objType != null) {
+                    displayName = server.getCounterEngine().getCounterDisplayName(objType, request.getCounter());
+                    unit = server.getCounterEngine().getCounterUnit(objType, request.getCounter());
+                }
 
-                    if (counterViewInMap == null) {
-                        counterViewMap.put(counterView.getObjHash(), counterView);
-                    } else {
-                        counterViewInMap.getTimeList().addAll(counterView.getTimeList());
-                        counterViewInMap.getValueList().addAll(counterView.getValueList());
-                    }
+                int size = Math.min(timeList.size(), valueList.size());
+
+                List<Long> timeToLongList = new ArrayList<>();
+                List<Double> valueToDoubleList = new ArrayList<>();
+
+                for (int i = 0; i < size; i++) {
+                    timeToLongList.add(timeList.getLong(i));
+                    valueToDoubleList.add(valueList.getDouble(i));
+                }
+
+                AvgCounterView counterView = AvgCounterView.builder()
+                        .objHash(objHash)
+                        .objName(objName)
+                        .name(request.getCounter())
+                        .displayName(displayName)
+                        .unit(unit)
+                        .fromYmd(request.getStartYmd())
+                        .toYmd(request.getEndYmd())
+                        .timeList(timeToLongList)
+                        .valueList(valueToDoubleList)
+                        .build();
+
+                AvgCounterView counterViewInMap = counterViewMap.get(counterView.getObjHash());
+
+                if (counterViewInMap == null) {
+                    counterViewMap.put(counterView.getObjHash(), counterView);
+                } else {
+                    counterViewInMap.getTimeList().addAll(counterView.getTimeList());
+                    counterViewInMap.getValueList().addAll(counterView.getValueList());
                 }
             });
         }
 
         return new ArrayList<>(counterViewMap.values());
     }
-
-
-
-
-
-
-
 
     /**
      * retrieve realtime counter value by objtype of objhash
@@ -300,5 +460,50 @@ public class CounterConsumer {
             resultList.add(new SCounter(objHash, counterName, counterValue));
         }
         return resultList;
+    }
+
+    private static class ObjectMeta {
+        final int objHash;
+        final String objType;
+        final String objName;
+
+        ObjectMeta(int objHash, String objType, String objName) {
+            this.objHash = objHash;
+            this.objType = objType;
+            this.objName = objName;
+        }
+    }
+
+    private Map<Integer, ObjectMeta> loadDailyObjectMetaMap(Server server, long timeMillis) {
+        Map<Integer, ObjectMeta> result = new HashMap<>();
+
+        MapPack param = new MapPack();
+        param.put(ParamConstant.DATE, DateUtil.yyyymmdd(timeMillis));
+
+        try (TcpProxy tcpProxy = TcpProxy.getTcpProxy(server)) {
+            MapPack out = (MapPack) tcpProxy.getSingle(RequestCmd.OBJECT_LIST_LOAD_DATE, param);
+
+            if (out == null) {
+                return result;
+            }
+
+            ListValue objTypeLv = out.getList(ParamConstant.OBJ_TYPE);
+            ListValue objHashLv = out.getList(ParamConstant.OBJ_HASH);
+            ListValue objNameLv = out.getList("objName");
+
+            if (objHashLv == null) {
+                return result;
+            }
+
+            for (int i = 0; i < objHashLv.size(); i++) {
+                int objHash = objHashLv.getInt(i);
+                String objType = objTypeLv == null ? null : objTypeLv.getString(i);
+                String objName = objNameLv == null ? String.valueOf(objHash) : objNameLv.getString(i);
+
+                result.put(objHash, new ObjectMeta(objHash, objType, objName));
+            }
+        }
+
+        return result;
     }
 }

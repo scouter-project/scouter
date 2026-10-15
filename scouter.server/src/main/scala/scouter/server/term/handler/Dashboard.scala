@@ -28,7 +28,7 @@ import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.FormatUtil
 import scouter.util.StringUtil
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scouter.lang.counters.CounterEngine
 import scouter.server.CounterManager
 import java.util.TreeMap

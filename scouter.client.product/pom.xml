@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<artifactId>scouter.client.product</artifactId>
 	<packaging>eclipse-repository</packaging>
-	
+
 	<parent>
 		<relativePath>../scouter.client.build/pom.xml</relativePath>
 		<groupId>scouter.client</groupId>
 		<artifactId>scouter.client.parent</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -74,21 +74,25 @@
 							<target>
 								<!-- macOS x86_64 -->
 								<copy file="${project.basedir}/readme/README-macOS.md"
-									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
-									  failonerror="false"/>
+									todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
+									failonerror="false" />
 								<copy file="${project.basedir}/scripts/run-scouter.command"
-									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
-									  failonerror="false"/>
+									todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client"
+									failonerror="false" />
 								<!-- macOS aarch64 (Apple Silicon) -->
 								<copy file="${project.basedir}/readme/README-macOS.md"
-									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
-									  failonerror="false"/>
+									todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
+									failonerror="false" />
 								<copy file="${project.basedir}/scripts/run-scouter.command"
-									  todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
-									  failonerror="false"/>
+									todir="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client"
+									failonerror="false" />
 								<!-- 실행 권한 부여 -->
-								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
-								<chmod file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client/run-scouter.command" perm="755" failonerror="false"/>
+								<chmod
+									file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/x86_64/scouter.client/run-scouter.command"
+									perm="755" failonerror="false" />
+								<chmod
+									file="${project.build.directory}/products/scouter.client.product/macosx/cocoa/aarch64/scouter.client/run-scouter.command"
+									perm="755" failonerror="false" />
 							</target>
 						</configuration>
 					</execution>

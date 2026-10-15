@@ -33,7 +33,7 @@ import scouter.server.kube.PodSeqManager
 import scouter.server.netio.AgentCall
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 object AgentManager {
     private val counterEngine = scouter.server.CounterManager.getInstance().getCounterEngine();
@@ -276,7 +276,7 @@ object AgentManager {
     }
 
     def getObjHashListAsString(objType: String): String = {
-        return getObjHashList(objType).mkString(",")
+        return getObjHashList(objType).asScala.mkString(",")
     }
 
     def getObjList(objType: String): List[ObjectPack] = {

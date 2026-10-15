@@ -38,6 +38,7 @@ object AccountFileHandler {
     val ATTR_ID = "id";
     val ATTR_PASS = "pass";
     val ATTR_GROUP = "group";
+    val TAG_HP = "hp";
 
     def parse(file: File): StringKeyLinkedMap[Account] = {
         val accountMap = new StringKeyLinkedMap[Account]();
@@ -55,6 +56,7 @@ object AccountFileHandler {
                 acObj.password = accountElement.getAttribute(ATTR_PASS);
                 acObj.group = accountElement.getAttribute(ATTR_GROUP);
                 acObj.email = extractTextValue(accountElement, TAG_EMAIL);
+                acObj.hp = extractTextValue(accountElement, TAG_HP);
                 accountMap.put(acObj.id, acObj);
             }
         })
@@ -67,6 +69,7 @@ object AccountFileHandler {
         val docBuilder = docBuilderFactory.newDocumentBuilder();
         val doc = docBuilder.parse(file);
         doc.getDocumentElement().normalize();
+        removeWhitespaceNodes(doc.getDocumentElement)
         val accounts = doc.getElementsByTagName(TAG_ACCOUNTS).item(0);
         val accountEle = doc.createElement(TAG_ACCOUNT);
         accountEle.setAttribute(ATTR_ID, account.id);
@@ -76,6 +79,10 @@ object AccountFileHandler {
         emailEle.setTextContent(account.email);
         accountEle.appendChild(emailEle);
         accounts.appendChild(accountEle);
+        val hpEle = doc.createElement(TAG_HP);
+        hpEle.setTextContent(account.hp);
+        accountEle.appendChild(hpEle);
+        accounts.appendChild(accountEle);
         XmlUtil.writeXmlFileWithIndent(doc, file, 2);
     }
 
@@ -84,6 +91,7 @@ object AccountFileHandler {
         val docBuilder = docBuilderFactory.newDocumentBuilder();
         val doc = docBuilder.parse(file);
         doc.getDocumentElement().normalize();
+        removeWhitespaceNodes(doc.getDocumentElement)
         val nodeList = doc.getElementsByTagName(TAG_ACCOUNT);
 
         EnumerScala.foreach(nodeList, (node: Node) => {
@@ -93,7 +101,24 @@ object AccountFileHandler {
                 if (account.id.equals(id)) {
                     element.setAttribute(ATTR_PASS, account.password);
                     element.setAttribute(ATTR_GROUP, account.group);
-                    element.getElementsByTagName(TAG_EMAIL).item(0).setTextContent(account.email);
+                    val email = element.getElementsByTagName(TAG_EMAIL).item(0);
+                    val hp = element.getElementsByTagName(TAG_HP).item(0);
+                    if (email == null) {
+                        val emailEle = doc.createElement(TAG_EMAIL);
+                        emailEle.setTextContent(account.email);
+                        element.appendChild(emailEle);
+                        nodeList.item(0).appendChild(element);
+                    } else {
+                        email.setTextContent(account.email);
+                    }
+                    if (hp == null) {
+                        val hpEle = doc.createElement(TAG_HP);
+                        hpEle.setTextContent(account.hp);
+                        element.appendChild(hpEle);
+                        nodeList.item(0).appendChild(element);
+                    } else {
+                        hp.setTextContent(account.hp);
+                    }
                     XmlUtil.writeXmlFileWithIndent(doc, file, 2);
                     return ;
                 }
@@ -106,9 +131,52 @@ object AccountFileHandler {
     private def extractTextValue(alertElement: Element, tagName: String): String = {
         val nodeList = alertElement.getElementsByTagName(tagName);
         if (ArrayUtil.len(nodeList) == 0) {
-            return null;
+            return "";
         }
         val objTypeElement = nodeList.item(0).asInstanceOf[Element];
-        if (objTypeElement == null) null else objTypeElement.getTextContent();
+        if (objTypeElement == null) "" else objTypeElement.getTextContent();
+    }
+
+    /* 신규추가 */
+    def removeAccount(file: File, account: Account) {
+        val docBuilderFactory = DocumentBuilderFactory.newInstance();
+        val docBuilder = docBuilderFactory.newDocumentBuilder();
+        val doc = docBuilder.parse(file);
+        doc.getDocumentElement().normalize();
+        removeWhitespaceNodes(doc.getDocumentElement)
+        val nodeList = doc.getElementsByTagName(TAG_ACCOUNT);
+
+        EnumerScala.foreach(nodeList, (node: Node) => {
+            if (node.getNodeType() == Node.ELEMENT_NODE) {
+                val element = node.asInstanceOf[Element];
+                val id = element.getAttribute(ATTR_ID);
+                if (account.id.equals(id)) {
+                    element.getParentNode().removeChild(element);
+                    XmlUtil.writeXmlFileWithIndent(doc, file, 2);
+                    return ;
+                }
+            }
+        })
+
+        throw new Exception("Cannot find account id : " + account.id);
+    }
+    private def removeWhitespaceNodes(node: Node): Unit = {
+        val children = node.getChildNodes
+        var i = children.getLength - 1
+
+        while (i >= 0) {
+            val child = children.item(i)
+
+            if (child.getNodeType == Node.TEXT_NODE &&
+                child.getTextContent.trim.isEmpty) {
+
+                node.removeChild(child)
+
+            } else if (child.getNodeType == Node.ELEMENT_NODE) {
+                removeWhitespaceNodes(child)
+            }
+
+            i -= 1
+        }
     }
 }

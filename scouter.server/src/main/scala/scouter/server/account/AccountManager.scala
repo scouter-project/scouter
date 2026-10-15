@@ -259,13 +259,28 @@ object AccountManager {
             return result;
         }
     }
-    def editGroupPolicy(pack: MapPack): Boolean = {
+    /*def editGroupPolicy(pack: MapPack): Boolean = {
         this.synchronized {
             val result = GroupFileHandler.editGroupPolicy(groupFile, pack);
             if (result) {
                 loadGroupFile();
             }
             return result;
+        }
+    }*/
+    def editGroupPolicy(pack: MapPack): Boolean = {
+        this.synchronized {
+            val name = pack.getText("name")
+            val v = pack.get("policy")
+            if (name == null || v == null) {
+                return false;
+            }
+            val result = GroupFileHandler.editGroupPolicy(groupFile, pack, name)
+            if (result) {
+                groupPolicyMap.put(name, v.asInstanceOf[MapValue])
+                lastModifiedGroupFile = groupFile.lastModified()
+            }
+            result
         }
     }
     def avaliableId(id: String): Boolean = {
@@ -279,5 +294,37 @@ object AccountManager {
     }
     def readAccountGroup(): Array[Byte] = {
         return FileUtil.readAll(groupFile);
+    }
+
+    /* 신규추가 */
+    def removeAccount(account: Account): Boolean = {
+        this.synchronized {
+            if (accountMap.get(account.id) == null) {
+                return false;
+            }
+            try {
+                AccountFileHandler.removeAccount(accountFile, account);
+                accountMap.remove(account.id);
+                lastModifiedAccountFile = accountFile.lastModified();
+                return true;
+            } catch {
+                case e: Exception => e.printStackTrace();
+            }
+            return false;
+        }
+    }
+    def removeAccountGroup(pack: MapPack): Boolean = {
+        this.synchronized {
+            val name = pack.getText("name");
+            if (name == null) {
+                return false;
+            }
+            val result = GroupFileHandler.removeAccountGroup(groupFile, name);
+            if (result) {
+                groupPolicyMap.remove(name);
+                lastModifiedGroupFile = groupFile.lastModified();
+            }
+            return result;
+        }
     }
 }

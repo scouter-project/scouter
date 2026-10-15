@@ -199,6 +199,16 @@ public class RequestCmd {
 	public static final String GET_CONFIGURE_COUNTERS_SITE = "GET_CONFIGURE_COUNTERS_SITE";
 	public static final String SET_CONFIGURE_COUNTERS_SITE = "SET_CONFIGURE_COUNTERS_SITE";
 
+	// central reject(block) control - server to agent
+	public static final String REJECT_CONTROL_SYNC = "REJECT_CONTROL_SYNC";
+	// central reject(block) control - client to server
+	public static final String REJECT_CONTROL_GET_POLICY = "REJECT_CONTROL_GET_POLICY";
+	public static final String REJECT_CONTROL_SET_POLICY = "REJECT_CONTROL_SET_POLICY";
+	public static final String REJECT_CONTROL_LIST_BLOCK = "REJECT_CONTROL_LIST_BLOCK";
+	public static final String REJECT_CONTROL_ADD_BLOCK = "REJECT_CONTROL_ADD_BLOCK";
+	public static final String REJECT_CONTROL_REMOVE_BLOCK = "REJECT_CONTROL_REMOVE_BLOCK";
+	public static final String REJECT_CONTROL_CLEAR_BLOCK = "REJECT_CONTROL_CLEAR_BLOCK";
+
 	public static final String GET_ALERT_SCRIPTING_CONTETNS = "GET_ALERT_SCRIPTING_CONTETNS";
 	public static final String GET_ALERT_SCRIPTING_CONFIG_CONTETNS = "GET_ALERT_SCRIPTING_CONFIG_CONTETNS";
 	public static final String SAVE_ALERT_SCRIPTING_CONTETNS = "SAVE_ALERT_SCRIPTING_CONTETNS";

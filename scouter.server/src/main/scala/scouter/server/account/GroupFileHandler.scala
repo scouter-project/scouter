@@ -23,6 +23,7 @@ import java.io.File
 import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
+import org.w3c.dom.NodeList
 
 import javax.xml.parsers.DocumentBuilderFactory
 import scouter.lang.pack.MapPack
@@ -77,34 +78,50 @@ object GroupFileHandler {
         })
         return groupMap;
     }
-
-    def editGroupPolicy(file: File, pack: MapPack): Boolean = {
+    /*def editGroupPolicy(file: File, pack: MapPack): Boolean = {
         try {
             val docBuilderFactory = DocumentBuilderFactory.newInstance();
             val docBuilder = docBuilderFactory.newDocumentBuilder();
             val doc = docBuilder.parse(file);
             doc.getDocumentElement().normalize();
+            removeWhitespaceNodes(doc.getDocumentElement)
             val nodeList = doc.getElementsByTagName(TAG_GROUP);
             val itr = pack.keys();
             while (itr.hasNext()) {
                 val group = itr.next();
                 findAndSet(pack, doc, nodeList, group)
             }
-            XmlUtil.writeXmlFileWithIndent(doc, file, 2);
             return true;
         } catch {
             case e: Exception =>
                 Logger.println(e.getMessage());
         }
         return false;
+    }*/
+    def editGroupPolicy(file: File, pack: MapPack, group: String): Boolean = {
+        try {
+            val docBuilderFactory = DocumentBuilderFactory.newInstance()
+            val docBuilder = docBuilderFactory.newDocumentBuilder()
+            val doc = docBuilder.parse(file)
+            doc.getDocumentElement().normalize()
+            removeWhitespaceNodes(doc.getDocumentElement)
+            val nodeList = doc.getElementsByTagName(TAG_GROUP)
+            findAndSet(pack, doc, nodeList, group)
+            XmlUtil.writeXmlFileWithIndent(doc, file, 2)
+            true
+        } catch {
+            case e: Exception =>
+                Logger.println(e.getMessage())
+        }
+        false
     }
-
     def addAccountGroup(file: File, name: String, policyMap: MapValue): Boolean = {
         try {
             val docBuilderFactory = DocumentBuilderFactory.newInstance();
             val docBuilder = docBuilderFactory.newDocumentBuilder();
             val doc = docBuilder.parse(file);
             doc.getDocumentElement().normalize();
+            removeWhitespaceNodes(doc.getDocumentElement)
             val groupElement = doc.createElement(TAG_GROUP);
             groupElement.setAttribute(ATTR_NAME, name);
             doc.getElementsByTagName(TAG_GROUPS).item(0).appendChild(groupElement);
@@ -141,14 +158,59 @@ object GroupFileHandler {
                 val element = node.asInstanceOf[Element]
                 val name = element.getAttribute(ATTR_NAME);
                 if (group.equals(name)) {
-                    val policyElement = element.getElementsByTagName(TAG_POLICY).item(0).asInstanceOf[Element]
-                    val mv = pack.get(group).asInstanceOf[MapValue]
+                    val policyElement = element.getElementsByTagName(TAG_POLICY).item(0).asInstanceOf[Element];
+                    val mv = pack.get("policy").asInstanceOf[MapValue]
                     EnumerScala.foreach(mv.keySet().iterator(), (policy: String) => {
                         setTextValue(doc, policyElement, policy, CastUtil.cString(mv.get(policy)));
                     })
-                    return //종로 
+                    return //종료
                 }
             }
         })
+    }
+    /* 신규추가 */
+    def removeAccountGroup(file: File, name: String): Boolean = {
+        try {
+            val docBuilderFactory = DocumentBuilderFactory.newInstance();
+            val docBuilder = docBuilderFactory.newDocumentBuilder();
+            val doc = docBuilder.parse(file);
+            doc.getDocumentElement().normalize();
+            removeWhitespaceNodes(doc.getDocumentElement)
+            val groupElement = doc.getElementsByTagName(TAG_GROUP);
+            
+            EnumerScala.foreach(groupElement, (node: Node) => {
+                if (node.getNodeType() == Node.ELEMENT_NODE) {
+                    val element = node.asInstanceOf[Element];
+                    val elementName = element.getAttribute(ATTR_NAME);
+                    if (name.equals(elementName)) {
+                        element.getParentNode().removeChild(element);
+                        XmlUtil.writeXmlFileWithIndent(doc, file, 2);
+                        return true;
+                    }
+                }
+            })
+        } catch {
+            case e: Exception => Logger.println(e.getMessage());
+        }
+        return false;
+    }
+    private def removeWhitespaceNodes(node: Node): Unit = {
+        val children = node.getChildNodes
+        var i = children.getLength - 1
+
+        while (i >= 0) {
+            val child = children.item(i)
+
+            if (child.getNodeType == Node.TEXT_NODE &&
+                child.getTextContent.trim.isEmpty) {
+
+                node.removeChild(child)
+
+            } else if (child.getNodeType == Node.ELEMENT_NODE) {
+                removeWhitespaceNodes(child)
+            }
+
+            i -= 1
+        }
     }
 }

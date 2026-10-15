@@ -38,7 +38,7 @@ import scouter.server.core.AgentManager
 import scouter.server.core.cache.CounterCache
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.CastUtil
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scouter.server.util.EnumerScala
 
 class SpecialCounterService {
@@ -193,7 +193,7 @@ class SpecialCounterService {
 
         var v: NumberValue = null;
         val insList = AgentManager.getLiveObjHashList(objType);
-        for (ins <- insList) {
+        for (ins <- insList.asScala) {
             val ck = new CounterKey(ins, counter, TimeTypeEnum.REALTIME);
             if (v == null) {
                 v = CounterCache.get(ck).asInstanceOf[NumberValue];

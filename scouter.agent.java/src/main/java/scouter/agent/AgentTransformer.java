@@ -215,6 +215,10 @@ public class AgentTransformer implements ClassFileTransformer {
 
             if (className == null)
                 return null;
+            if (conf.isHookClassExcluded(className)) {
+                Logger.println("A190", "Skip bytecode instrumentation: " + className);
+                return null;
+            }
             if (classBeingRedefined == null) {
                 if (asynchook.containsKey(className.hashCode())) {
                     Logger.trace("[SCTRACE] Async hook class : " + asynchook.get(className.hashCode()));

@@ -270,6 +270,26 @@ public class Configure extends Thread {
 	public boolean plugin_enabled = true;
 	@ConfigDesc("Path to client related directory")
 	public String client_dir = "./client";
+
+	//Reject Control (central block management)
+	@ConfigDesc("Activating central reject(block) control management")
+	public boolean reject_control_enabled = false;
+	@ConfigDesc("Interval(ms) of pushing policy/block-list to agents and collecting detections")
+	public int reject_control_sync_interval_ms = 2000;
+	@ConfigDesc("Thread count used to sync agents in parallel")
+	public int reject_control_sync_thread_count = 4;
+	@ConfigDesc("Object types to apply the central reject control")
+	public String reject_control_target_obj_types = "javaee,java";
+	@ConfigDesc("Max entries of the central block list")
+	public int reject_control_max_block_count = 10000;
+	@ConfigDesc("Max entries of the detection candidate list")
+	public int reject_control_max_detection_count = 5000;
+	@ConfigDesc("Automatically promote detections to the block list.\n Off by default - detections are only listed as candidates for an operator to review.")
+	public boolean reject_control_auto_block_enabled = false;
+	@ConfigDesc("Detection reasons eligible for auto blocking. ex) RATE,CONCURRENT,INTERVAL")
+	public String reject_control_auto_block_reasons = "RATE";
+	@ConfigDesc("Detection count required before a candidate is auto blocked")
+	public int reject_control_auto_block_threshold = 3;
 	@ConfigDesc("temp dir")
 	public String temp_dir = "./tempdata";
 
@@ -719,6 +739,22 @@ public class Configure extends Thread {
 		this.plugin_dir = getValue("plugin_dir", "./plugin");
 		this.plugin_enabled = getBoolean("plugin_enabled", true);
 		this.client_dir = getValue("client_dir", "./client");
+
+		this.reject_control_enabled = getBoolean("reject_control_enabled", false);
+		this.reject_control_sync_interval_ms = getInt("reject_control_sync_interval_ms", 2000);
+		if (this.reject_control_sync_interval_ms < 500) {
+			this.reject_control_sync_interval_ms = 500;
+		}
+		this.reject_control_sync_thread_count = getInt("reject_control_sync_thread_count", 4);
+		if (this.reject_control_sync_thread_count < 1) {
+			this.reject_control_sync_thread_count = 1;
+		}
+		this.reject_control_target_obj_types = getValue("reject_control_target_obj_types", "javaee,java");
+		this.reject_control_max_block_count = getInt("reject_control_max_block_count", 10000);
+		this.reject_control_max_detection_count = getInt("reject_control_max_detection_count", 5000);
+		this.reject_control_auto_block_enabled = getBoolean("reject_control_auto_block_enabled", false);
+		this.reject_control_auto_block_reasons = getValue("reject_control_auto_block_reasons", "RATE");
+		this.reject_control_auto_block_threshold = getInt("reject_control_auto_block_threshold", 3);
 		this.temp_dir = getValue("temp_dir", "./tempdata");
 
 		this.object_deadtime_ms = getInt("object_deadtime_ms", 8000);

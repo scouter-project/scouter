@@ -25,6 +25,7 @@ import scouter.agent.counter.meter.MeterInteractionManager;
 import scouter.agent.counter.meter.MeterService;
 import scouter.agent.counter.meter.MeterUsers;
 import scouter.agent.error.REQUEST_REJECT;
+import scouter.agent.error.REQUEST_REJECT_DUPLICATED_IP;
 import scouter.agent.error.RESULTSET_LEAK_SUSPECT;
 import scouter.agent.error.STATEMENT_LEAK_SUSPECT;
 import scouter.agent.error.USERTX_NOT_CLOSE;
@@ -53,6 +54,7 @@ import scouter.lang.TextTypes;
 import scouter.lang.enumeration.ParameterizedMessageLevel;
 import scouter.lang.pack.AlertPack;
 import scouter.lang.pack.DroppedXLogPack;
+import scouter.lang.pack.XLogDiscardTypes.XLogDiscard;
 import scouter.lang.pack.XLogPack;
 import scouter.lang.pack.XLogTypes;
 import scouter.lang.step.DispatchStep;
@@ -110,6 +112,7 @@ public class TraceMain {
 
     private static Configure conf = Configure.getInstance();
     private static Error REJECT = new REQUEST_REJECT("service rejected");
+    private static Error REJECT_DUPLICATED_IP = new REQUEST_REJECT_DUPLICATED_IP("duplicated ip rejected");
     private static Error userTxNotClose = new USERTX_NOT_CLOSE("UserTransaction missing commit/rollback Error");
     private static Error resultSetLeakSuspect = new RESULTSET_LEAK_SUSPECT("ResultSet Leak suspected!");
     private static Error statementLeakSuspect = new STATEMENT_LEAK_SUSPECT("Statement Leak suspected!");
@@ -218,6 +221,28 @@ public class TraceMain {
                 return REJECT;
             }
         }
+        RejectPolicy rejectPolicy = CentralRejectControl.getInstance().getPolicy();
+        if (rejectPolicy.enabled) {
+            if (stat == null || req == null || res == null)
+                return null;
+            if (http == null) {
+                initHttp(req);
+            }
+            Stat stat0 = (Stat) stat;
+            if (stat0.isStaticContents) {
+                return null;
+            }
+            if (DuplicatedIpRejectControl.getInstance().isDuplicated(stat0.ctx)) {
+                if (rejectPolicy.redirectUrlEnabled) {
+                    http.rejectUrl(res, rejectPolicy.redirectUrl);
+                } else {
+                    http.rejectText(res, rejectPolicy.text);
+                }
+                endHttpService(stat0, REJECT_DUPLICATED_IP);
+                return REJECT_DUPLICATED_IP;
+            }
+        }
+
         if (conf.control_reject_service_enabled) {
             if (stat == null || req == null || res == null)
                 return null;
@@ -469,6 +494,9 @@ public class TraceMain {
         }
 
         try {
+            // release the duplicated-ip in-flight mark (no-op if this ctx was never marked)
+            DuplicatedIpRejectControl.getInstance().release(ctx);
+
             if (conf.getEndUserPerfEndpointHash() == ctx.serviceHash) {
                 TraceContextManager.end(ctx);
                 return;
@@ -563,6 +591,12 @@ public class TraceMain {
                 if (thr == REJECT) {
                     Logger.println("A145", ctx.serviceName);
                     String emsg = conf.control_reject_text;
+                    pack.error = DataProxy.sendError(emsg);
+                    ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
+
+                } else if (thr == REJECT_DUPLICATED_IP) {
+                    Logger.println("A910", ctx.serviceName + " (duplicated ip: " + ctx.remoteIp + ")");
+                    String emsg = CentralRejectControl.getInstance().getPolicy().text;
                     pack.error = DataProxy.sendError(emsg);
                     ServiceSummary.getInstance().process(thr, pack.error, ctx.serviceHash, ctx.txid, 0, 0);
 

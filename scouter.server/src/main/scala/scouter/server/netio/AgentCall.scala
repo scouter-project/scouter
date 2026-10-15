@@ -74,7 +74,7 @@ object AgentCall {
     def call(o: ObjectPack, cmd: String, param: MapPack, handler: (Int, DataInputX, DataOutputX) => Unit) {
         if (o == null) {
             Logger.println("S503", "Agent Call error. Object pack is null");
-            return null;
+            return;
         }
         val tcpAgent = TcpAgentManager.get(o.objHash);
         if (tcpAgent != null) {

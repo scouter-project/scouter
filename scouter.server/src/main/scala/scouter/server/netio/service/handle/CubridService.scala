@@ -47,7 +47,7 @@ import scouter.util.{CastUtil, DateUtil, IntKeyMap, StringUtil}
 import scouter.server.util.TimedSeries
 import scouter.server.db.{ObjectRD, RealtimeCounterRD}
 import scouter.lang.counters.CounterConstants
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scouter.util.HashUtil
 import scouter.util.DataUtil
 

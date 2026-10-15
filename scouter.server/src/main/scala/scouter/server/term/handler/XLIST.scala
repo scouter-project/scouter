@@ -28,7 +28,7 @@ import scouter.server.util.ThreadScala
 import scouter.util.DateUtil
 import scouter.util.FormatUtil
 import scouter.util.StringUtil
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import scouter.util.IntSet
 import scouter.server.core.cache.XLogCache
 import scouter.io.DataInputX

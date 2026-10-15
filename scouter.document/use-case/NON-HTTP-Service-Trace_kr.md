@@ -9,7 +9,16 @@ WAS(ex Tomcat)가 아닌 서버에서 서비스를 추적하는 방법을 설명
 hook_service_patterns=com.mypkg.MyClass.myservice
 ```
 
-형식으로 풀패키지명과 클래스/메소드 이름까지 설정한다.
+풀패키지명과 클래스/메소드 이름까지 설정한다.
+
+서비스 훅에서 제외할 메소드는 `hook_service_exclude_patterns`로 지정한다. 포함 설정과 같은 형식이며, 쉼표로 여러 패턴을 지정할 수 있다. 클래스 패턴과 메소드 전체(`*`)에 와일드카드를 사용할 수 있고, 메소드명 뒤에 JVM descriptor를 붙이면 특정 오버로드만 제외한다. 제외 설정이 우선 적용되며, 기본값은 빈 문자열이다. 플러그인이 등록한 서비스 시작점에도 적용된다.
+
+```properties
+hook_service_patterns=com.mypkg*.*
+hook_service_exclude_patterns=com.mypkg.HealthCheck.*,com.mypkg.MyClass.internalTask
+```
+
+이미 로드된 클래스에 적용하려면 애플리케이션을 재시작한다.
 
 그런데 서비스 시작 부분을 찾기 위해서는 분석이 필요하다. 
 

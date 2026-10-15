@@ -30,7 +30,7 @@ import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.{EnumerScala, TimedSeries}
 import scouter.util.{CastUtil, DateUtil, IntKeyMap, StringUtil}
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class InteractionCounterService {
 
@@ -58,7 +58,7 @@ class InteractionCounterService {
         }
       }
 
-      for(objHash <- insts) {
+      for(objHash <- insts.asScala) {
           val cacheTable = InteractionCounterCache.getCacheTable(objHash)
           EnumerScala.foreach(cacheTable.values(), (pack: InteractionPerfCounterPack) => {
               dout.writeByte(TcpFlag.HasNEXT)

@@ -46,7 +46,8 @@ import scouterx.webapp.framework.filter.CorsFilter;
 import scouterx.webapp.framework.filter.LoggingInitServletFilter;
 import scouterx.webapp.framework.filter.NoCacheFilter;
 import scouterx.webapp.framework.filter.ReleaseResourceFilter;
-import scouterx.webapp.layer.websock.BasicSocket;
+// import scouterx.webapp.layer.websock.BasicSocket;
+import scouterx.webapp.layer.websock.PaperGlobalWebSocket;
 import scouterx.webapp.swagger.Bootstrap;
 
 import javax.servlet.DispatcherType;
@@ -120,7 +121,8 @@ public class WebAppMain extends Application {
         ServerContainer container = WebSocketServerContainerInitializer.configureContext(servletContextHandler);
         container.setDefaultMaxSessionIdleTimeout(7*24*3600*1000);
         // Add echo endpoint to server container
-        container.addEndpoint(BasicSocket.class);
+        // container.addEndpoint(BasicSocket.class);
+        container.addEndpoint(PaperGlobalWebSocket.class);
     }
 
     private static ServletContextHandler setWebHttpApiHandler () {
@@ -140,6 +142,8 @@ public class WebAppMain extends Application {
         servletContextHandler.setSessionHandler(new SessionHandler());
         servletContextHandler.getSessionHandler().setMaxInactiveInterval(conf.getNetHttpApiSessionTimeout());
         servletContextHandler.setContextPath("/");
+
+        servletContextHandler.setWelcomeFiles(new String[]{"index.html"});
 
         servletContextHandler.addServlet(jerseyHolder, "/scouter/*");
         servletContextHandler.addServlet(setStaticContentHandler(), "/*");

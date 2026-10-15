@@ -607,6 +607,10 @@ public class Configure extends Thread {
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_context_classes = "javax/naming/InitialContext";
 
+    @ConfigDesc("Class names excluded from all bytecode instrumentation")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String hook_class_exclude_classes = "";
+
     @ConfigDesc("Method set for method hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_method_patterns = "";
@@ -639,6 +643,10 @@ public class Configure extends Thread {
     @ConfigDesc("Method set for service hooking")
     @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
     public String hook_service_patterns = "";
+
+    @ConfigDesc("Method set excluded from service hooking")
+    @ConfigValueType(ValueType.COMMA_SEPARATED_VALUE)
+    public String hook_service_exclude_patterns = "";
 
     @ConfigDesc("hooking service name use a 1st string parameter or class & method name")
     public boolean hook_service_name_use_1st_string_enabled = true;
@@ -794,6 +802,48 @@ public class Configure extends Thread {
     @ConfigDesc("Reject URL")
     public String control_reject_redirect_url = "/error.html";
 
+    //Control - duplicated client ip
+    @ConfigDesc("Activating reject of duplicated request from the same client ip")
+    public boolean control_reject_duplicated_ip_enabled = false;
+    @ConfigDesc("Distinguish duplication by (ip + service url).\n If false, it is judged by client ip only.")
+    public boolean control_reject_duplicated_ip_url_enabled = true;
+    @ConfigDesc("Reject the same request re-called within this interval(ms). 0 to disable this rule.")
+    public int control_reject_duplicated_ip_interval_ms = 1000;
+    @ConfigDesc("Reject the same request while the previous one is still being processed")
+    public boolean control_reject_duplicated_ip_concurrent_enabled = true;
+    @ConfigDesc("Allowed concurrent count of the same request before rejecting")
+    public int control_reject_duplicated_ip_max_concurrent_count = 1;
+    @ConfigDesc("Activating call-rate based reject of the same request")
+    public boolean control_reject_duplicated_ip_rate_enabled = false;
+    @ConfigDesc("Counting window(ms) of the call-rate rule.\n The window starts at the first call and rolls over when elapsed.")
+    public int control_reject_duplicated_ip_rate_window_ms = 10000;
+    @ConfigDesc("Reject when the call count within the window reaches this count.\n ex) window=10000, count=300 -> the 300th call within 10s is the first rejected one.")
+    public int control_reject_duplicated_ip_rate_max_count = 300;
+    @ConfigDesc("Keep rejecting for this period(ms) once the call-rate is exceeded.\n 0 means rejecting only until the current window rolls over.")
+    public int control_reject_duplicated_ip_rate_block_ms = 0;
+    @ConfigDesc("Safety timeout(ms) to recover leaked in-flight count")
+    public int control_reject_duplicated_ip_inflight_timeout_ms = 30000;
+    @ConfigDesc("Max entry count of the duplication check table (LRU)")
+    public int control_reject_duplicated_ip_max_keep_count = 10000;
+    @ConfigDesc("Service url patterns to exclude from the check.\n ex) /health,/api/push/*")
+    public String control_reject_duplicated_ip_exclude_url_patterns = "";
+    @ConfigDesc("Client ips to exclude from the check")
+    public String control_reject_duplicated_ip_exclude_ips = "127.0.0.1,0:0:0:0:0:0:0:1";
+    @ConfigDesc("Reject text of duplicated ip control")
+    public String control_reject_duplicated_ip_text = "duplicated request!!";
+    @ConfigDesc("Activating reject URL of duplicated ip control")
+    public boolean control_reject_duplicated_ip_redirect_url_enabled = false;
+    @ConfigDesc("Reject URL of duplicated ip control")
+    public String control_reject_duplicated_ip_redirect_url = "/error.html";
+    @ConfigDesc("Send alert when a request is rejected by duplicated ip control")
+    public boolean control_reject_duplicated_ip_alert_enabled = false;
+
+    //Control - central(collector managed) reject control
+    @ConfigDesc("Accept centrally managed reject policy and block list from the collector")
+    public boolean control_reject_central_enabled = false;
+    @ConfigDesc("Max buffered detections waiting for the collector to pick up")
+    public int control_reject_central_max_pending_detection = 1000;
+
     // Counter
     @ConfigDesc("Activating collect counter")
     public boolean counter_enabled = true;
@@ -870,6 +920,7 @@ public class Configure extends Thread {
     private String[] _hook_method_ignore_prefix = null;
     private int _hook_method_ignore_prefix_len = 0;
     private int hook_signature;
+    private StringSet _hook_class_exclude_classes = new StringSet();
     private StringSet _hook_method_ignore_classes = new StringSet();
     private int enduser_perf_endpoint_hash = HashUtil.hash(enduser_trace_endpoint_url);
     private StringSet custom_jmx_set = new StringSet();
@@ -1035,6 +1086,9 @@ public class Configure extends Thread {
         this._log_datasource_lookup_enabled = getBoolean("_log_datasource_lookup_enabled", true);
         this.profile_connection_open_enabled = getBoolean("profile_connection_open_enabled", true);
         this._summary_connection_leak_fullstack_enabled = getBoolean("_summary_connection_leak_fullstack_enabled", false);
+        this.hook_class_exclude_classes = getValue("hook_class_exclude_classes", "");
+        this._hook_class_exclude_classes = new StringSet(StringUtil.tokenizer(
+            this.hook_class_exclude_classes.replace('.', '/'), ","));
         this.hook_method_patterns = getValue("hook_method_patterns", "");
         this.hook_method_exclude_patterns = getValue("hook_method_exclude_patterns", "");
         this.hook_method_access_public_enabled = getBoolean("hook_method_access_public_enabled", true);
@@ -1054,6 +1108,7 @@ public class Configure extends Thread {
                 this.hook_method_ignore_classes.replace('.', '/'), ","));
         this.profile_method_enabled = getBoolean("profile_method_enabled", true);
         this.hook_service_patterns = getValue("hook_service_patterns", "");
+        this.hook_service_exclude_patterns = getValue("hook_service_exclude_patterns", "");
         this.hook_service_name_use_1st_string_enabled = getBoolean("hook_service_name_use_1st_string_enabled", true);
         this.hook_apicall_patterns = getValue("hook_apicall_patterns", "");
         this.hook_apicall_info_patterns = getValue("hook_apicall_info_patterns", "");
@@ -1107,6 +1162,7 @@ public class Configure extends Thread {
         this.hook_signature ^= this.hook_connection_open_patterns.hashCode();
         this.hook_signature ^= this.hook_method_patterns.hashCode();
         this.hook_signature ^= this.hook_service_patterns.hashCode();
+        this.hook_signature ^= this.hook_service_exclude_patterns.hashCode();
         this.hook_signature ^= this.hook_apicall_patterns.hashCode();
         this.hook_signature ^= this.hook_jsp_patterns.hashCode();
         this.hook_signature ^= this.hook_jdbc_wrapping_driver_patterns.hashCode();
@@ -1116,6 +1172,41 @@ public class Configure extends Thread {
         this.control_reject_redirect_url_enabled = getBoolean("control_reject_redirect_url_enabled", false);
         this.control_reject_text = getValue("control_reject_text", "too many request!!");
         this.control_reject_redirect_url = getValue("control_reject_redirect_url", "/error.html");
+
+        this.control_reject_duplicated_ip_enabled = getBoolean("control_reject_duplicated_ip_enabled", false);
+        this.control_reject_duplicated_ip_url_enabled = getBoolean("control_reject_duplicated_ip_url_enabled", true);
+        this.control_reject_duplicated_ip_interval_ms = getInt("control_reject_duplicated_ip_interval_ms", 1000);
+        this.control_reject_duplicated_ip_concurrent_enabled = getBoolean("control_reject_duplicated_ip_concurrent_enabled", true);
+        this.control_reject_duplicated_ip_max_concurrent_count = getInt("control_reject_duplicated_ip_max_concurrent_count", 1);
+        if (this.control_reject_duplicated_ip_max_concurrent_count < 1) {
+            this.control_reject_duplicated_ip_max_concurrent_count = 1;
+        }
+        this.control_reject_duplicated_ip_rate_enabled = getBoolean("control_reject_duplicated_ip_rate_enabled", false);
+        this.control_reject_duplicated_ip_rate_window_ms = getInt("control_reject_duplicated_ip_rate_window_ms", 10000);
+        if (this.control_reject_duplicated_ip_rate_window_ms < 1) {
+            this.control_reject_duplicated_ip_rate_window_ms = 1;
+        }
+        this.control_reject_duplicated_ip_rate_max_count = getInt("control_reject_duplicated_ip_rate_max_count", 300);
+        if (this.control_reject_duplicated_ip_rate_max_count < 1) {
+            this.control_reject_duplicated_ip_rate_max_count = 1;
+        }
+        this.control_reject_duplicated_ip_rate_block_ms = getInt("control_reject_duplicated_ip_rate_block_ms", 0);
+        this.control_reject_duplicated_ip_inflight_timeout_ms = getInt("control_reject_duplicated_ip_inflight_timeout_ms", 30000);
+        this.control_reject_duplicated_ip_max_keep_count = getInt("control_reject_duplicated_ip_max_keep_count", 10000);
+        if (this.control_reject_duplicated_ip_max_keep_count < 100) {
+            this.control_reject_duplicated_ip_max_keep_count = 100;
+        }
+        this.control_reject_duplicated_ip_exclude_url_patterns = getValue("control_reject_duplicated_ip_exclude_url_patterns", "");
+        this.control_reject_duplicated_ip_exclude_ips = getValue("control_reject_duplicated_ip_exclude_ips", "127.0.0.1,0:0:0:0:0:0:0:1");
+        this.control_reject_duplicated_ip_text = getValue("control_reject_duplicated_ip_text", "duplicated request!!");
+        this.control_reject_duplicated_ip_redirect_url_enabled = getBoolean("control_reject_duplicated_ip_redirect_url_enabled", false);
+        this.control_reject_duplicated_ip_redirect_url = getValue("control_reject_duplicated_ip_redirect_url", "/error.html");
+        this.control_reject_duplicated_ip_alert_enabled = getBoolean("control_reject_duplicated_ip_alert_enabled", false);
+        this.control_reject_central_enabled = getBoolean("control_reject_central_enabled", false);
+        this.control_reject_central_max_pending_detection = getInt("control_reject_central_max_pending_detection", 1000);
+        if (this.control_reject_central_max_pending_detection < 1) {
+            this.control_reject_central_max_pending_detection = 1;
+        }
 
         this.profile_step_max_count = getInt("profile_step_max_count", 1024);
         if (this.profile_step_max_count < 128)
@@ -1441,6 +1532,10 @@ public class Configure extends Thread {
 
     public StringSet getCustomJmxSet() {
         return this.custom_jmx_set;
+    }
+
+    public boolean isHookClassExcluded(String classname) {
+        return _hook_class_exclude_classes.hasKey(classname);
     }
 
     public boolean isIgnoreMethodClass(String classname) {

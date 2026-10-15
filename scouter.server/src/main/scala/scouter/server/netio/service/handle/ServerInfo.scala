@@ -35,7 +35,7 @@ import scouter.net.TcpFlag;
 import scouter.server.Configure;
 import scouter.server.netio.service.anotation.ServiceHandler;
 import scouter.util.FileUtil;
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 class ServerInfo {
 
   @ServiceHandler(RequestCmd.SERVER_STATUS)
@@ -65,7 +65,7 @@ class ServerInfo {
   def getAgentEnv(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val m = new MapPack();
     val p = System.getProperties();
-    for (key <- p.keySet()) {
+    for (key <- p.keySet().asScala) {
       val value = p.getProperty(key.toString());
       m.put(key.toString(), value);
     }

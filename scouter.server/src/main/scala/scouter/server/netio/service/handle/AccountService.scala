@@ -30,7 +30,7 @@ import scouter.net.RequestCmd
 import scouter.net.TcpFlag
 import scouter.server.account.AccountManager
 import scouter.server.netio.service.anotation.ServiceHandler
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class AccountService {
 
@@ -41,11 +41,13 @@ class AccountService {
     val passwd = m.getText("pass");
     val email = m.getText("email");
     val group = m.getText("group");
+    val hp = m.getText("hp");
     val account = new Account();
     account.id = id;
     account.password = passwd;
     account.email = email;
     account.group = group;
+    account.hp = hp;
     val result = AccountManager.addAccount(account);
     val pack = new MapPack();
     pack.put("result", new BooleanValue(result));
@@ -60,11 +62,13 @@ class AccountService {
     val passwd = m.getText("pass");
     val email = m.getText("email");
     val group = m.getText("group");
+    val hp = m.getText("hp");
     val account = new Account();
     account.id = id;
     account.password = passwd;
     account.email = email;
     account.group = group;
+    account.hp = hp;
     val result = AccountManager.editAccount(account);
     val pack = new MapPack();
     pack.put("result", new BooleanValue(result));
@@ -86,7 +90,7 @@ class AccountService {
   @ServiceHandler(RequestCmd.LIST_ACCOUNT)
   def listAccount(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val accountList = AccountManager.getAccountList();
-    accountList.toList.foreach { x =>
+    accountList.asScala.toList.foreach { x =>
       dout.writeByte(TcpFlag.HasNEXT);
       dout.writeValue(new BlobValue(x.toBytes()));
     }
@@ -128,6 +132,36 @@ class AccountService {
   def addAccountGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
     val param = din.readPack().asInstanceOf[MapPack];
     val result = AccountManager.addAccountGroup(param);
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writeValue(new BooleanValue(result));
+  }
+
+  /* 신규추가 */
+  @ServiceHandler(RequestCmd.REMOVE_ACCOUNT)
+  def removeAccount(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val m = din.readPack().asInstanceOf[MapPack];
+    val id = m.getText("id");
+    val passwd = m.getText("pass");
+    val email = m.getText("email");
+    val group = m.getText("group");
+    val hp = m.getText("hp");
+    val account = new Account();
+    account.id = id;
+    account.password = passwd;
+    account.email = email;
+    account.group = group;
+    account.hp = hp;
+    val result = AccountManager.removeAccount(account);
+    val pack = new MapPack();
+    pack.put("result", new BooleanValue(result));
+    dout.writeByte(TcpFlag.HasNEXT);
+    dout.writePack(pack);
+  }
+
+  @ServiceHandler("REMOVE_ACCOUNT_GROUP")
+  def removeAccountGroup(din: DataInputX, dout: DataOutputX, login: Boolean) {
+    val param = din.readPack().asInstanceOf[MapPack];
+    val result = AccountManager.removeAccountGroup(param);
     dout.writeByte(TcpFlag.HasNEXT);
     dout.writeValue(new BooleanValue(result));
   }

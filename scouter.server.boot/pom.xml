@@ -1,10 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>io.github.scouter-project</groupId>
         <artifactId>scouter-parent</artifactId>
-        <version>2.21.3</version> <!--scouter-->
+        <version>2.21.4</version> <!--scouter-->
     </parent>
 
     <artifactId>scouter-server-boot</artifactId>
@@ -12,7 +14,6 @@
     <name>scouter.server.boot</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <scouter.server.boot.library.name>scouter-server-boot</scouter.server.boot.library.name>
         <scouter.server.boot.jar>scouter-server-boot.jar</scouter.server.boot.jar>
         <scouter.assembly.working.dir>${project.build.directory}/assembly-working</scouter.assembly.working.dir>
@@ -23,26 +24,15 @@
         <dependency>
             <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-server</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>io.github.scouter-project</groupId>
             <artifactId>scouter-webapp</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -83,7 +73,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
-                <version>1.8</version>
                 <executions>
                     <execution>
                         <id>make-assembly</id>
@@ -103,11 +92,15 @@
                                         <include name="**/*" />
                                     </fileset>
                                 </copy>
-                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh" eol="lf" eof="remove" />
+                                <fixcrlf srcdir="${scouter.assembly.working.dir}" includes="**/*.sh"
+                                    eol="lf" eof="remove" />
 
-                                <copy file="${project.build.directory}/${project.build.finalName}.jar" tofile="${project.build.directory}/${project.artifactId}.jar" />
+                                <copy
+                                    file="${project.build.directory}/${project.build.finalName}.jar"
+                                    tofile="${project.build.directory}/${project.artifactId}.jar" />
 
-                                <tar destfile="${project.build.directory}/${scouter.server.assembly.name}.tar">
+                                <tar
+                                    destfile="${project.build.directory}/${scouter.server.assembly.name}.tar">
                                     <tarfileset dir="${scouter.assembly.working.dir}" mode="755">
                                         <include name="**/*.sh" />
                                     </tarfileset>
@@ -128,7 +121,9 @@
 
                                 <!-- copy for preparing whole packaging -->
                                 <mkdir dir="${scouter.whole.packaging.prepare.dir}" />
-                                <copy file="${project.build.directory}/${scouter.server.assembly.name}.tar" todir="${scouter.whole.packaging.prepare.dir}" />
+                                <copy
+                                    file="${project.build.directory}/${scouter.server.assembly.name}.tar"
+                                    todir="${scouter.whole.packaging.prepare.dir}" />
                             </target>
                         </configuration>
                         <goals>
