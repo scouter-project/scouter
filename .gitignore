@@ -115,3 +115,7 @@ scouter.agent.batch/.settings/org.eclipse.core.resources.prefs
 scouter.server.jar
 AGENTS.md
 .DS_Store
+<<<<<<< Updated upstream
+=======
+/.vscode
+>>>>>>> Stashed changes

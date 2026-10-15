@@ -21,6 +21,7 @@
         <module>scouter.weaver</module>
         <module>scouter.server.boot</module>
         <module>scouter.server</module>
+        <module>scouter.plugin.server.xprof</module>
         <module>scouter.agent.host</module>
         <module>scouter.agent.java</module>
         <module>scouter.agent.batch</module>
@@ -64,6 +65,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <scouter.build.directory>target</scouter.build.directory>
 
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm</maven.build.timestamp.format>
         <build.datetime>${maven.build.timestamp} GMT</build.datetime>
@@ -436,6 +438,7 @@
     </dependencyManagement>
 
     <build>
+        <directory>${project.basedir}/${scouter.build.directory}</directory>
         <pluginManagement>
             <plugins>
                 <plugin>
