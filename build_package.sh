@@ -25,17 +25,11 @@ if [ -z "$JAVA_VER" ]; then
 fi
 
 if [ "$JAVA_VER" -ge 8 ]; then
-    echo "JDK 8+ detected. Building java-8-plus profile"
+    echo "JDK $JAVA_VER detected. Building with the matching Maven profile"
     $MVN -Dmaven.test.skip=true clean install
-    $MVN -Dmaven.test.skip=true -f ./scouter.agent.java/pom.xml -Pjava-8-plus package
 else
     echo "Scouter requires at least JDK 8."
     exit 1
-fi
-
-if [ "$JAVA_VER" -ge 21 ]; then
-    echo "JDK 21+ detected. Building java-21-plus profile"
-    $MVN -Dmaven.test.skip=true -f ./scouter.agent.java/pom.xml -Pjava-21-plus package
 fi
 
 $MVN -Dmaven.test.skip=true -f ./scouter.deploy/pom.xml clean package
