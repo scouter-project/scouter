@@ -108,12 +108,12 @@ object GroupFileHandler {
             val nodeList = doc.getElementsByTagName(TAG_GROUP)
             findAndSet(pack, doc, nodeList, group)
             XmlUtil.writeXmlFileWithIndent(doc, file, 2)
-            true
+            return true;
         } catch {
             case e: Exception =>
                 Logger.println(e.getMessage())
         }
-        false
+        return false;
     }
     def addAccountGroup(file: File, name: String, policyMap: MapValue): Boolean = {
         try {
