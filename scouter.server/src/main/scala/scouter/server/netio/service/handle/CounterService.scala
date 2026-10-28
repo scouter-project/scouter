@@ -32,7 +32,7 @@ import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.server.util.TimedSeries
 import scouter.util.{CastUtil, DateUtil, IntKeyMap, StringUtil}
 
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 
 class CounterService {
 
@@ -69,7 +69,7 @@ class CounterService {
         val instList = mpack.newList("objHash");
         val values = mpack.newList("value");
 
-        for (objHash <- insts) {
+        for (objHash <- insts.asScala) {
             val key = new CounterKey(objHash.intValue(), counter, TimeTypeEnum.REALTIME);
             val v = CounterCache.get(key);
             if (v != null) {
@@ -115,7 +115,7 @@ class CounterService {
         val counters = mpack.newList("counter");
         val values = mpack.newList("value");
 
-        for (counter <- cntMap.keySet()) {
+        for (counter <- cntMap.keySet().asScala) {
             val value = cntMap.get(counter);
             counters.add(counter);
             values.add(value);
@@ -132,10 +132,10 @@ class CounterService {
 
         val liveObjectList = AgentManager.getLiveObjHashList(objType);
         val mpack = new MapPack();
-        for (objHash <- liveObjectList) {
+        for (objHash <- liveObjectList.asScala) {
             val mapValue = new MapValue();
             val cntMap = CounterCache.getObjectCounters(objHash.intValue(), TimeTypeEnum.REALTIME);
-            for (counter <- cntMap.keySet()) {
+            for (counter <- cntMap.keySet().asScala) {
                 val value = cntMap.get(counter);
                 mapValue.put(counter, value);
                 mpack.put(AgentManager.getAgentName(objHash.intValue()), mapValue);
@@ -175,7 +175,7 @@ class CounterService {
       val counterList = mpack.newList("counter");
       val valueList = mpack.newList("value");
       
-      for(objHash <- insts) {
+      for(objHash <- insts.asScala) {
         for( i <- 0 to counters.size() - 1) {
           val key =  new CounterKey(objHash, counters.getString(i), TimeTypeEnum.REALTIME);
           val value = CounterCache.get(key);
@@ -204,7 +204,7 @@ class CounterService {
         var vvv = 0.0;
         var cnt = 0;
         val insList = AgentManager.getLiveObjHashList(objType);
-        for (objHash <- insList) {
+        for (objHash <- insList.asScala) {
             val key = new CounterKey(objHash, counter, TimeTypeEnum.REALTIME);
             val v = CounterCache.get(key);
             if (v != null) {
@@ -396,7 +396,7 @@ class CounterService {
         while (minTime <= maxTime) {
             var sum = 0.0d;
             val list = series.getInTimeList(minTime, 10000);
-            for (i <- list) {
+            for (i <- list.asScala) {
                 sum += i;
             }
             timeLv.add(minTime);

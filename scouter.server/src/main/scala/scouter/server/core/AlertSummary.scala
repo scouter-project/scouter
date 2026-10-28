@@ -17,7 +17,7 @@
 package scouter.server.core;
 
 import java.util.HashMap
-import scala.collection.JavaConversions.asScalaSet
+import scala.jdk.CollectionConverters._
 import scouter.lang.SummaryEnum
 import scouter.lang.pack.AlertPack
 import scouter.lang.pack.SummaryPack
@@ -68,7 +68,7 @@ object AlertSummary {
 
         val tm = DateUtil.MILLIS_PER_FIVE_MINUTE
         val stime = (System.currentTimeMillis() - 10000) / tm * tm
-        for (ent <- table.entrySet()) {
+        for (ent <- table.entrySet().asScala) {
             val sp = new SummaryPack();
 
             sp.time = stime;
@@ -83,7 +83,7 @@ object AlertSummary {
             val levelLv = sp.table.newList("level");
 
             var inx = 0;
-            for (ent2 <- entSet) {
+            for (ent2 <- entSet.asScala) {
                 titleLv.add(ent2.getKey());
                 levelLv.add(ent2.getValue()._1);
                 countLv.add(ent2.getValue()._2);

@@ -113,6 +113,10 @@ public class TraceContext {
 	public String remoteIp;
 	public String threadName;
 	
+	// duplicated client-ip reject control
+	public long duplicatedIpCheckKey;
+	public boolean duplicatedIpCheckMarked;
+
 	public int error;
 	//public boolean done_http_service;
 	public String http_method;

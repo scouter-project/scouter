@@ -107,8 +107,9 @@ public class SActiveService {
 					resultList.add(activeService);
 				}
 			}
-			resultList.sort((s1, s2) -> s1.elapsed > s2.elapsed ? -1 : 1);
+			// resultList.sort((s1, s2) -> s1.elapsed > s2.elapsed ? -1 : 1);
 		}
+		resultList.sort((s1, s2) -> Long.compare(s2.elapsed, s1.elapsed));
 
 		return resultList;
 	}

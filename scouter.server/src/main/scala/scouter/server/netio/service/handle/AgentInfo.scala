@@ -37,7 +37,7 @@ import scouter.server.db.ObjectRD
 import scouter.server.netio.AgentCall
 import scouter.server.netio.service.anotation.ServiceHandler
 import scouter.util.DateUtil
-import scala.collection.JavaConversions._
+import scala.jdk.CollectionConverters._
 import java.util.ArrayList
 import scouter.util.StringUtil
 import java.util.Enumeration
@@ -172,7 +172,7 @@ class AgentInfo {
     def getFullAgentList(din: DataInputX, dout: DataOutputX, login: Boolean) {
         val date = DateUtil.yyyymmdd();
         val objectList = ObjectRD.getObjectList(date);
-        for (pack <- objectList) {
+        for (pack <- objectList.asScala) {
             val inMemory = AgentManager.getAgent(pack.objHash);
             if (inMemory == null) {
                 pack.tags.put("status", "dead");

@@ -211,8 +211,8 @@ object ZipkinSpanRD {
             FileUtil.close(reader)
         }
 
-        import scala.collection.JavaConversions._
-        spanList.toList
+        import scala.jdk.CollectionConverters._
+        spanList.asScala.toList
     }
 
 }

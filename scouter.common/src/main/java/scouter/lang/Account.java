@@ -29,6 +29,7 @@ public class Account {
 	public String password = ""; // encrypted
 	public String email = "";
 	public String group = "";
+	public String hp = "";
 	
 	public byte[] toBytes() throws IOException {
 		ByteArrayOutputStream out =new ByteArrayOutputStream();
@@ -44,6 +45,9 @@ public class Account {
 		byte[] groupBytes = group.getBytes();
 		out.write(groupBytes.length);
 		out.write(groupBytes);
+		byte[] hpBytes = hp.getBytes();
+		out.write(hpBytes.length);
+		out.write(hpBytes);
 		return out.toByteArray();
 	}
 	
@@ -65,12 +69,16 @@ public class Account {
 		byte[] groupBytes = new byte[len];
 		in.read(groupBytes);
 		this.group = new String(groupBytes);
+		len = in.read();
+		byte[] hpBytes = new byte[len];
+		in.read(hpBytes);
+		this.hp = new String(hpBytes);
 		in.close();
 	}
 	
 	@Override
 	public String toString() {
-		return "Account [id=" + id + ", email=" + email + ", group=" + group
+		return "Account [id=" + id + ", email=" + email + ", group=" + group + ", hp=" + hp
 				+ "]";
 	}
 
@@ -80,6 +88,7 @@ public class Account {
 		ac.password = "123344";
 		ac.email = "bill23@lgcns.com";
 		ac.group = "Admin";
+		ac.hp = "000-0000-0000";
 		byte[] aa = ac.toBytes();
 		DataOutputX out = new DataOutputX();
 		out.writeBlob(aa);

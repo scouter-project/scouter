@@ -69,50 +69,125 @@ public class AgentModelThread extends Thread {
 		}
 	}
 
+	// public synchronized void fetchObjectList() {
+	// 	Map<Integer, AgentObject> tempAgentMap = new HashMap<Integer, AgentObject>();
+	// 	ArrayList<ObjectPack> objectPackList = new ArrayList<ObjectPack>();
+	// 	boolean existUnknownType = false;
+	// 	existServerSet.clear();
+	// 	Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerIdList();
+	// 	if (serverIdSet.size() > 0) {
+	// 		Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
+	// 		for (int serverId : serverIds) {
+	// 			Server server = ServerManager.getInstance().getServer(serverId);
+	// 			if (server.isOpen() == false || server.getSession() == 0) {
+	// 				continue;
+	// 			}
+	// 			LoginMgr.refreshCounterEngine(server);
+	// 			CounterEngine counterEngine = server.getCounterEngine();
+	// 			TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
+	// 			try {
+	// 				final ArrayList<ObjectPack> agentList = new ArrayList<ObjectPack>();
+	// 				proxy.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, in -> {
+	// 					ObjectPack o = (ObjectPack) in.readPack();
+	// 					agentList.add(o);
+	// 				});
+	// 				objectPackList.addAll(agentList);
+	// 				for (int i = 0; agentList != null && i < agentList.size(); i++) {
+	// 					ObjectPack m = agentList.get(i);
+	// 					String objType = m.objType;
+	// 					int objHash = m.objHash;
+	// 					String objName = m.objName;
+	// 					if (tempAgentMap.containsKey(objHash)) {
+	// 						AgentObject oldAgent = tempAgentMap.get(objHash);
+	// 						if (oldAgent.isAlive()) {
+	// 							continue;
+	// 						}
+	// 					}
+	// 					AgentObject agentObject = new AgentObject(objType, objHash, objName, serverId);
+	// 					tempAgentMap.put(objHash, agentObject);
+	// 					agentObject.objPack = m;
+	// 					if (counterEngine.isUnknownObjectType(objType)) {
+	// 						existUnknownType = true;
+	// 					}
+	// 				}
+	// 				if (agentList.size() > 0) {
+	// 					existServerSet.add(serverId);
+	// 				}
+	// 			} catch (Exception e) {
+	// 				e.printStackTrace();
+	// 			} finally {
+	// 				TcpProxy.close(proxy);
+	// 			}
+	// 		}
+	// 	}
+		
+	// 	allAgentList = objectPackList;
+	// 	agentMap = tempAgentMap;
+	// 	this.existUnknownType = existUnknownType;
+	// }
 	public synchronized void fetchObjectList() {
-		Map<Integer, AgentObject> tempAgentMap = new HashMap<Integer, AgentObject>();
-		ArrayList<ObjectPack> objectPackList = new ArrayList<ObjectPack>();
-		boolean existUnknownType = false;
-		existServerSet.clear();
+		Map<Integer, AgentObject> tempAgentMap = new HashMap<>();
+		ArrayList<ObjectPack> objectPackList = new ArrayList<>();
+		Set<Integer> newExistServerSet = new HashSet<>();
+
+		boolean successAnyServer = false;
+		boolean newExistUnknownType = false;
+
 		Set<Integer> serverIdSet = ServerManager.getInstance().getOpenServerIdList();
+
 		if (serverIdSet.size() > 0) {
 			Integer[] serverIds = serverIdSet.toArray(new Integer[serverIdSet.size()]);
+
 			for (int serverId : serverIds) {
 				Server server = ServerManager.getInstance().getServer(serverId);
+
 				if (server.isOpen() == false || server.getSession() == 0) {
 					continue;
 				}
+
 				LoginMgr.refreshCounterEngine(server);
 				CounterEngine counterEngine = server.getCounterEngine();
 				TcpProxy proxy = TcpProxy.getTcpProxy(serverId);
+
 				try {
-					final ArrayList<ObjectPack> agentList = new ArrayList<ObjectPack>();
+					final ArrayList<ObjectPack> agentList = new ArrayList<>();
+
 					proxy.process(RequestCmd.OBJECT_LIST_REAL_TIME, null, in -> {
 						ObjectPack o = (ObjectPack) in.readPack();
 						agentList.add(o);
 					});
+
+					successAnyServer = true;
+
 					objectPackList.addAll(agentList);
+
 					for (int i = 0; agentList != null && i < agentList.size(); i++) {
 						ObjectPack m = agentList.get(i);
+
 						String objType = m.objType;
 						int objHash = m.objHash;
 						String objName = m.objName;
+
 						if (tempAgentMap.containsKey(objHash)) {
 							AgentObject oldAgent = tempAgentMap.get(objHash);
 							if (oldAgent.isAlive()) {
 								continue;
 							}
 						}
+
 						AgentObject agentObject = new AgentObject(objType, objHash, objName, serverId);
 						tempAgentMap.put(objHash, agentObject);
 						agentObject.objPack = m;
+
 						if (counterEngine.isUnknownObjectType(objType)) {
-							existUnknownType = true;
+							newExistUnknownType = true;
 						}
 					}
+
 					if (agentList.size() > 0) {
-						existServerSet.add(serverId);
+						newExistServerSet.add(serverId);
 					}
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				} finally {
@@ -120,10 +195,15 @@ public class AgentModelThread extends Thread {
 				}
 			}
 		}
-		
+
+		if (serverIdSet.size() > 0 && successAnyServer == false) {
+			return;
+		}
+
 		allAgentList = objectPackList;
 		agentMap = tempAgentMap;
-		this.existUnknownType = existUnknownType;
+		existServerSet = newExistServerSet;
+		this.existUnknownType = newExistUnknownType;
 	}
 	
 	private Set<Integer> existServerSet = new HashSet<Integer>();

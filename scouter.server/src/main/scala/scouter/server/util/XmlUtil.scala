@@ -35,8 +35,8 @@ object XmlUtil {
         transformer.setOutputProperty(OutputKeys.INDENT, "yes");
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", String.valueOf(indent));
         val source = new DOMSource(doc);
-        val writer = new StringWriter()
-        val result = new StreamResult(writer);
+        val writer = new StringWriter();
+        val result = new StreamResult(file);
         transformer.transform(source, result);
 
         return writer.toString();

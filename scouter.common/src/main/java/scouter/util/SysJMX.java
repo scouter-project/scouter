@@ -116,7 +116,7 @@ public class SysJMX {
 	}
 
 	public static long[] getCurrentProcGcInfo() {
-		long[] gc = new long[2];
+		long[] gc = new long[6];
 		if (threadmx == null)
 			return gc;
 		try {
@@ -125,6 +125,16 @@ public class SysJMX {
 				GarbageCollectorMXBean mxs = (GarbageCollectorMXBean) gclist.get(i);
 				gc[0] += mxs.getCollectionCount();
 				gc[1] += mxs.getCollectionTime();
+				// JVM 벤더 호환성 향상을 위해 GC명칭 소문자로 변환
+				String gcName = mxs.getName();
+				if (gcName.contains("young") || gcName.contains("scavenge") || gcName.contains("parnew") || gcName.contains("copy") || gcName.contains("partial")) {
+					gc[2] += mxs.getCollectionCount();
+					gc[3] += mxs.getCollectionTime();
+				}
+				if (gcName.contains("old") || gcName.contains("marksweep") || gcName.contains("concurrentmarksweep") || gcName.contains("global")) {
+					gc[4] += mxs.getCollectionCount();
+					gc[5] += mxs.getCollectionTime();
+				}
 			}
 			return gc;
 		} catch (Throwable t) {

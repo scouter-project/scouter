@@ -23,6 +23,7 @@ import scouter.server.db.DBCtr;
 import scouter.server.http.HttpServer;
 import scouter.server.netio.data.NetDataProcessor;
 import scouter.server.netio.data.net.DataUdpServer;
+import scouter.server.core.RejectControlBroadcaster;
 import scouter.server.netio.service.ServiceHandlingProxy;
 import scouter.server.netio.service.net.TcpServer;
 import scouter.server.plugin.PlugInManager;
@@ -57,6 +58,7 @@ public class Main {
         BuiltInPluginManager.loadPlugins();
 		NetDataProcessor.working();
 		AutoDeleteScheduler.getInstance();
+		RejectControlBroadcaster.initialize();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			public void run() {
 				ShutdownManager.shutdown();
