@@ -32,6 +32,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.part.ViewPart;
 
 import scouter.client.Activator;
+import scouter.client.util.ColorUtil;
 import scouter.client.model.XLogData;
 import scouter.client.xlog.ProfileText;
 import scouter.client.xlog.actions.OpenXLogProfileJob;
@@ -64,7 +65,12 @@ public class XLogThreadProfileView extends ViewPart {
 		}else{
 		    text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
 		}
-		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		if (ColorUtil.isDarkMode()) {
+			text.setBackground(ColorUtil.getChartBackground());
+			text.setForeground(ColorUtil.getChartForeground());
+		} else {
+			text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		}
 	}
 
 	public void setInput(final XLogData data, Step[] steps, long threadId, int serverId) {

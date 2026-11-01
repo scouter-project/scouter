@@ -51,6 +51,7 @@ import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
 import scouter.client.Activator;
+import scouter.client.util.ColorUtil;
 import scouter.client.Images;
 import scouter.client.model.TextProxy;
 import scouter.client.util.ExUtil;
@@ -143,7 +144,7 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 		man = getViewSite().getActionBars().getToolBarManager();
 		
 		sashForm = new SashForm(parent, SWT.HORIZONTAL);
-		sashForm.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));
+		sashForm.setBackground(ColorUtil.isDarkMode() ? ColorUtil.getChartBackground() : parent.getDisplay().getSystemColor(SWT.COLOR_GRAY));
 		sashForm.SASH_WIDTH = 1;
 		
 		mainComposite = new Composite(sashForm, SWT.NONE);
@@ -159,7 +160,12 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 		}else{
 			header.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
 		}
-		header.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		if (ColorUtil.isDarkMode()) {
+			header.setBackground(ColorUtil.getChartBackground());
+			header.setForeground(ColorUtil.getChartForeground());
+		} else {
+			header.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		}
 		
 
 		Composite centerComp = new Composite(mainComposite, SWT.NONE);
@@ -319,7 +325,12 @@ public class XLogFullProfileView extends ViewPart implements XLogViewWithTable {
 		}else{
 		    text.setFont(new Font(null, "Courier New", 10, SWT.NORMAL));
 		}
-		text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		if (ColorUtil.isDarkMode()) {
+			text.setBackground(ColorUtil.getChartBackground());
+			text.setForeground(ColorUtil.getChartForeground());
+		} else {
+			text.setBackgroundImage(Activator.getImage("icons/grid.jpg"));
+		}
 		text.addKeyListener(adapter);
 		text.addKeyListener(new KeyListener() {
 			public void keyReleased(KeyEvent e) {

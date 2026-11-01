@@ -54,6 +54,8 @@ public class PManager {
 			store.setDefault(xLogColumnEnum.getInternalID(), xLogColumnEnum.isDefaultVisible());
 		}
 
+		store.setDefault(PreferenceConstants.P_DARK_MODE, false);
+
 //		store.setDefault(PreferenceConstants.P_UPDATE_SERVER_ADDR, PORT_AND_REPOSITORY_FOLDER);
 //		store.setDefault(PreferenceConstants.P_ALERT_DIALOG_TIMEOUT, -1);
 //		store.setDefault(PreferenceConstants.NOTIFY_FATAL_ALERT, true);

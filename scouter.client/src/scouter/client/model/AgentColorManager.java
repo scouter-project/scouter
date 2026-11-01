@@ -54,7 +54,8 @@ public class AgentColorManager {
 			assignedIndex.put(objType, 0);
 		}
 		int index = assignedIndex.get(objType);
-		color = searchAvaliableColor(ColorUtil.default_rgb_map[index % ColorUtil.default_rgb_map.length]);
+		RGB[] rgbMap = ColorUtil.getDefaultRgbMap();
+		color = searchAvaliableColor(rgbMap[index % rgbMap.length]);
 		assignedColor.put(objHash, color);
 		if (index >= ColorUtil.default_rgb_map.length - 1) {
 			assignedIndex.put(objType, 0);

@@ -59,33 +59,35 @@ public class PerspectiveService implements IPerspectiveFactory  {
 		agentLayout.addPlaceholder(WorkspaceExplorer.ID);
 		agentLayout.addPlaceholder(GroupNavigationView.ID);
 		agentLayout.addView(ObjectNavigationView.ID);
-		layout.getViewLayout(ObjectNavigationView.ID).setCloseable(false); 
-		
-		IFolderLayout eqLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_EQ, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
-		eqLayout.addPlaceholder(EQView.ID + ":*");
-		eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType); // 1
+		layout.getViewLayout(ObjectNavigationView.ID).setCloseable(false);
 
-		IFolderLayout cpuLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CPU, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_EQ);
-		cpuLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + host + "&" + CounterConstants.HOST_CPU);
-		
 		IFolderLayout alertLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_ALERT, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
 		alertLayout.addPlaceholder(AlertView.ID + ":*");
 		alertLayout.addView(AlertView.ID);
-		
-		IFolderLayout upResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_TOP, IPageLayout.LEFT, 0.3f, editorArea);
-		upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_RECENT_USER);
-		
-		IFolderLayout midResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID1, IPageLayout.BOTTOM, 0.25f, IConstants.LAYOUT_WASSERVICE_LEFT_TOP);
-		midResLayout.addView(CounterRealTimeTotalView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_TPS);
 
-		IFolderLayout mid2ResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID2, IPageLayout.BOTTOM, 0.33f, IConstants.LAYOUT_WASSERVICE_LEFT_MID1);
-		mid2ResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_ELAPSED_TIME);
-		
-		IFolderLayout downResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_BOTTOM, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_LEFT_MID2);
-		downResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.JAVA_HEAP_USED);
+		if (server != null) {
+			IFolderLayout eqLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_EQ, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_OBJECT_NAVIGATION);
+			eqLayout.addPlaceholder(EQView.ID + ":*");
+			eqLayout.addView(EQView.ID + ":" + serverId +"&"+ objType);
 
-		IFolderLayout xlogTopLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CENTER_TOP, IPageLayout.LEFT, 1f, editorArea);
-		xlogTopLayout.addView(XLogRealTimeView.ID + ":" + serverId + "&" + objType);
+			IFolderLayout cpuLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CPU, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_EQ);
+			cpuLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + host + "&" + CounterConstants.HOST_CPU);
+
+			IFolderLayout upResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_TOP, IPageLayout.LEFT, 0.3f, editorArea);
+			upResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_RECENT_USER);
+
+			IFolderLayout midResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID1, IPageLayout.BOTTOM, 0.25f, IConstants.LAYOUT_WASSERVICE_LEFT_TOP);
+			midResLayout.addView(CounterRealTimeTotalView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_TPS);
+
+			IFolderLayout mid2ResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_MID2, IPageLayout.BOTTOM, 0.33f, IConstants.LAYOUT_WASSERVICE_LEFT_MID1);
+			mid2ResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.WAS_ELAPSED_TIME);
+
+			IFolderLayout downResLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_LEFT_BOTTOM, IPageLayout.BOTTOM, 0.5f, IConstants.LAYOUT_WASSERVICE_LEFT_MID2);
+			downResLayout.addView(CounterRealTimeAllView.ID + ":" + serverId + "&" + objType + "&" + CounterConstants.JAVA_HEAP_USED);
+
+			IFolderLayout xlogTopLayout = layout.createFolder(IConstants.LAYOUT_WASSERVICE_CENTER_TOP, IPageLayout.LEFT, 1f, editorArea);
+			xlogTopLayout.addView(XLogRealTimeView.ID + ":" + serverId + "&" + objType);
+		}
 		
 		
 		layout.addPerspectiveShortcut(getId());

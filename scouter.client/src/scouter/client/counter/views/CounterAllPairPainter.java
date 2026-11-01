@@ -57,7 +57,7 @@ public abstract class CounterAllPairPainter extends ScouterViewPart implements I
 		layout.marginHeight = 5;
 		layout.marginWidth = 5;
 		parent.setLayout(layout);
-		parent.setBackground(ColorUtil.getInstance().getColor(SWT.COLOR_WHITE));
+		parent.setBackground(ColorUtil.getChartBackground());
 		parent.setBackgroundMode(SWT.INHERIT_FORCE);
 		
 		canvas = new FigureCanvas(parent);
@@ -89,18 +89,25 @@ public abstract class CounterAllPairPainter extends ScouterViewPart implements I
 		xyGraph.setShowLegend(false);
 		xyGraph.setShowTitle(false);
 		canvas.setContents(xyGraph);
-		
+
 		xyGraph.primaryXAxis.setDateEnabled(true);
 		xyGraph.primaryXAxis.setShowMajorGrid(true);
-		
+
 		xyGraph.primaryYAxis.setAutoScale(true);
 		xyGraph.primaryYAxis.setShowMajorGrid(true);
-		
+
 		xyGraph.primaryXAxis.setTitle("");
 		xyGraph.primaryYAxis.setTitle("");
-		
+
 		xyGraph.primaryXAxis.setFormatPattern("HH:mm:ss");
 		xyGraph.primaryYAxis.setFormatPattern("#,##0");
+
+		// Apply dark mode colors
+		xyGraph.getPlotArea().setBackgroundColor(ColorUtil.getChartBackground());
+		xyGraph.primaryXAxis.setForegroundColor(ColorUtil.getChartForeground());
+		xyGraph.primaryYAxis.setForegroundColor(ColorUtil.getChartForeground());
+		xyGraph.primaryXAxis.setMajorGridColor(ColorUtil.getAxisGridColor());
+		xyGraph.primaryYAxis.setMajorGridColor(ColorUtil.getAxisGridColor());
 		
 		xyGraph.primaryYAxis.addMouseListener(new RangeMouseListener(getViewSite().getShell(), xyGraph.primaryYAxis));
 		

@@ -1194,6 +1194,24 @@
                 id="scouter.client.actions.OpenServerManagerAction"
                 name="Open ServerManager">
         </command>
+        <command
+                categoryId="scouter.client.category"
+                description="Import workspace from file"
+                id="scouter.client.actions.ImportWorkspaceFromFileAction"
+                name="Import Workspace From File">
+        </command>
+        <command
+                categoryId="scouter.client.category"
+                description="Import workspace from GitHub"
+                id="scouter.client.actions.ImportWorkspaceFromGitHubAction"
+                name="Import Workspace From GitHub">
+        </command>
+        <command
+                categoryId="scouter.client.category"
+                description="Switch Workspace"
+                id="scouter.client.actions.SwitchWorkspaceAction"
+                name="Switch Workspace">
+        </command>
     </extension>
     <extension
             point="org.eclipse.ui.bindings">
@@ -1231,9 +1249,24 @@
                         label="Export perspective settings"
                         style="push">
                 </command>
+                <menu
+                        id="scouter.menu.import.perspective"
+                        label="Import perspective settings">
+                    <command
+                            commandId="scouter.client.actions.ImportWorkspaceFromFileAction"
+                            label="File"
+                            style="push">
+                    </command>
+                    <command
+                            commandId="scouter.client.actions.ImportWorkspaceFromGitHubAction"
+                            label="GitHub"
+                            style="push">
+                    </command>
+                </menu>
+                <separator name="file.separator3" visible="true"/>
                 <command
-                        commandId="scouter.client.actions.ImportWorkspaceAction"
-                        label="Import perspective settings"
+                        commandId="scouter.client.actions.SwitchWorkspaceAction"
+                        label="Switch Workspace..."
                         style="push">
                 </command>
                 <command

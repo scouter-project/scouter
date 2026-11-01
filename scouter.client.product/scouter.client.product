@@ -23,8 +23,8 @@
       <programArgsWin>-data
 @user.home/scouter
       </programArgsWin>
-      <vmArgs>-Xms128m
--Xmx1024m
+      <vmArgs>-Xms1g
+-Xmx2g
 -XX:+UseG1GC
 -Dosgi.requiredJavaVersion=21
       </vmArgs>
@@ -60,6 +60,8 @@
    </plugins>
 
    <features>
+      <feature id="org.eclipse.justj.openjdk.hotspot.jre.full.stripped" installMode="root"/>
+      <feature id="org.eclipse.rcp"/>
       <feature id="org.eclipse.platform"/>
       <feature id="org.eclipse.equinox.executable"/>
       <feature id="scouter.client.feature"/>

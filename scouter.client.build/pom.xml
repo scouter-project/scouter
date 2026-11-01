@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" 
+<project xmlns="http://maven.apache.org/POM/4.0.0"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
@@ -16,13 +16,18 @@
 		<tycho-version>5.0.1</tycho-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-    <repositories>
+	<repositories>
         <repository>
             <id>eclipse-2025-12</id>
             <layout>p2</layout>
             <url>https://download.eclipse.org/releases/2025-12/</url>
         </repository>
-    </repositories>
+        <repository>
+            <id>justj-jre-21</id>
+            <layout>p2</layout>
+            <url>https://download.eclipse.org/justj/jres/21/updates/release/latest</url>
+        </repository>
+	</repositories>
 
 	<build>
 		<plugins>
@@ -38,6 +43,11 @@
 				<artifactId>target-platform-configuration</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
+					<dependency-resolution>
+						<profileProperties>
+							<org.eclipse.justj.buildtime>true</org.eclipse.justj.buildtime>
+						</profileProperties>
+					</dependency-resolution>
 					<environments>
 						<environment>
 							<os>win32</os>

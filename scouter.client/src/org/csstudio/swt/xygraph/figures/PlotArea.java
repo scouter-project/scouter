@@ -19,6 +19,7 @@ import org.csstudio.swt.xygraph.undo.ZoomType;
 import org.csstudio.swt.xygraph.util.SWTConstants;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory.CURSOR_TYPE;
+import scouter.client.util.ColorUtil;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.MouseEvent;
@@ -91,9 +92,8 @@ public class PlotArea extends Figure {
 
 	public PlotArea(final XYGraph xyGraph) {
 		this.xyGraph = xyGraph;
-		setBackgroundColor(XYGraphMediaFactory.getInstance().getColor(255, 255,
-				255));
-		setForegroundColor(XYGraphMediaFactory.getInstance().getColor(0, 0, 0));
+		setBackgroundColor(ColorUtil.getChartBackground());
+		setForegroundColor(ColorUtil.getChartForeground());
 		setOpaque(true);
 		RGB backRGB = getBackgroundColor().getRGB();
 		revertBackColor = XYGraphMediaFactory.getInstance().getColor(

@@ -50,6 +50,7 @@ import scouter.client.server.Server;
 import scouter.client.server.ServerManager;
 import scouter.client.threads.ObjectSelectManager;
 import scouter.client.threads.ObjectSelectManager.IObjectCheckListener;
+import scouter.client.util.ColorUtil;
 import scouter.client.util.ExUtil;
 import scouter.client.util.ImageUtil;
 import scouter.client.xlog.XLogFilterStatus;
@@ -181,6 +182,7 @@ public abstract class XLogViewCommon extends ViewPart implements ITimeChange, IO
 
 		canvas = new Canvas(parent, SWT.DOUBLE_BUFFERED);
 		canvas.setLayout(new GridLayout());
+		canvas.setBackground(ColorUtil.getChartBackground());
 
 		mouse = new XLogViewMouse(twdata, canvas);
 		viewPainter = new XLogViewPainter(twdata, mouse, this);

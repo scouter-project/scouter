@@ -49,6 +49,8 @@ public class LoginDialog2 extends Dialog {
 	public static final int TYPE_OPEN_SERVER = 993;
 	public static final int TYPE_EDIT_SERVER = 994;
 
+	public static final int SKIP_LOGIN = 99;
+
 	Combo addrCombo;
 	Combo socksAddrCombo;
 
@@ -89,7 +91,7 @@ public class LoginDialog2 extends Dialog {
 		final Group parentGroup = new Group(comp, SWT.NONE);
 		parentGroup.setText("Authentication Info");
 		parentGroup.setLayout(UIUtil.formLayout(5, 5));
-		parentGroup.setLayoutData(UIUtil.formData(null, -1, 0, 0, null, -1, null, -1));
+		parentGroup.setLayoutData(UIUtil.formData(0, 0, 0, 0, 100, 0, null, -1));
 
 		Label addrLabel = new Label(parentGroup, SWT.RIGHT);
 		addrLabel.setText("Server Address :");
@@ -147,7 +149,7 @@ public class LoginDialog2 extends Dialog {
 		final Group socksGroup = new Group(comp, SWT.NONE);
 		socksGroup.setText("SOCKS5");
 		socksGroup.setLayout(UIUtil.formLayout(5, 5));
-		socksGroup.setLayoutData(UIUtil.formData(null, -1, parentGroup, 0, null, -1, null, -1));
+		socksGroup.setLayoutData(UIUtil.formData(0, 0, parentGroup, 0, 100, 0, null, -1));
 
 		// to use SOCKS5
 		sock5Check = new Button(socksGroup, SWT.CHECK|SWT.LEFT);
@@ -180,7 +182,7 @@ public class LoginDialog2 extends Dialog {
 		// console group
 		final Group consoleGroup = new Group(comp, SWT.NONE);
 		consoleGroup.setLayout(UIUtil.formLayout(5, 5));
-		consoleGroup.setLayoutData(UIUtil.formData(null, -1, socksGroup, 0, null, -1, null, -1));
+		consoleGroup.setLayoutData(UIUtil.formData(0, 0, socksGroup, 0, 100, 0, null, -1));
 
 		// connection status console
 		messageList = new List(consoleGroup, SWT.NONE);
@@ -261,6 +263,24 @@ public class LoginDialog2 extends Dialog {
 			}
 		});
 		passText.setLayoutData(UIUtil.formData(passLabel, 5, idText, 7, 100, -5, null, -1));
+	}
+
+	@Override
+	protected void createButtonsForButtonBar(Composite parent) {
+		super.createButtonsForButtonBar(parent);
+		if (openType == TYPE_STARTUP) {
+			createButton(parent, SKIP_LOGIN, "Skip", false);
+		}
+	}
+
+	@Override
+	protected void buttonPressed(int buttonId) {
+		if (buttonId == SKIP_LOGIN) {
+			setReturnCode(SKIP_LOGIN);
+			close();
+			return;
+		}
+		super.buttonPressed(buttonId);
 	}
 
 	@Override

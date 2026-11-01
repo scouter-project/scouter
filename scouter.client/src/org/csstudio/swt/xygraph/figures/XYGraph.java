@@ -25,6 +25,7 @@ import org.csstudio.swt.xygraph.undo.ZoomType;
 import org.csstudio.swt.xygraph.util.Log10;
 import org.csstudio.swt.xygraph.util.SingleSourceHelper;
 import org.csstudio.swt.xygraph.util.XYGraphMediaFactory;
+import scouter.client.util.ColorUtil;
 import org.eclipse.draw2d.Figure;
 import org.eclipse.draw2d.Graphics;
 import org.eclipse.draw2d.Label;
@@ -125,6 +126,26 @@ public class XYGraph extends Figure{
         new RGB(219, 128,   4), // orange
     };
 
+    final public static RGB[] DEFAULT_TRACES_COLOR_DARK =
+    {
+        new RGB( 80, 140, 255), // blue
+        new RGB(255,  80,  80), // red
+        new RGB( 80, 220,  80), // green
+        new RGB(200, 200, 210), // light gray (replaces black)
+        new RGB(180, 100, 255), // violett
+        new RGB(255, 200,  60), // yellow
+        new RGB(255,  80, 240), // pink
+        new RGB(255, 170, 170), // peachy
+        new RGB( 80, 255,  80), // neon green
+        new RGB( 80, 230, 255), // neon blue
+        new RGB(200, 140,  60), // brown
+        new RGB(255, 180,  60), // orange
+    };
+
+    public static RGB[] getDefaultTracesColor() {
+        return ColorUtil.isDarkMode() ? DEFAULT_TRACES_COLOR_DARK : DEFAULT_TRACES_COLOR;
+    }
+
 	private int traceNum = 0;
 	private boolean transparent = false;
 	private boolean showLegend = true;
@@ -189,6 +210,11 @@ public class XYGraph extends Figure{
 		primaryXAxis.setOrientation(Orientation.HORIZONTAL);
 		primaryXAxis.setTickLableSide(LabelSide.Primary);
 		addAxis(primaryXAxis);
+
+		primaryXAxis.setForegroundColor(ColorUtil.getChartForeground());
+		primaryYAxis.setForegroundColor(ColorUtil.getChartForeground());
+		primaryXAxis.setMajorGridColor(ColorUtil.getAxisGridColor());
+		primaryYAxis.setMajorGridColor(ColorUtil.getAxisGridColor());
 
 		operationsManager = new OperationsManager();
 	}
@@ -436,8 +462,9 @@ public class XYGraph extends Figure{
 	public void addTrace(Trace trace){
 		if (trace.getTraceColor() == null)
 		{   // Cycle through default colors
+		    RGB[] colors = getDefaultTracesColor();
 		    trace.setTraceColor(XYGraphMediaFactory.getInstance().getColor(
-		    		DEFAULT_TRACES_COLOR[traceNum % DEFAULT_TRACES_COLOR.length]));
+		    		colors[traceNum % colors.length]));
         	++traceNum;
 		}
 		if(legendMap.containsKey(trace.getYAxis()))

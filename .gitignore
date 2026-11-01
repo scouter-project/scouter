@@ -114,3 +114,7 @@ scouter.agent.batch/.settings/org.eclipse.core.resources.prefs
 /scouter.webapp/conf/scouterConfSample3.conf
 scouter.server.jar
 AGENTS.md
+
+.claude
+*/.DS_Store
+.sdkmanrc
