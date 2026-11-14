@@ -34,9 +34,11 @@ public class HeapUsage {
 	public void getHeapUsage(CounterBasket pw) {
 		long total = Runtime.getRuntime().totalMemory();
 		long free = Runtime.getRuntime().freeMemory();
+        long max = Runtime.getRuntime().maxMemory();
 
 		float tatalMb = (float) (total / 1024. / 1024.);
 		float usedMb = (float) ((total - free) / 1024. / 1024.);
+        float maxMb = (float) (max / 1024. / 1024.);
 
 		heapmin.add(total - free);
 		float used5MinAvgMb = (float) (heapmin.getAvg(300) / 1024. / 1024.);
@@ -49,10 +51,12 @@ public class HeapUsage {
 		p.put(CounterConstants.JAVA_HEAP_TOT_USAGE, heapValues);
 		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(usedMb));
 		p.put(CounterConstants.JAVA_HEAP_TOTAL, new FloatValue(tatalMb));
+        p.put(CounterConstants.JAVA_HEAP_MAX, new FloatValue(maxMb));
 
 		p = pw.getPack(TimeTypeEnum.FIVE_MIN);
 		p.put(CounterConstants.JAVA_HEAP_USED, new FloatValue(used5MinAvgMb));
 		p.put(CounterConstants.JAVA_HEAP_TOTAL, new FloatValue(tatalMb));
+        p.put(CounterConstants.JAVA_HEAP_MAX, new FloatValue(maxMb));
 
 	}
 }
